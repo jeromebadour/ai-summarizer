@@ -50,7 +50,8 @@ begin
   assert r.ok, 'first use refused';
   assert record_cost(r.use_id, 1000, 200, 0.05), 'cost not recorded';
   assert not record_cost(r.use_id, 1, 1, 0), 'a use was priced twice';
-  assert not give_back(r.use_id), 'a priced use was given back';
+  -- Since 004 a priced use can be given back (refunded), but its cost stays in the spend.
+  assert give_back(r.use_id), 'a priced use could not be given back';
   insert into summaries (user_id, title, source_text, sentences, points, length, model, input_tokens, output_tokens,
     cost_usd, seconds, words_in, words_out)
   values ('00000000-0000-0000-0000-0000000000a2', 't', 's', '[]', '[]', 'short', 'm', 1000, 200, 0.05, 1, 1, 1);

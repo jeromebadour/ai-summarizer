@@ -82,7 +82,7 @@ export function AdminSpend({
           tone="text-brand-strong"
           label="Per summary"
           value={formatCost(f.spend.monthUsd / Math.max(1, monthSummaries))}
-          note={`at $${claudePrice.inputPerMillion} / $${claudePrice.outputPerMillion} per M tokens`}
+          note={`at $${claudePrice.inputPerMillion.toFixed(2)} / $${claudePrice.outputPerMillion.toFixed(2)} per M tokens`}
         />
       </div>
 

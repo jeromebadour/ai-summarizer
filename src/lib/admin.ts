@@ -44,7 +44,10 @@ export type SummaryUsage = { length: "Short" | "Medium" | "Bullets"; words: numb
  * Claude's price per million tokens, used for every cost on screen. UNCONFIRMED: placeholder until checked against
  * Anthropic's pricing page (open item in the roadmap). It matches the sample result's telemetry (412 in, 236 out = $0.0016).
  */
-export const claudePrice = { inputPerMillion: 1, outputPerMillion: 5 };
+/** The model every summary uses, and its price (Anthropic's pricing page, checked 2026-11-07: Haiku 5.5 for prompts up
+ * to 100,000 tokens; ours stay far below that, since input is capped at 20,000 characters). */
+export const claudeModel = "claude-haiku-5-5";
+export const claudePrice = { inputPerMillion: 0.1, outputPerMillion: 0.5 };
 
 export function costOf(inputTokens: number, outputTokens: number): number {
   return (inputTokens * claudePrice.inputPerMillion + outputTokens * claudePrice.outputPerMillion) / 1_000_000;
