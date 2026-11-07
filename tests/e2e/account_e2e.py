@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 from playwright.sync_api import sync_playwright
+from outbox import confirm
 
 BASE = os.environ.get("BASE_URL", "http://localhost:3101")
 results = []
@@ -41,7 +42,7 @@ def sign_up(b, name, username, email, password):
     pg.fill("input[name=email]", email)
     pg.fill("input[name=password]", password)
     pg.click("button[type=submit]")
-    pg.wait_for_url(BASE + "/", timeout=15000)
+    confirm(pg, email, BASE)
     return ctx, pg
 
 
@@ -184,7 +185,7 @@ with sync_playwright() as p:
     pgg.fill("input[name=email]", "oliver.h@example.com")
     pgg.fill("input[name=password]", "river2026x")
     pgg.click("button:has-text('Create account')")
-    pgg.wait_for_url(BASE + "/profile", timeout=15000)
+    confirm(pgg, "oliver.h@example.com", BASE)
     row = sql(f"select role || '|' || username from users where id='{gid}'")
     check("guest became a user in place (same id)", row == "user|oliver_h", row)
     check("the guest's uses stayed attached", sql(f"select count(*) from usage_events where user_id='{gid}'") == "1")

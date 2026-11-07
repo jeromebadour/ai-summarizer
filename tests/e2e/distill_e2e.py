@@ -123,7 +123,9 @@ with sync_playwright() as p:
     check("the hour strip shows before anyone presses Distill", pg.locator("text=You've used all 10 for this hour").count() == 1)
     check("Distill says when the next one frees up", "Next at" in distill_button(pg).inner_text() and distill_button(pg).is_disabled())
     check("no shortcut hint while the hour is full", pg.locator("main kbd").count() == 0)
-    local = subprocess.run(["date", "-d", "+10 minutes", "+%H:%M"], capture_output=True, text=True, env={**os.environ, "TZ": "Europe/Istanbul"}).stdout.strip()
+    # When the oldest use of the hour leaves it, in the viewer's zone: from the same rows the app reads (computing
+    # "now + 10 minutes" here, seconds later, crossed a minute boundary now and then).
+    local = sql(f"select to_char((min(created_at) + interval '1 hour') at time zone 'Europe/Istanbul', 'HH24:MI') from usage_events where user_id = '{u2}'")
     check("times show in the viewer's zone", f"Next at {local}" in distill_button(pg).inner_text(), distill_button(pg).inner_text() + " vs " + local)
     shot(pg, "07-hour-full")
     pg.context.close()

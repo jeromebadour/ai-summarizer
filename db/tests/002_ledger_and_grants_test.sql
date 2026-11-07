@@ -39,7 +39,12 @@ do $$ begin
   insert into users (id, name, username, email, password_hash)
   values ('00000000-0000-0000-0000-0000000000a2', 'Oliver Hart', 'oliver_h', 'oliver.h@example.com', 'x');
   assert (select role from users) = 'user', 'a new account is not a plain user';
+  assert (select email_verified_at is null from users), 'a new account started confirmed';
 end $$;
+-- Oliver confirms his email (migration 012) before summarizing.
+reset role;
+update users set email_verified_at = now() where id = '00000000-0000-0000-0000-0000000000a2';
+set role distill_app;
 
 -- 3. Spend lives in the ledger: deleting summaries or the account does not lower it, and the cap still holds.
 select set_config('app.user_id', '00000000-0000-0000-0000-0000000000a2', false);

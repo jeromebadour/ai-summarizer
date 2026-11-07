@@ -5,6 +5,7 @@ import {
   Eye,
   EyeOff,
   IdCard,
+  KeyRound,
   LoaderCircle,
   LockKeyhole,
   LogIn,
@@ -116,6 +117,14 @@ export function AuthCard({ initialMode, guestsOpen }: { initialMode: AuthMode; g
             </button>
           }
         />
+        {signin && (
+          <div className="-mt-2 flex justify-end">
+            <Link href="/forgot" className="flex items-center gap-1.5 text-[12.5px] font-semibold text-brand-strong hover:text-text">
+              <KeyRound size={14} strokeWidth={2.1} />
+              Forgot password?
+            </Link>
+          </div>
+        )}
         {!signin && <PasswordCheck password={password} email={email} />}
         {state?.error && (
           <FormAlert

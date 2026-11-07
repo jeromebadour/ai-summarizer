@@ -10,6 +10,8 @@ import { agoLabel, monthYear, partsIn, viewerZone } from "./zone";
 export async function requireUser(): Promise<CurrentUser> {
   const user = await currentUser();
   if (!user) redirect("/login");
+  // An account whose email isn't confirmed waits on /verify (migration 012); guests have nothing to confirm.
+  if (!user.emailVerified) redirect("/verify");
   return user;
 }
 

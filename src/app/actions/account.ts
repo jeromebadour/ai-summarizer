@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { avatarColours } from "@/lib/profile";
+import { sendVerify } from "@/lib/server/email-tokens";
 import { actingAs } from "@/lib/server/db";
 import { checkPassword, hashPassword } from "@/lib/server/hash";
 import { newPasswordRefusal, readAccountFields, takenRefusal, text, type FormState } from "@/lib/server/rules";
@@ -67,7 +68,8 @@ export async function updateProfile(_: FormState, form: FormData): Promise<FormS
   if (refusal) return refusal;
   const colour = text(form, "avatarColour") || user.avatarColour;
   if (!(avatarColours as readonly string[]).includes(colour)) return { error: "Unknown avatar colour" };
-  const sensitive = fields.username !== user.username || fields.email !== user.email;
+  const emailChanges = fields.email !== user.email;
+  const sensitive = fields.username !== user.username || emailChanges;
 
   try {
     const ok = await actingAs(user.id, async (db) => {
@@ -76,15 +78,20 @@ export async function updateProfile(_: FormState, form: FormData): Promise<FormS
         const stored = (await db.query("select password_hash from users")).rows[0]?.password_hash as string | null;
         if (!(await checkPassword(stored, text(form, "password")))) return false;
       }
-      await db.query("update users set name = $1, username = $2, email = $3, avatar_colour = $4", [
+      // A new email waits until its code or link confirms it (migration 012); the account keeps the current one.
+      if (emailChanges && (await db.query("select 1 from find_account($1)", [fields.email])).rowCount) return "taken";
+      await db.query("update users set name = $1, username = $2, pending_email = $3, avatar_colour = $4", [
         fields.name,
         fields.username,
-        fields.email,
+        emailChanges ? fields.email : null,
         colour,
       ]);
+      if (emailChanges) await sendVerify(db);
       return true;
     });
+    if (ok === "taken") return { field: "email", error: "This email is used by another account" };
     if (!ok) return { field: "password", error: "The password is wrong" };
+    if (emailChanges) redirect("/verify");
   } catch (error) {
     const taken = takenRefusal(error);
     if (taken) return taken.code ? { field: "email", error: "This email is used by another account" } : taken;
@@ -111,13 +118,14 @@ export async function upgradeGuest(_: FormState, form: FormData): Promise<FormSt
       ).rows[0].ok as boolean;
       if (!done) throw new Error("upgrade_guest refused");
       await db.query("insert into auth_events (user_id, kind) values ($1, 'upgrade')", [user.id]);
+      await sendVerify(db);
     });
   } catch (error) {
     const taken = takenRefusal(error);
     if (taken) return taken;
     throw error;
   }
-  redirect("/profile");
+  redirect("/verify");
 }
 
 export async function deleteAccount(_: FormState, form: FormData): Promise<FormState> {

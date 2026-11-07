@@ -11,6 +11,7 @@ for test in db/tests/*.sql; do
   for migration in db/migrations/*.sql; do
     psql -X -q -v ON_ERROR_STOP=1 -d "$db" -f "$migration" >/dev/null || { echo "FAIL migration $migration"; exit 1; }
   done
+  psql -X -q -v ON_ERROR_STOP=1 -d "$db" -f db/test-support/fixtures.sql >/dev/null || exit 1
   if out=$(psql -X -q -v ON_ERROR_STOP=1 -d "$db" -f "$test" 2>&1); then
     echo "PASS $test"
   else

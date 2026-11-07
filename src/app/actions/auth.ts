@@ -6,6 +6,7 @@ import { checkUsernameFormat, normalizeUsername } from "@/lib/username";
 import { actAs, actingAs } from "@/lib/server/db";
 import { checkPassword, hashPassword } from "@/lib/server/hash";
 import { newPasswordRefusal, readAccountFields, takenRefusal, text, type FormState } from "@/lib/server/rules";
+import { sendVerify } from "@/lib/server/email-tokens";
 import { clearSessionCookie, openSession, thisSessionHash } from "@/lib/server/session";
 
 export type AuthState = FormState;
@@ -29,13 +30,15 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
       );
       await db.query("insert into auth_events (user_id, kind) values ($1, 'signup')", [id]);
       await openSession(db, id);
+      // The account starts unconfirmed (migration 012): the code goes out now, /verify waits for it.
+      await sendVerify(db);
     });
   } catch (error) {
     const taken = takenRefusal(error);
     if (taken) return taken;
     throw error;
   }
-  redirect("/");
+  redirect("/verify");
 }
 
 export async function signIn(_: AuthState, form: FormData): Promise<AuthState> {

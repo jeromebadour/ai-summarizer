@@ -56,6 +56,7 @@ export async function POST(request: Request) {
   }
   const user = await currentUser();
   if (!user) return Response.json({ error: "Sign in to summarize" }, { status: 401 });
+  if (!user.emailVerified) return Response.json({ error: "Confirm your email first" }, { status: 403 });
 
   const raw = await request.text();
   if (raw.length > MAX_SOURCE_CHARS * 6 + 200) return Response.json({ error: "Too long" }, { status: 413 });

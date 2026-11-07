@@ -12,3 +12,7 @@ update settings set monthly_cap_usd = 40, daily_cap_usd = 3, workspace_cap_usd =
   all_paused_at = null, all_paused_by = null, all_paused_reason = null;
 delete from server_samples;
 delete from server_facts;
+
+-- Accounts a test inserts directly count as confirmed (see db/test-support/fixtures.sql); app sign-ups still start unconfirmed.
+alter table users alter column email_verified_at set default now();
+delete from email_tokens;

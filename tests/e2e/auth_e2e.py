@@ -7,6 +7,7 @@ import os
 import subprocess
 import re
 from playwright.sync_api import sync_playwright
+from outbox import confirm
 
 BASE = os.environ.get("BASE_URL", "http://localhost:3101")
 results = []
@@ -41,8 +42,11 @@ with sync_playwright() as p:
     pg.fill("input[name=email]", "Lena.S@example.com")
     pg.fill("input[name=password]", "harbor2026")
     pg.click("button[type=submit]")
-    pg.wait_for_url(BASE + "/", timeout=15000)
-    check("sign-up lands on /", pg.url == BASE + "/")
+    pg.wait_for_url(BASE + "/verify", timeout=15000)
+    check("sign-up lands on Check your inbox", pg.url == BASE + "/verify")
+    check("a new account starts unconfirmed", sql("select email_verified_at is null from users where username='lena_s'") == "t")
+    confirm(pg, "lena.s@example.com", BASE)
+    check("the code from the email confirms it and opens Distill", pg.url == BASE + "/")
     c = session_cookie(ctx)
     check("session cookie is __Host-, httpOnly, Secure, SameSite=Lax", bool(c and c["name"].startswith("__Host-") and c["httpOnly"] and c["secure"] and c["sameSite"] == "Lax"), str(c))
     row = sql("select username, email, left(password_hash, 9), role from users where username='lena_s'")

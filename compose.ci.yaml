@@ -7,5 +7,10 @@ services:
   app:
     environment:
       ANTHROPIC_BASE_URL: http://host.docker.internal:4010
+      # Account emails land as files the browser suites read (no Resend in CI).
+      EMAIL_OUTBOX: /outbox
+      APP_URL: http://127.0.0.1:3101
+    volumes:
+      - /tmp/distill-outbox:/outbox
     extra_hosts:
       - "host.docker.internal:host-gateway"

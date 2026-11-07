@@ -4,10 +4,11 @@
 # tables. Optional: CHROME (a Chrome binary; Playwright's own Chromium otherwise), SHOTS (a folder for pictures).
 set -uo pipefail
 cd "$(dirname "$0")/.."
-suites=${*:-auth account summarize distill saved prefs links admin admin_actions}
+suites=${*:-auth account email summarize distill saved prefs links admin admin_actions}
 failed=0
 for suite in $suites; do
   psql -X -q -v ON_ERROR_STOP=1 -f tests/e2e/reset.sql >/dev/null || exit 1
+  rm -f "${OUTBOX:-/tmp/distill-outbox}"/*.json
   echo "== $suite"
   if python3 tests/e2e/${suite}_e2e.py > "/tmp/e2e-$suite.log" 2>&1; then
     grep -E "passed$" "/tmp/e2e-$suite.log"
