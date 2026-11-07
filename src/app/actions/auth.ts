@@ -9,7 +9,8 @@ import { checkPassword, hashPassword } from "@/lib/server/hash";
 import { clearSessionCookie, openSession, thisSessionHash } from "@/lib/server/session";
 
 export type AuthField = "name" | "username" | "email" | "password" | "identifier";
-export type AuthState = { error?: string; field?: AuthField } | undefined;
+/** `code` marks a refusal the form answers with an action (e.g. "Sign in instead"). */
+export type AuthState = { error?: string; field?: AuthField; code?: "email_exists" } | undefined;
 
 const MAX_FAILURES = 10; // failed sign-ins on one account within 15 minutes
 
@@ -50,7 +51,7 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
   } catch (error) {
     const constraint = uniqueViolation(error);
     if (constraint === "users_username_key") return { field: "username", error: "That username is taken" };
-    if (constraint === "users_email_key") return { field: "email", error: "An account with this email exists" };
+    if (constraint === "users_email_key") return { field: "email", error: "An account with this email already exists.", code: "email_exists" };
     throw error;
   }
   redirect("/");

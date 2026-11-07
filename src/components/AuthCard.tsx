@@ -5,6 +5,7 @@ import {
   Eye,
   EyeOff,
   IdCard,
+  Info,
   LoaderCircle,
   LockKeyhole,
   LogIn,
@@ -133,9 +134,33 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
         />
         {!signin && <PasswordCheck password={password} email={email} />}
         {state?.error && (
-          <p role="alert" className="flex items-center gap-2 rounded-lg border border-flag/30 bg-flag-soft px-3 py-2 text-[13px] font-semibold text-flag">
-            <TriangleExclamationPoint size={15} strokeWidth={2.2} />
-            {state.error}
+          <p
+            role="alert"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] font-semibold ${
+              // An existing account is a normal state with a way forward (calm indigo); real refusals are amber.
+              state.code === "email_exists" ? "border-brand-line bg-brand-soft text-brand-strong" : "border-flag/30 bg-flag-soft text-flag"
+            }`}
+          >
+            {state.code === "email_exists" ? (
+              <Info size={15} strokeWidth={2.2} className="shrink-0" />
+            ) : (
+              <TriangleExclamationPoint size={15} strokeWidth={2.2} className="shrink-0" />
+            )}
+            <span className="flex-1">{state.error}</span>
+            {!signin && state.code === "email_exists" && (
+              <button
+                type="button"
+                onClick={() => {
+                  // The email is already in the shared field, so Sign in opens with it filled in.
+                  setPassword("");
+                  setMode("signin");
+                }}
+                className="flex shrink-0 items-center gap-1.5 rounded-md bg-brand px-2.5 py-1 text-[12.5px] font-semibold text-on-brand hover:brightness-110"
+              >
+                <LogIn size={14} strokeWidth={2.2} />
+                Sign in instead
+              </button>
+            )}
           </p>
         )}
         <SubmitButton signin={signin} />

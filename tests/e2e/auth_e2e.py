@@ -66,7 +66,10 @@ with sync_playwright() as p:
     pg.fill("input[name=password]", "river2026x")
     pg.click("button[type=submit]")
     t = alert(pg)
-    check("a used email is refused", "exists" in t, t)
+    check("a used email is refused", t.startswith("An account with this email already exists."), t)
+    pg.click("text=Sign in instead")
+    check("Sign in instead opens Sign in with the email filled in",
+          pg.input_value("input[name=identifier]") == "lena.s@example.com" and pg.input_value("input[name=password]") == "")
     ctx.close()
 
     # 3. Sign in by username, wrong password, unknown account
@@ -108,16 +111,16 @@ with sync_playwright() as p:
     ctx = b.new_context(); pg = ctx.new_page()
     pg.goto(BASE + "/login")
     pg.fill("input[name=identifier]", "lena_s"); pg.fill("input[name=password]", "harbor2026")
-    pg.click("button[type=submit]"); pg.wait_for_selector("[role=alert]", timeout=10000)
-    check("10 failures in 15 minutes stop even the right password", "Too many tries" in pg.inner_text("[role=alert]"), pg.inner_text("[role=alert]"))
+    pg.click("button[type=submit]"); t = alert(pg)
+    check("10 failures in 15 minutes stop even the right password", "Too many tries" in t, t)
     sql("delete from auth_events where kind='signin_failed'")
 
     # 7. Suspended: refused, but only after the right password
     sql("update users set suspended_at = now() where username='lena_s'")
-    pg.fill("input[name=password]", "nope-nope1"); pg.click("button[type=submit]"); pg.wait_for_timeout(1500)
-    check("suspension not revealed to a wrong password", "suspended" not in pg.inner_text("[role=alert]"))
-    pg.fill("input[name=password]", "harbor2026"); pg.click("button[type=submit]"); pg.wait_for_timeout(1500)
-    check("suspended account told so after the right password", "suspended" in pg.inner_text("[role=alert]"))
+    pg.fill("input[name=password]", "nope-nope1"); pg.click("button[type=submit]"); t1 = alert(pg, t)
+    check("suspension not revealed to a wrong password", "suspended" not in t1, t1)
+    pg.fill("input[name=password]", "harbor2026"); pg.click("button[type=submit]"); t2 = alert(pg, t1)
+    check("suspended account told so after the right password", "suspended" in t2, t2)
     sql("update users set suspended_at = null where username='lena_s'")
     ctx.close()
 
