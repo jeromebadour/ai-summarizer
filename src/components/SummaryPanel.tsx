@@ -8,7 +8,9 @@ import {
   Link2,
   Coins,
   Cpu,
+  FlaskConical,
   LoaderCircle,
+  MousePointer2,
   RotateCcw,
   ServerCrash,
   ShieldCheck,
@@ -16,6 +18,7 @@ import {
   Timer,
   Trash2,
   TriangleExclamationPoint,
+  Waypoints,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import { DistillProgress } from "@/components/DistillProgress";
@@ -51,12 +54,21 @@ type DoneProps = {
   openHref?: string;
   /** Saved variant: opens the delete dialog. */
   deleteHref?: string;
+  /** Links to the source: drawn for every point ("always") or only on hover. The switch sits next to Copy. */
+  links?: { mode: "always" | "hover"; onToggle: () => void };
 };
 
 type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number; onRetry?: () => void };
 
 /** Before the first Distill: what the result will be, so the empty half of the screen still says something. */
-type IdleProps = { state: "idle"; length: SummaryLength; /** Off while a limit or stop blocks Distill. */ hint: boolean };
+type IdleProps = {
+  state: "idle";
+  length: SummaryLength;
+  /** Off while a limit or stop blocks Distill. */
+  hint: boolean;
+  /** Set once there is text to distill: the card offers the Distill button right where the hint was. */
+  onDistill?: () => void;
+};
 
 function sentenceTexts(sentences: SourceSentence[], ids: number[]): string[] {
   return sentences.filter((s) => ids.includes(s.id)).map((s) => s.text);
@@ -98,19 +110,19 @@ function PointRow({
     <li
       data-point={point.id}
       onMouseEnter={() => onFocus?.({ kind: "point", id: point.id })}
-      className={`flex gap-4 rounded-xl border px-5 py-4 transition-colors ${
+      className={`flex gap-3 rounded-xl border px-4 py-2.5 transition-colors ${
         active ? "border-brand-line bg-brand-soft" : "border-transparent hover:bg-panel-raised"
       }`}
     >
       <span
-        className={`mt-1 grid size-7 shrink-0 place-items-center rounded-lg font-mono text-[12px] font-bold ${
+        className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md font-mono text-[11.5px] font-bold ${
           active ? "bg-brand text-on-brand" : "border border-border-strong bg-panel-raised text-muted"
         }`}
       >
         {point.id}
       </span>
       <div className="min-w-0">
-        <p className={`text-[17px] leading-[1.65] tracking-[-0.005em] text-text ${streaming ? "caret" : ""}`}>{point.text}</p>
+        <p className={`text-[15px] leading-[1.6] text-text ${streaming ? "caret" : ""}`}>{point.text}</p>
         {sentences && <CheckBadge point={point} sentences={sentences} />}
       </div>
     </li>
@@ -124,7 +136,7 @@ function FigureChip({ figure, sentences, active, onFocus }: { figure: KeyFigure;
     <li
       data-figure={figure.id}
       onMouseEnter={() => onFocus?.({ kind: "figure", id: figure.id })}
-      className={`flex min-w-0 flex-col rounded-xl border px-3 py-2 transition-colors ${
+      className={`flex min-w-0 flex-col rounded-lg border px-3 py-1.5 transition-colors ${
         flagged
           ? "border-flag/40 bg-flag-soft"
           : active
@@ -132,7 +144,7 @@ function FigureChip({ figure, sentences, active, onFocus }: { figure: KeyFigure;
             : "border-border bg-panel-raised/50 hover:border-figure/40"
       }`}
     >
-      <span className={`flex items-center gap-1.5 font-mono text-[17px] font-semibold tracking-tight ${flagged ? "text-flag" : "text-figure"}`}>
+      <span className={`flex items-center gap-1.5 font-mono text-[15px] font-semibold tracking-tight ${flagged ? "text-flag" : "text-figure"}`}>
         {figure.value}
         {flagged ? <TriangleExclamationPoint size={13} strokeWidth={2.2} /> : <ShieldCheck size={13} strokeWidth={2.2} className="text-verify" />}
       </span>
@@ -177,7 +189,7 @@ function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number 
   const ratio = wordsIn > 0 ? Math.min(1, wordsOut / wordsIn) : 1;
   const shorter = wordsIn > 0 && wordsOut < wordsIn;
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-panel-raised/60 px-4 py-3">
+    <div className="flex items-center gap-4 rounded-lg border border-border bg-panel-raised/60 px-3.5 py-2">
       <div className="flex-1">
         <div className="h-1.5 rounded-full bg-border-strong" />
         <div className="mt-1.5 h-1.5 rounded-full bg-brand" style={{ width: `${ratio * 100}%` }} />
@@ -198,7 +210,7 @@ function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number 
 
 function Telemetry({ summary }: { summary: Summary }) {
   return (
-    <footer className="flex items-center gap-4 border-t border-border px-7 py-3.5 font-mono text-[11.5px] text-muted">
+    <footer className="flex items-center gap-4 border-t border-border px-5 py-2.5 font-mono text-[11.5px] text-muted">
       <span className="flex items-center gap-1.5 text-brand-strong">
         <Check size={13} strokeWidth={2.4} />
         Saved
@@ -222,7 +234,7 @@ function Telemetry({ summary }: { summary: Summary }) {
 }
 
 export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
-  if (props.state === "idle") return <IdlePanel length={props.length} hint={props.hint} />;
+  if (props.state === "idle") return <IdlePanel length={props.length} hint={props.hint} onDistill={props.onDistill} />;
   const lengthKey = props.state === "done" ? props.summary.length : props.length;
   const length = lengthStyles[lengthKey];
   const LengthIcon = length.icon;
@@ -231,11 +243,11 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
     <section className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-line/60 bg-panel shadow-[0_24px_80px_-30px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/70 to-transparent" aria-hidden />
 
-      <header className="flex items-center gap-3 px-7 pb-4 pt-6">
-        <Sparkles size={20} strokeWidth={1.9} className="shrink-0 self-start mt-1 text-brand-strong" />
+      <header className="flex items-center gap-3 px-5 pb-3 pt-4">
+        <Sparkles size={18} strokeWidth={1.9} className="mt-0.5 shrink-0 self-start text-brand-strong" />
         {props.state === "done" && props.variant === "saved" ? (
           <div className="min-w-0">
-            <h2 className="line-clamp-2 text-[19px] font-semibold leading-snug tracking-[-0.01em]">{props.summary.title}</h2>
+            <h2 className="line-clamp-2 text-[17px] font-semibold leading-snug tracking-[-0.01em]">{props.summary.title}</h2>
             <div className="mt-1.5 flex items-center gap-2.5">
               <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold ${length.on}`}>
                 <LengthIcon size={13} strokeWidth={2.2} />
@@ -245,7 +257,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
             </div>
           </div>
         ) : (
-          <h2 className="text-[22px] font-semibold tracking-[-0.01em]">Summary</h2>
+          <h2 className="text-[18px] font-semibold tracking-[-0.01em]">Summary</h2>
         )}
         {!(props.state === "done" && props.variant === "saved") && (
           <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold ${length.on}`}>
@@ -255,30 +267,44 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
         )}
         {props.state === "done" ? (
           <div className="ml-auto flex shrink-0 gap-2">
+            {props.links && (
+              <button
+                type="button"
+                onClick={props.links.onToggle}
+                aria-pressed={props.links.mode === "always"}
+                title={props.links.mode === "always" ? "Links show for every point. Click to show them on hover only." : "Links show on hover. Click to show them for every point."}
+                className={`flex items-center gap-2 rounded-xl border py-1.5 pl-2.5 pr-3.5 text-[13px] font-semibold ${
+                  props.links.mode === "always" ? "border-brand-line bg-brand-soft text-brand-strong" : "border-border-strong text-muted hover:text-text"
+                }`}
+              >
+                {props.links.mode === "always" ? <Waypoints size={17} strokeWidth={1.9} /> : <MousePointer2 size={17} strokeWidth={1.9} />}
+                {props.links.mode === "always" ? "Links on" : "Links on hover"}
+              </button>
+            )}
             <button
               type="button"
               onClick={props.onCopy}
               aria-live="polite"
-              className="flex items-center gap-2.5 rounded-xl border border-brand-line py-2 pl-3 pr-4 text-[13.5px] font-semibold text-text hover:bg-brand-soft"
+              className="flex items-center gap-2 rounded-xl border border-brand-line py-1.5 pl-2.5 pr-3.5 text-[13px] font-semibold text-text hover:bg-brand-soft"
             >
               {props.copied ? (
-                <ClipboardCheck size={21} strokeWidth={1.8} className="text-verify" />
+                <ClipboardCheck size={18} strokeWidth={1.9} className="text-verify" />
               ) : (
-                <ClipboardCopy size={21} strokeWidth={1.8} className="text-brand-strong" />
+                <ClipboardCopy size={18} strokeWidth={1.9} className="text-brand-strong" />
               )}
               {props.copied ? "Copied" : "Copy"}
             </button>
             {props.variant === "saved" ? (
               props.deleteHref && (
-                <a href={props.deleteHref} className="flex items-center gap-2.5 rounded-xl border border-clear/35 py-2 pl-3 pr-4 text-[13.5px] font-semibold text-clear hover:bg-clear-soft">
-                  <Trash2 size={20} strokeWidth={1.8} />
+                <a href={props.deleteHref} className="flex items-center gap-2 rounded-xl border border-clear/35 py-1.5 pl-2.5 pr-3.5 text-[13px] font-semibold text-clear hover:bg-clear-soft">
+                  <Trash2 size={17} strokeWidth={1.9} />
                   Delete
                 </a>
               )
             ) : (
               props.openHref && (
-                <a href={props.openHref} className="flex items-center gap-2.5 rounded-xl border border-border-strong py-2 pl-3 pr-4 text-[13.5px] font-semibold text-muted hover:text-text">
-                  <ArrowUpRight size={21} strokeWidth={1.8} />
+                <a href={props.openHref} className="flex items-center gap-2 rounded-xl border border-border-strong py-1.5 pl-2.5 pr-3.5 text-[13px] font-semibold text-muted hover:text-text">
+                  <ArrowUpRight size={18} strokeWidth={1.9} />
                   Open
                 </a>
               )
@@ -299,15 +325,15 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
 
       {props.state === "running" ? (
         <>
-          <div className="mx-7 rounded-xl border border-border bg-panel-raised/60 px-4 py-5">
+          <div className="mx-5 rounded-xl border border-border bg-panel-raised/60 px-4 py-3.5">
             <DistillProgress run={props.run} />
           </div>
           {props.run.failed ? (
-            <div className="min-h-0 flex-1 px-7 py-5">
+            <div className="min-h-0 flex-1 px-5 py-4">
               <FailureCard failure={props.run.failed} onRetry={props.onRetry} />
             </div>
           ) : (
-            <ScrollArea as="ol" fade="panel" className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-4">
+            <ScrollArea as="ol" fade="panel" className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2">
               {props.run.points.map((point) => (
                 <PointRow key={point.id} point={point} active={false} />
               ))}
@@ -315,7 +341,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
             </ScrollArea>
           )}
           {!props.run.failed && (
-          <footer className="flex items-center gap-2 border-t border-border px-7 py-3.5 font-mono text-[11.5px] text-muted">
+          <footer className="flex items-center gap-2 border-t border-border px-5 py-2.5 font-mono text-[11.5px] text-muted">
             <span className="text-brand-strong">
               {props.run.points.length} {props.run.points.length === 1 ? "point" : "points"} done
             </span>
@@ -326,7 +352,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
         </>
       ) : (
         <>
-          <div className="space-y-3 px-7">
+          <div className="space-y-2 px-5">
             <ul className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2">
               {props.summary.figures.map((figure) => (
                 <FigureChip key={figure.id} figure={figure} sentences={props.sentences} active={figure.id === props.focusFigureId} onFocus={props.onFocus} />
@@ -334,7 +360,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
             </ul>
             <Compression wordsIn={props.wordsIn} wordsOut={props.wordsOut} />
           </div>
-          <ScrollArea as="ol" fade="panel" className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-4 py-3">
+          <ScrollArea as="ol" fade="panel" marker="summary-scroll" className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2">
             {props.summary.points.map((point) => (
               <PointRow
                 key={point.id}
@@ -352,7 +378,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
   );
 }
 
-function IdlePanel({ length, hint }: { length: SummaryLength; hint: boolean }) {
+function IdlePanel({ length, hint, onDistill }: { length: SummaryLength; hint: boolean; onDistill?: () => void }) {
   const look = lengthStyles[length];
   const LengthIcon = look.icon;
   const promises = [
@@ -363,9 +389,9 @@ function IdlePanel({ length, hint }: { length: SummaryLength; hint: boolean }) {
   return (
     <section className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-line/60 bg-panel shadow-[0_24px_80px_-30px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/70 to-transparent" aria-hidden />
-      <header className="flex items-center gap-3 px-7 pb-4 pt-6">
+      <header className="flex items-center gap-3 px-5 pb-3 pt-4">
         <Sparkles size={20} strokeWidth={1.9} className="mt-1 shrink-0 self-start text-brand-strong" />
-        <h2 className="text-[22px] font-semibold tracking-[-0.01em]">Summary</h2>
+        <h2 className="text-[18px] font-semibold tracking-[-0.01em]">Summary</h2>
         <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold ${look.on}`}>
           <LengthIcon size={13} strokeWidth={2.2} />
           {look.label}
@@ -392,12 +418,27 @@ function IdlePanel({ length, hint }: { length: SummaryLength; hint: boolean }) {
                 {text}
               </li>
             ))}
-            {hint && (
-              <li className="flex items-center gap-2 border-t border-border pt-3 font-mono text-[11.5px] text-muted">
-                Paste your text, then
-                <kbd className="rounded-md border border-border-strong px-1.5 py-0.5 text-[10.5px] text-text">Ctrl ↵</kbd>
-              </li>
-            )}
+            {hint &&
+              (onDistill ? (
+                // Text is in: the button sits where the eye already is, the same Distill as the one above.
+                <li className="flex items-center gap-3 border-t border-border pt-3">
+                  <span className="font-mono text-[11.5px] text-muted">Your text is ready</span>
+                  <button
+                    type="button"
+                    onClick={onDistill}
+                    className="ml-auto flex items-center gap-2 rounded-xl bg-brand py-2 pl-3.5 pr-2 text-[13.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
+                  >
+                    <FlaskConical size={16} strokeWidth={2.2} />
+                    Distill
+                    <kbd className="ml-1 rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>
+                  </button>
+                </li>
+              ) : (
+                <li className="flex items-center gap-2 border-t border-border pt-3 font-mono text-[11.5px] text-muted">
+                  Paste your text, then
+                  <kbd className="rounded-md border border-border-strong px-1.5 py-0.5 text-[10.5px] text-text">Ctrl ↵</kbd>
+                </li>
+              ))}
           </ul>
         </div>
       </div>

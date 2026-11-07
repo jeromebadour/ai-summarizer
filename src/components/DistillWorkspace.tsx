@@ -51,11 +51,13 @@ export function DistillWorkspace({
   defaultLength,
   guest,
   sampleText,
+  links,
 }: {
   initial: WorkspaceState;
   defaultLength: SummaryLength;
   guest: boolean;
   sampleText: string;
+  links: "always" | "hover";
 }) {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -260,6 +262,11 @@ export function DistillWorkspace({
     <>
       <div className="flex items-center gap-4">
         <LengthPicker value={length} onChange={setLength} disabled={running} />
+        <StatusPill status={status} />
+        {/* The primary action sits at the end of the row, top right, after the quota it spends. */}
+        <div className="ml-auto">
+          <QuotaRing {...quota} />
+        </div>
         <button
           type="button"
           onClick={() => void distill()}
@@ -270,10 +277,6 @@ export function DistillWorkspace({
           {buttonLabel}
           {canRun && <kbd className="ml-1.5 rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>}
         </button>
-        <StatusPill status={status} />
-        <div className="ml-auto">
-          <QuotaRing {...quota} />
-        </div>
       </div>
 
       {stop && <StopStrip stop={stop} />}
@@ -281,6 +284,7 @@ export function DistillWorkspace({
 
       {phase === "done" && result ? (
         <ResultView
+          links={links}
           sentences={sentences}
           summary={result.summary}
           charLimit={MAX_SOURCE_CHARS}
@@ -291,7 +295,7 @@ export function DistillWorkspace({
           onClear={clear}
         />
       ) : phase === "running" ? (
-        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-6">
+        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5">
           <SourcePanel
             sentences={sentences}
             points={run.points}
@@ -306,7 +310,7 @@ export function DistillWorkspace({
           <SummaryPanel state="running" run={run} length={length} wordsIn={countWords(text)} onRetry={() => void distill()} />
         </div>
       ) : (
-        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-6">
+        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5">
           <SourcePanel
             sentences={[]}
             points={[]}
@@ -320,7 +324,7 @@ export function DistillWorkspace({
             onClear={clear}
             onSample={() => edit(sampleText)}
           />
-          <SummaryPanel state="idle" length={length} hint={!blocked} />
+          <SummaryPanel state="idle" length={length} hint={!blocked} onDistill={canRun ? () => void distill() : undefined} />
         </div>
       )}
     </>

@@ -230,3 +230,9 @@ label[for] {
   cursor: pointer;
 }
 
+
+/* Scrollbars: thin and quiet in both themes, the thumb in the border colour, no track or arrows. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}

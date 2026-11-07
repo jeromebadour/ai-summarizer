@@ -38,6 +38,7 @@ export function toAccount(user: CurrentUser, zone: string): Account {
     role: user.role,
     theme: user.theme,
     motion: user.motion,
+    links: user.links,
   };
 }
 

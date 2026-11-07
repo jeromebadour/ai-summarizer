@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { bare, typingIn } from "@/lib/keys";
 import { SourcePanel } from "@/components/SourcePanel";
 import { SummaryPanel } from "@/components/SummaryPanel";
-import { ThreadLayer } from "@/components/ThreadLayer";
+import { savePreference } from "@/app/actions/account";
+import { ThreadLayer, type ThreadSource } from "@/components/ThreadLayer";
 import { countWords, focusedPointId, focusedSentenceIds, type Focus, type SourceSentence, type Summary } from "@/lib/summary";
 
 type ResultViewProps = {
@@ -19,10 +20,21 @@ type ResultViewProps = {
   deleteHref?: string;
   onPaste?: () => void;
   onClear?: () => void;
+  /** The viewer's saved choice: every point's links drawn at once (the default), or only on hover. */
+  links: "always" | "hover";
 };
 
-export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, openHref, deleteHref, onPaste, onClear }: ResultViewProps) {
+export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, openHref, deleteHref, onPaste, onClear, links: savedLinks }: ResultViewProps) {
   const [focus, setFocus] = useState<Focus>(initialFocus);
+  const [links, setLinks] = useState(savedLinks);
+  // Switches at once and saves to the account; if the save fails, it switches back.
+  const toggleLinks = () => {
+    const next = links === "always" ? "hover" : "always";
+    setLinks(next);
+    void savePreference("links", next)
+      .then((r) => r.ok || setLinks(links))
+      .catch(() => setLinks(links));
+  };
   const [copied, setCopied] = useState(false);
 
   // Copy as plain text: the title, then one line per point. "Copied" shows for 2 s.
@@ -55,6 +67,12 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
   const litSentenceIds = useMemo(() => focusedSentenceIds(focus, summary), [focus, summary]);
   const pointId = focusedPointId(focus, summary.points);
   const origin = focus?.kind === "figure" ? `[data-figure="${focus.id}"]` : pointId !== null ? `[data-point="${pointId}"]` : null;
+  const threads: ThreadSource[] = [
+    ...(links === "always"
+      ? summary.points.filter((p) => `[data-point="${p.id}"]` !== origin).map((p) => ({ origin: `[data-point="${p.id}"]`, sentenceIds: p.sourceIds, strong: false }))
+      : []),
+    ...(origin ? [{ origin, sentenceIds: litSentenceIds, strong: true }] : []),
+  ];
 
   return (
     <div className="relative grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-6">
@@ -85,8 +103,9 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
         copied={copied}
         openHref={openHref}
         deleteHref={deleteHref}
+        links={{ mode: links, onToggle: toggleLinks }}
       />
-      <ThreadLayer origin={origin} sentenceIds={litSentenceIds} />
+      <ThreadLayer sources={threads} />
     </div>
   );
 }

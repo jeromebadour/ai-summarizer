@@ -47,7 +47,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
   return (
     <div className="flex h-screen">
       <Rail page="saved" account={account} />
-      <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
         <div className="flex items-center gap-3">
           <Link
             href="/saved"
@@ -74,6 +74,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
           variant="saved"
           savedAt={saved.savedAt}
           deleteHref={`${here}?dialog=delete`}
+          links={user.links}
         />
       </main>
       {dialog === "delete" && (

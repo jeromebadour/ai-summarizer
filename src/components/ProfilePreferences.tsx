@@ -5,9 +5,11 @@ import {
   Keyboard,
   Monitor,
   Moon,
+  MousePointer2,
   Palette,
   Sparkles,
   Sun,
+  Waypoints,
   type LucideIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -21,6 +23,7 @@ import type { SummaryLength } from "@/lib/summary";
 
 type Theme = "light" | "dark" | "system";
 type Motion = "full" | "reduced" | "system";
+type Links = "always" | "hover";
 
 function Row({
   icon: Icon,
@@ -114,8 +117,9 @@ export function ProfilePreferences({
   const [length, setLengthState] = useState<SummaryLength>(defaultLength);
   const [colour, setColourState] = useState<AvatarColour>(account.avatarColour);
   const [motion, setMotionState] = useState<Motion>(account.motion ?? "system");
+  const [links, setLinksState] = useState<Links>(account.links ?? "always");
 
-  // Theme and Motion apply on this device at once; all four save to the account.
+  // Theme and Motion apply on this device at once; every preference saves to the account.
   const setTheme = (next: Theme) => {
     const before = theme;
     setThemeState(next);
@@ -133,6 +137,11 @@ export function ProfilePreferences({
       setMotionState(before);
       applyMotion(before);
     });
+  };
+  const setLinks = (next: Links) => {
+    const before = links;
+    setLinksState(next);
+    void persist("links", next, () => setLinksState(before));
   };
   const setLength = (next: SummaryLength) => {
     const before = length;
@@ -241,6 +250,22 @@ export function ProfilePreferences({
               { key: "full", label: "Full", icon: Sparkles },
               { key: "reduced", label: "Reduced", icon: Check },
               { key: "system", label: "System", icon: Monitor },
+            ]}
+          />
+        </Row>
+
+        <Row
+          icon={Waypoints}
+          tone="text-brand-strong"
+          title="Links to the source"
+          detail="The lines from each point to the sentences it came from. Always draws them all; On hover, only for the point under the mouse."
+        >
+          <Segmented
+            value={links}
+            onChange={setLinks}
+            options={[
+              { key: "always", label: "Always", icon: Waypoints },
+              { key: "hover", label: "On hover", icon: MousePointer2 },
             ]}
           />
         </Row>

@@ -32,7 +32,7 @@ async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">
   return (
     <div className="flex h-screen">
       <Rail page="saved" account={account} />
-      <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
         <div className="flex items-center gap-4">
           <Library size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Saved</h1>

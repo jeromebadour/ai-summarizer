@@ -119,13 +119,13 @@ export function SourcePanel({ sentences, points, litSentenceIds, charCount, char
           onChange={(event) => edit.onChange(event.target.value)}
           placeholder="Paste or type the text to summarize: an article, a report, notes. Up to 20,000 characters."
           spellCheck={false}
-          className="min-h-0 flex-1 resize-none border-t border-border/60 bg-transparent pb-5 pl-5 pr-7 pt-4 text-[14.5px] font-[450] leading-[1.75] text-text outline-none placeholder:text-faint"
+          className="min-h-0 flex-1 resize-none border-t border-border/60 bg-transparent pb-4 pl-5 pr-6 pt-3 text-[14.5px] font-[450] leading-[1.65] text-text outline-none placeholder:text-faint"
         />
       ) : (
       <>
       {finished && points.length > 0 && <Coverage sentences={sentences} points={points} litSentenceIds={litSentenceIds} onFocus={onFocus} />}
 
-      <ScrollArea marker="source-scroll" fade="paper" className="min-h-0 flex-1 space-y-3.5 overflow-y-auto border-t border-border/60 pb-5 pl-5 pr-7 pt-4 text-[14.5px] font-[450] leading-[1.75]">
+      <ScrollArea marker="source-scroll" fade="paper" className="min-h-0 flex-1 space-y-2.5 overflow-y-auto border-t border-border/60 pb-4 pl-5 pr-6 pt-3 text-[14.5px] font-[450] leading-[1.65]">
         {paragraphs.map((paragraph) => (
           <p key={paragraph}>
             {sentences

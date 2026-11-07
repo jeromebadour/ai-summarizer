@@ -30,8 +30,8 @@ async function Workspace() {
   return (
     <div className="flex h-screen">
       <Rail page="distill" account={account} />
-      <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
-        <DistillWorkspace initial={initial} defaultLength={user.defaultLength} guest={user.isGuest} sampleText={sampleText} />
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
+        <DistillWorkspace initial={initial} defaultLength={user.defaultLength} guest={user.isGuest} sampleText={sampleText} links={user.links} />
       </main>
     </div>
   );

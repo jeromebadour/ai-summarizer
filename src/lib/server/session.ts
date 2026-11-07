@@ -30,11 +30,12 @@ export type CurrentUser = {
   defaultLength: "short" | "medium" | "bullets";
   theme: "system" | "light" | "dark";
   motion: "system" | "full" | "reduced";
+  links: "always" | "hover";
   createdAt: Date;
 };
 
 const userColumns = `id, name, username, email, avatar_colour, role, suspended_at is not null as suspended,
-  default_length, theme, motion, created_at`;
+  default_length, theme, motion, links, created_at`;
 
 function toUser(row: Record<string, unknown>): CurrentUser {
   return {
@@ -49,6 +50,7 @@ function toUser(row: Record<string, unknown>): CurrentUser {
     defaultLength: row.default_length as CurrentUser["defaultLength"],
     theme: row.theme as CurrentUser["theme"],
     motion: row.motion as CurrentUser["motion"],
+    links: row.links as CurrentUser["links"],
     createdAt: row.created_at as Date,
   };
 }

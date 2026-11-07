@@ -139,6 +139,7 @@ export async function deleteAccount(_: FormState, form: FormData): Promise<FormS
 const preferenceValues = {
   theme: ["system", "light", "dark"],
   motion: ["system", "full", "reduced"],
+  links: ["always", "hover"],
   default_length: ["short", "medium", "bullets"],
   avatar_colour: avatarColours as readonly string[],
 } as const;
@@ -146,7 +147,7 @@ export type PreferenceField = keyof typeof preferenceValues;
 
 /**
  * One preference, saved as it is picked (no Save button). The field and value are checked against fixed lists, so
- * nothing but these four columns, with their known values, can ever be written this way.
+ * nothing but these columns, with their known values, can ever be written this way.
  */
 export async function savePreference(field: PreferenceField, value: string): Promise<{ ok: boolean }> {
   const user = await currentUser();

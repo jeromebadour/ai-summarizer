@@ -15,6 +15,8 @@ export type Account = {
   /** The account's Theme and Motion (signed-in pages only; the rail keeps the device in step). */
   theme?: "system" | "light" | "dark";
   motion?: "system" | "full" | "reduced";
+  /** How summaries show their links to the source: every thread at once, or only on hover. */
+  links?: "always" | "hover";
 };
 
 export type ProfileStats = {
