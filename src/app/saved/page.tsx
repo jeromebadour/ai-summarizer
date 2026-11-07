@@ -5,10 +5,12 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
 import { SavedList } from "@/components/SavedList";
-import { StatusPill } from "@/components/StatusPill";
-import { pageOf, pageSizes } from "@/lib/paging";
-import { sampleLongLibrary } from "@/lib/sample";
+import { StatusPill, type AppStatus } from "@/components/StatusPill";
+import { isFiltered } from "@/lib/library-url";
 import { requireAccount } from "@/lib/server/account";
+import { filterFrom, listLibrary } from "@/lib/server/library";
+import { loadWorkspace } from "@/lib/server/workspace";
+import { partsIn, viewerZone } from "@/lib/server/zone";
 
 export default function SavedPage({ searchParams }: PageProps<"/saved">) {
   return (
@@ -19,12 +21,14 @@ export default function SavedPage({ searchParams }: PageProps<"/saved">) {
 }
 
 async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">) {
-  const { account } = await requireAccount();
+  const { user, account } = await requireAccount();
   const params = await searchParams;
-  // Sample data stands in for the database here: the real query reads only this page (LIMIT / OFFSET) and a count.
-  const all = params.empty === "1" ? [] : sampleLongLibrary;
-  const page = pageOf(params.page, all.length, pageSizes.saved);
-  const items = all.slice(page.offset, page.offset + page.size);
+  const filter = filterFrom(params);
+  // The database filters, counts and reads one page of 7; nothing else reaches the browser.
+  const [{ items, page }, { quota }] = await Promise.all([listLibrary(user, filter, params.page), loadWorkspace(user)]);
+  const status: AppStatus = params.done === "deleted" ? { kind: "saved", label: "Deleted", at: partsIn(new Date(), await viewerZone()).time } : { kind: "ready" };
+  const emptyLibrary = page.total === 0 && !isFiltered(filter);
+
   return (
     <div className="flex h-screen">
       <Rail page="saved" account={account} />
@@ -32,17 +36,18 @@ async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">
         <div className="flex items-center gap-4">
           <Library size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Saved</h1>
-          {items.length > 0 && (
+          {page.total > 0 && (
             <span className="rounded-md border border-brand-line bg-brand-soft px-2 py-0.5 font-mono text-[12px] font-semibold text-brand-strong">
               {page.total}
             </span>
           )}
-          <StatusPill status={{ kind: "ready" }} />
+          <StatusPill status={status} />
           <div className="ml-auto">
-            <QuotaRing used={items.length > 0 ? 1 : 0} limit={10} resetsAt="12:52" dayUsed={items.length > 0 ? 2 : 0} dayLimit={30} />
+            <QuotaRing {...quota} />
           </div>
         </div>
-        {items.length > 0 ? <SavedList items={items} page={page} query="" lengths={[]} flaggedOnly={false} /> : <EmptyLibrary />}
+        {/* An empty library has nothing to search: the invitation only. A filter with no match keeps its toolbar. */}
+        {emptyLibrary ? <EmptyLibrary /> : <SavedList items={items} page={page} filter={filter} />}
       </main>
     </div>
   );

@@ -1,18 +1,18 @@
-import { ArrowDownWideNarrow, ChevronRight, Search, ShieldCheck, TriangleExclamationPoint } from "lucide-react";
+import { ArrowDownWideNarrow, ChevronRight, SearchX, ShieldCheck, TriangleExclamationPoint, X } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import Link from "next/link";
 import { lengthStyles } from "@/components/LengthPicker";
 import { Pager } from "@/components/Pager";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
+import { SavedSearch } from "@/components/SavedSearch";
+import { savedHref, type LibraryFilterParams } from "@/lib/library-url";
 import type { Page } from "@/lib/paging";
 import type { FigureStatus, SavedItem, SummaryLength } from "@/lib/summary";
 
 type SavedListProps = {
   items: SavedItem[];
   page: Page;
-  query: string;
-  lengths: SummaryLength[];
-  flaggedOnly: boolean;
+  filter: LibraryFilterParams;
 };
 
 function StatusMark({ status }: { status: FigureStatus }) {
@@ -35,43 +35,39 @@ function StatusMark({ status }: { status: FigureStatus }) {
   return null;
 }
 
-function Toolbar({ query, lengths, flaggedOnly }: Omit<SavedListProps, "items" | "page">) {
+/** Each chip is a link to the same view with that filter switched (back to page 1), so filters have links too. */
+function Toolbar({ filter }: { filter: LibraryFilterParams }) {
+  const lengths = filter.lengths;
   return (
     <div className="flex items-center gap-3">
-      <label className="flex w-[420px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2.5 focus-within:border-brand-line">
-        <Search size={17} strokeWidth={2} className="text-brand-strong" />
-        <input
-          defaultValue={query}
-          placeholder="Search titles, summaries and sources"
-          className="min-w-0 flex-1 bg-transparent text-[13.5px] text-text outline-none placeholder:text-faint"
-        />
-      </label>
+      <SavedSearch filter={filter} />
       <div className="flex gap-1.5">
         {(Object.keys(lengthStyles) as SummaryLength[]).map((key) => {
           const { icon: Icon, label, on, off } = lengthStyles[key];
           const selected = lengths.includes(key);
+          const next = selected ? lengths.filter((l) => l !== key) : [...lengths, key];
           return (
-            <button
+            <Link
               key={key}
-              type="button"
+              href={savedHref({ ...filter, lengths: next })}
               aria-pressed={selected}
               className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold ${selected ? on : `border-border ${off}`}`}
             >
               <Icon size={15} strokeWidth={2.1} />
               {label}
-            </button>
+            </Link>
           );
         })}
-        <button
-          type="button"
-          aria-pressed={flaggedOnly}
+        <Link
+          href={savedHref({ ...filter, flagged: !filter.flagged })}
+          aria-pressed={filter.flagged}
           className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold ${
-            flaggedOnly ? "border-flag bg-flag-soft text-flag" : "border-border text-flag/80 hover:bg-flag-soft"
+            filter.flagged ? "border-flag bg-flag-soft text-flag" : "border-border text-flag/80 hover:bg-flag-soft"
           }`}
         >
           <TriangleExclamationPoint size={15} strokeWidth={2.1} />
           Flagged
-        </button>
+        </Link>
       </div>
       <span className="ml-auto flex items-center gap-1.5 font-mono text-[11.5px] text-muted">
         <ArrowDownWideNarrow size={14} strokeWidth={2} className="text-brand-strong" />
@@ -84,7 +80,7 @@ function Toolbar({ query, lengths, flaggedOnly }: Omit<SavedListProps, "items" |
 function Row({ item, n }: { item: SavedItem; n: number }) {
   const length = lengthStyles[item.length];
   const LengthIcon = length.icon;
-  const ratio = item.wordsOut / item.wordsIn;
+  const ratio = item.wordsIn > 0 ? item.wordsOut / item.wordsIn : 0;
 
   return (
     <li>
@@ -128,10 +124,35 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
   );
 }
 
-export function SavedList({ items, page, query, lengths, flaggedOnly }: SavedListProps) {
+export function SavedList({ items, page, filter }: SavedListProps) {
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-panel p-5">
-      <Toolbar query={query} lengths={lengths} flaggedOnly={flaggedOnly} />
+      <Toolbar filter={filter} />
+      {items.length === 0 ? (
+        // A filter that matches nothing: say so, and offer the way back (the library itself isn't empty).
+        <div role="status" className="grid flex-1 place-items-center">
+          <div className="flex flex-col items-center text-center">
+            <span className="grid size-14 place-items-center rounded-2xl border border-brand-line bg-brand-soft text-brand-strong">
+              <SearchX size={24} strokeWidth={1.9} />
+            </span>
+            <h2 className="mt-4 text-[18px] font-semibold">Nothing matches</h2>
+            <p className="mt-1 text-[13.5px] text-muted">
+              {filter.q && filter.lengths.length === 0 && !filter.flagged ? (
+                <>No saved summary matches &ldquo;{filter.q}&rdquo;.</>
+              ) : filter.q ? (
+                <>No saved summary matches &ldquo;{filter.q}&rdquo; with these filters.</>
+              ) : (
+                "No saved summary fits these filters."
+              )}
+            </p>
+            <Link href="/saved" className="mt-5 flex items-center gap-2 rounded-xl border border-brand-line px-4 py-2 text-[13.5px] font-semibold text-text hover:bg-brand-soft">
+              <X size={16} strokeWidth={2} className="text-brand-strong" />
+              Clear filters
+            </Link>
+          </div>
+        </div>
+      ) : (
+      <>
       <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] gap-5 border-b border-border px-4 pb-2.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">
         <RowNumberHead />
         <span />
@@ -147,7 +168,9 @@ export function SavedList({ items, page, query, lengths, flaggedOnly }: SavedLis
           <Row key={item.id} item={item} n={page.offset + index + 1} />
         ))}
       </ScrollArea>
-      <Pager page={page} noun="summaries" href={(n) => (n === 1 ? "/saved" : `/saved?page=${n}`)} />
+      <Pager page={page} noun="summaries" href={(n) => savedHref(filter, n)} />
+      </>
+      )}
     </section>
   );
 }

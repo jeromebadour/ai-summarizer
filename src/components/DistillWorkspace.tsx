@@ -67,7 +67,6 @@ export function DistillWorkspace({
   const [run, setRun] = useState<DistillRun>(blankRun);
   const [sentences, setSentences] = useState<SourceSentence[]>([]);
   const [result, setResult] = useState<{ summary: Summary; id: string; savedAt: string } | null>(null);
-  const [copied, setCopied] = useState(false);
   const abort = useRef<AbortController | null>(null);
   const started = useRef(0);
   const stepStarted = useRef(0);
@@ -243,13 +242,6 @@ export function DistillWorkspace({
       requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>("textarea")?.focus());
     }
   };
-  const copy = async () => {
-    if (!result) return;
-    const { title, points } = result.summary;
-    await navigator.clipboard.writeText(`${title}\n\n${points.map((p) => `- ${p.text}`).join("\n")}\n`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const status: AppStatus =
     phase === "running"
@@ -294,8 +286,6 @@ export function DistillWorkspace({
           charLimit={MAX_SOURCE_CHARS}
           initialFocus={null}
           variant="result"
-          onCopy={copy}
-          copied={copied}
           openHref={`/saved/${result.id}`}
           onPaste={paste}
           onClear={clear}

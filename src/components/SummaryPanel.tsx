@@ -49,6 +49,8 @@ type DoneProps = {
   copied?: boolean;
   /** The saved summary's own page (result variant). */
   openHref?: string;
+  /** Saved variant: opens the delete dialog. */
+  deleteHref?: string;
 };
 
 type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number; onRetry?: () => void };
@@ -171,7 +173,9 @@ function FailureCard({ failure, onRetry }: { failure: DistillFailure; onRetry?: 
 }
 
 function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number }) {
-  const ratio = wordsOut / wordsIn;
+  // A very short source can come back no shorter: say so instead of "-40% shorter".
+  const ratio = wordsIn > 0 ? Math.min(1, wordsOut / wordsIn) : 1;
+  const shorter = wordsIn > 0 && wordsOut < wordsIn;
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-panel-raised/60 px-4 py-3">
       <div className="flex-1">
@@ -180,7 +184,8 @@ function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number 
       </div>
       <div className="text-right font-mono text-[11.5px] leading-snug text-muted">
         <div>
-          {wordsIn} → <span className="text-text">{wordsOut}</span> words · <span className="font-semibold text-brand-strong">{Math.round((1 - ratio) * 100)}% shorter</span>
+          {wordsIn} → <span className="text-text">{wordsOut}</span> words ·{" "}
+          <span className="font-semibold text-brand-strong">{shorter ? `${Math.round((1 - ratio) * 100)}% shorter` : "not shorter"}</span>
         </div>
         <div className="flex items-center justify-end gap-1">
           <Timer size={11} strokeWidth={2.2} className="text-brand-strong" />
@@ -264,10 +269,12 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
               {props.copied ? "Copied" : "Copy"}
             </button>
             {props.variant === "saved" ? (
-              <button type="button" className="flex items-center gap-2.5 rounded-xl border border-clear/35 py-2 pl-3 pr-4 text-[13.5px] font-semibold text-clear hover:bg-clear-soft">
-                <Trash2 size={20} strokeWidth={1.8} />
-                Delete
-              </button>
+              props.deleteHref && (
+                <a href={props.deleteHref} className="flex items-center gap-2.5 rounded-xl border border-clear/35 py-2 pl-3 pr-4 text-[13.5px] font-semibold text-clear hover:bg-clear-soft">
+                  <Trash2 size={20} strokeWidth={1.8} />
+                  Delete
+                </a>
+              )
             ) : (
               props.openHref && (
                 <a href={props.openHref} className="flex items-center gap-2.5 rounded-xl border border-border-strong py-2 pl-3 pr-4 text-[13.5px] font-semibold text-muted hover:text-text">

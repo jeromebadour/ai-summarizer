@@ -13,15 +13,23 @@ type ResultViewProps = {
   initialFocus: Focus;
   variant: "result" | "saved";
   savedAt?: string;
-  onCopy?: () => void;
-  copied?: boolean;
   openHref?: string;
+  /** Saved variant: where Delete goes (the page with its dialog open). */
+  deleteHref?: string;
   onPaste?: () => void;
   onClear?: () => void;
 };
 
-export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, onCopy, copied, openHref, onPaste, onClear }: ResultViewProps) {
+export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, openHref, deleteHref, onPaste, onClear }: ResultViewProps) {
   const [focus, setFocus] = useState<Focus>(initialFocus);
+  const [copied, setCopied] = useState(false);
+
+  // Copy as plain text: the title, then one line per point. "Copied" shows for 2 s.
+  const copy = async () => {
+    await navigator.clipboard.writeText(`${summary.title}\n\n${summary.points.map((p) => `- ${p.text}`).join("\n")}\n`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const source = sentences.map((s) => s.text).join(" ");
   const wordsIn = countWords(source);
@@ -55,9 +63,10 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
         wordsIn={wordsIn}
         wordsOut={wordsOut}
         onFocus={setFocus}
-        onCopy={onCopy}
+        onCopy={copy}
         copied={copied}
         openHref={openHref}
+        deleteHref={deleteHref}
       />
       <ThreadLayer origin={origin} sentenceIds={litSentenceIds} />
     </div>

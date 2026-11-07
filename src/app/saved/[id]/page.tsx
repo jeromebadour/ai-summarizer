@@ -2,14 +2,16 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { DeleteDialog } from "@/components/DeleteDialog";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
-import { DeleteDialog } from "@/components/DeleteDialog";
 import { ResultView } from "@/components/ResultView";
-import { StatusPill } from "@/components/StatusPill";
-import { sampleLibrary, sampleSentences, sampleSummary } from "@/lib/sample";
+import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { requireAccount } from "@/lib/server/account";
+import { getSaved } from "@/lib/server/library";
+import { loadWorkspace } from "@/lib/server/workspace";
+import { partsIn, viewerZone } from "@/lib/server/zone";
 
 export default function SavedSummaryPage({ params, searchParams }: PageProps<"/saved/[id]">) {
   return (
@@ -33,14 +35,14 @@ function StepLink({ href, label, icon: Icon }: { href: string | null; label: str
 }
 
 async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id]">, "params" | "searchParams">) {
-  const { account } = await requireAccount();
+  const { user, account } = await requireAccount();
   const { id } = await params;
-  const { dialog } = await searchParams;
-  const index = sampleLibrary.findIndex((item) => item.id === id);
-  if (index === -1) notFound();
-  const item = sampleLibrary[index];
-  const newer = sampleLibrary[index - 1];
-  const older = sampleLibrary[index + 1];
+  const { dialog, done } = await searchParams;
+  // Read as the user: someone else's summary isn't there at all, so it is the same 404 as one that never existed.
+  const [saved, { quota }] = await Promise.all([getSaved(user, id), loadWorkspace(user)]);
+  if (!saved) notFound();
+  const status: AppStatus = done === "deleted" ? { kind: "saved", label: "Deleted", at: partsIn(new Date(), await viewerZone()).time } : { kind: "ready" };
+  const here = `/saved/${saved.id}`;
 
   return (
     <div className="flex h-screen">
@@ -55,26 +57,34 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
             Saved
           </Link>
           <span className="font-mono text-[12px] text-muted">
-            {index + 1} of {sampleLibrary.length}
+            {saved.position} of {saved.total}
           </span>
-          <StepLink href={newer ? `/saved/${newer.id}` : null} label="Newer" icon={ChevronLeft} />
-          <StepLink href={older ? `/saved/${older.id}` : null} label="Older" icon={ChevronRight} />
-          <StatusPill status={{ kind: "ready" }} />
+          <StepLink href={saved.newerId ? `/saved/${saved.newerId}` : null} label="Newer" icon={ChevronLeft} />
+          <StepLink href={saved.olderId ? `/saved/${saved.olderId}` : null} label="Older" icon={ChevronRight} />
+          <StatusPill status={status} />
           <div className="ml-auto">
-            <QuotaRing used={1} limit={10} resetsAt="12:52" dayUsed={2} dayLimit={30} />
+            <QuotaRing {...quota} />
           </div>
         </div>
         <ResultView
-          sentences={sampleSentences}
-          summary={sampleSummary}
+          sentences={saved.sentences}
+          summary={saved.summary}
           charLimit={20000}
-          initialFocus={{ kind: "point", id: 2 }}
+          initialFocus={null}
           variant="saved"
-          savedAt={item.createdAt}
+          savedAt={saved.savedAt}
+          deleteHref={`${here}?dialog=delete`}
         />
       </main>
-      {(dialog === "delete" || dialog === "deleting") && (
-        <DeleteDialog title={item.title} length={item.length} savedAt={item.createdAt} deleting={dialog === "deleting"} />
+      {dialog === "delete" && (
+        <DeleteDialog
+          id={saved.id}
+          title={saved.summary.title}
+          length={saved.summary.length}
+          savedAt={saved.savedAt}
+          closeHref={here}
+          nextId={saved.olderId ?? saved.newerId}
+        />
       )}
     </div>
   );
