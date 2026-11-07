@@ -5,32 +5,31 @@ import {
   Eye,
   EyeOff,
   IdCard,
-  Info,
   LoaderCircle,
   LockKeyhole,
   LogIn,
   Mail,
   ShieldUser,
-  TriangleExclamationPoint,
   UserRound,
   UserRoundPlus,
 } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { signIn, signUp, startGuest, usernameFree, type AuthState } from "@/app/actions/auth";
+import { signIn, signUp, startGuest, type AuthState } from "@/app/actions/auth";
 import { Field } from "@/components/Field";
+import { FormAlert } from "@/components/FormAlert";
 import { PasswordCheck } from "@/components/PasswordCheck";
 import { UsernameStatus } from "@/components/UsernameStatus";
-import { checkUsernameFormat, type UsernameCheck } from "@/lib/username";
+import { useUsernameCheck } from "@/components/useUsernameCheck";
+import type { UsernameCheck } from "@/lib/username";
 
 export type AuthMode = "signin" | "signup";
 
 export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [usernameStatus, setUsernameStatus] = useState<UsernameCheck>({ status: "empty" });
+  const { username, status: usernameStatus, change: changeUsername } = useUsernameCheck();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,20 +37,6 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
   const [signUpState, signUpAction] = useActionState<AuthState, FormData>(signUp, undefined);
   const signin = mode === "signin";
   const state = signin ? signInState : signUpState;
-
-  // The server answers whether a well-formed username is free, a moment after typing stops.
-  useEffect(() => {
-    if (usernameStatus.status !== "checking") return;
-    let live = true;
-    const timer = setTimeout(async () => {
-      const free = await usernameFree(username);
-      if (live && free !== null) setUsernameStatus({ status: free ? "available" : "taken" });
-    }, 350);
-    return () => {
-      live = false;
-      clearTimeout(timer);
-    };
-  }, [username, usernameStatus.status]);
 
   // A server refusal for the username (taken in a race) shows in the field's own status.
   const shownUsernameStatus: UsernameCheck =
@@ -93,10 +78,7 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
               type="text"
               placeholder="maya_k"
               value={username}
-              onChange={(value) => {
-                setUsername(value);
-                setUsernameStatus(checkUsernameFormat(value));
-              }}
+              onChange={changeUsername}
               autoComplete="username"
               trailing={<UsernameStatus check={shownUsernameStatus} />}
             />
@@ -134,34 +116,27 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
         />
         {!signin && <PasswordCheck password={password} email={email} />}
         {state?.error && (
-          <p
-            role="alert"
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] font-semibold ${
-              // An existing account is a normal state with a way forward (calm indigo); real refusals are amber.
-              state.code === "email_exists" ? "border-brand-line bg-brand-soft text-brand-strong" : "border-flag/30 bg-flag-soft text-flag"
-            }`}
-          >
-            {state.code === "email_exists" ? (
-              <Info size={15} strokeWidth={2.2} className="shrink-0" />
-            ) : (
-              <TriangleExclamationPoint size={15} strokeWidth={2.2} className="shrink-0" />
-            )}
-            <span className="flex-1">{state.error}</span>
-            {!signin && state.code === "email_exists" && (
-              <button
-                type="button"
-                onClick={() => {
-                  // The email is already in the shared field, so Sign in opens with it filled in.
-                  setPassword("");
-                  setMode("signin");
-                }}
-                className="flex shrink-0 items-center gap-1.5 rounded-md bg-brand px-2.5 py-1 text-[12.5px] font-semibold text-on-brand hover:brightness-110"
-              >
-                <LogIn size={14} strokeWidth={2.2} />
-                Sign in instead
-              </button>
-            )}
-          </p>
+          <FormAlert
+            message={state.error}
+            calm={state.code === "email_exists"}
+            action={
+              !signin &&
+              state.code === "email_exists" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    // The email is already in the shared field, so Sign in opens with it filled in.
+                    setPassword("");
+                    setMode("signin");
+                  }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-md bg-brand px-2.5 py-1 text-[12.5px] font-semibold text-on-brand hover:brightness-110"
+                >
+                  <LogIn size={14} strokeWidth={2.2} />
+                  Sign in instead
+                </button>
+              )
+            }
+          />
         )}
         <SubmitButton signin={signin} />
       </form>

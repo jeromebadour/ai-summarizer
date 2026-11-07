@@ -2,40 +2,22 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
-import { passwordAccepted } from "@/lib/password";
 import { checkUsernameFormat, normalizeUsername } from "@/lib/username";
-import { actAs, actingAs, uniqueViolation } from "@/lib/server/db";
+import { actAs, actingAs } from "@/lib/server/db";
 import { checkPassword, hashPassword } from "@/lib/server/hash";
+import { newPasswordRefusal, readAccountFields, takenRefusal, text, type FormState } from "@/lib/server/rules";
 import { clearSessionCookie, openSession, thisSessionHash } from "@/lib/server/session";
 
-export type AuthField = "name" | "username" | "email" | "password" | "identifier";
-/** `code` marks a refusal the form answers with an action (e.g. "Sign in instead"). */
-export type AuthState = { error?: string; field?: AuthField; code?: "email_exists" } | undefined;
+export type AuthState = FormState;
 
 const MAX_FAILURES = 10; // failed sign-ins on one account within 15 minutes
 
-function text(form: FormData, key: string): string {
-  const value = form.get(key);
-  return typeof value === "string" ? value : "";
-}
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
-  const name = text(form, "name").trim();
-  const username = normalizeUsername(text(form, "username"));
-  const email = text(form, "email").trim().toLowerCase();
+  const { fields, refusal } = readAccountFields(form);
+  if (refusal) return refusal;
   const password = text(form, "password");
-
-  // The same rules the form shows live; the server is the real check.
-  if (name.length < 1 || name.length > 60) return { field: "name", error: "Add a name (up to 60 characters)" };
-  const format = checkUsernameFormat(username);
-  if (format.status === "invalid") return { field: "username", error: format.reason };
-  if (format.status === "empty") return { field: "username", error: "Choose a username" };
-  if (!emailPattern.test(email) || email.length > 254) return { field: "email", error: "Enter a valid email" };
-  if (password.length > 200 || !passwordAccepted(password, email)) {
-    return { field: "password", error: "The password doesn't meet the rules yet" };
-  }
+  const weak = newPasswordRefusal(password, fields.email);
+  if (weak) return weak;
 
   const passwordHash = await hashPassword(password);
   const id = randomUUID();
@@ -43,15 +25,14 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
     await actingAs(id, async (db) => {
       await db.query(
         "insert into users (id, name, username, email, password_hash, password_changed_at) values ($1, $2, $3, $4, $5, now())",
-        [id, name, username, email, passwordHash],
+        [id, fields.name, fields.username, fields.email, passwordHash],
       );
       await db.query("insert into auth_events (user_id, kind) values ($1, 'signup')", [id]);
       await openSession(db, id);
     });
   } catch (error) {
-    const constraint = uniqueViolation(error);
-    if (constraint === "users_username_key") return { field: "username", error: "That username is taken" };
-    if (constraint === "users_email_key") return { field: "email", error: "An account with this email already exists.", code: "email_exists" };
+    const taken = takenRefusal(error);
+    if (taken) return taken;
     throw error;
   }
   redirect("/");
@@ -119,7 +100,7 @@ export async function signOut(): Promise<void> {
   redirect("/login");
 }
 
-/** Live answer for the sign-up form's username field. Format is checked first, so junk never reaches the database. */
+/** Live answer for a username field. Format is checked first, so junk never reaches the database. */
 export async function usernameFree(raw: string): Promise<boolean | null> {
   const name = normalizeUsername(raw);
   if (checkUsernameFormat(name).status !== "checking") return null;

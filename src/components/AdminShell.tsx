@@ -9,7 +9,6 @@ import { AdminUserDetail } from "@/components/AdminUserDetail";
 import { AdminUsers } from "@/components/AdminUsers";
 import { notFound } from "next/navigation";
 import { PageTabs, type PageTab } from "@/components/PageTabs";
-import { Rail } from "@/components/Rail";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { isNotable, overviewFigures, whenLabel, type ActivityEntry, type ActivityKind, type AdminOverview as Overview, type Person, type RoleChange, type RoleHolder, type UserDetail, type UserRow } from "@/lib/admin";
 import { pageOf, pageSizes } from "@/lib/paging";
@@ -44,7 +43,8 @@ export type AdminData = {
   roles: { holders: RoleHolder[]; changes: RoleChange[] };
 };
 
-export function AdminShell({ mode, params, data }: { mode: AdminMode; params: Record<string, string | string[] | undefined>; data: AdminData }) {
+/** `rail` comes from the page: the live console passes the signed-in Rail, the demo its own (no server actions). */
+export function AdminShell({ mode, params, data, rail }: { mode: AdminMode; params: Record<string, string | string[] | undefined>; data: AdminData; rail: React.ReactNode }) {
   const requested = typeof params.tab === "string" ? params.tab : undefined;
   const { overview } = data;
   const role: Role = mode.kind === "demo" ? "owner" : mode.account.role;
@@ -54,7 +54,7 @@ export function AdminShell({ mode, params, data }: { mode: AdminMode; params: Re
 
   return (
     <div className="flex h-screen">
-      {mode.kind === "demo" ? <Rail page="admin" demo /> : <Rail page="admin" account={mode.account} />}
+      {rail}
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
         <div className="flex items-center gap-4">
           <ShieldUser size={22} strokeWidth={1.9} className="text-brand-strong" />

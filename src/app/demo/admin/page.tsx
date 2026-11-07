@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { AdminShell } from "@/components/AdminShell";
+import { DemoRail } from "@/components/DemoRail";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { demoActivity, demoOverview, demoRoles, demoSpendByUser, demoUserDetail, demoUsers } from "@/lib/demo";
 
@@ -17,5 +18,5 @@ export default function DemoAdminPage({ searchParams }: PageProps<"/demo/admin">
 
 async function DemoAdmin({ searchParams }: Pick<PageProps<"/demo/admin">, "searchParams">) {
   const params = await searchParams;
-  return <AdminShell mode={{ kind: "demo" }} params={params} data={{ overview: demoOverview, users: demoUsers, userDetail: demoUserDetail, activity: demoActivity, spendByUser: demoSpendByUser, roles: demoRoles }} />;
+  return <AdminShell mode={{ kind: "demo" }} params={params} data={{ overview: demoOverview, users: demoUsers, userDetail: demoUserDetail, activity: demoActivity, spendByUser: demoSpendByUser, roles: demoRoles }} rail={<DemoRail />} />;
 }

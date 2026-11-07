@@ -9,6 +9,7 @@ import { DeleteDialog } from "@/components/DeleteDialog";
 import { ResultView } from "@/components/ResultView";
 import { StatusPill } from "@/components/StatusPill";
 import { sampleLibrary, sampleSentences, sampleSummary } from "@/lib/sample";
+import { requireAccount } from "@/lib/server/account";
 
 export default function SavedSummaryPage({ params, searchParams }: PageProps<"/saved/[id]">) {
   return (
@@ -32,6 +33,7 @@ function StepLink({ href, label, icon: Icon }: { href: string | null; label: str
 }
 
 async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id]">, "params" | "searchParams">) {
+  const { account } = await requireAccount();
   const { id } = await params;
   const { dialog } = await searchParams;
   const index = sampleLibrary.findIndex((item) => item.id === id);
@@ -42,7 +44,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
 
   return (
     <div className="flex h-screen">
-      <Rail page="saved" />
+      <Rail page="saved" account={account} />
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
         <div className="flex items-center gap-3">
           <Link

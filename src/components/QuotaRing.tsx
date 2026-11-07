@@ -38,11 +38,19 @@ export function QuotaRing({ used, limit, resetsAt, dayUsed, dayLimit }: QuotaRin
         <div className="text-[13px] font-semibold">
           {left} of {limit} left this hour
         </div>
-        <div className="mt-1 flex items-center gap-1.5 font-mono text-[11.5px] text-muted">
-          <Clock3 size={12} strokeWidth={2} />
-          resets {resetsAt}
-          {dayLimit !== undefined && ` · today ${dayUsed ?? 0}/${dayLimit}`}
-        </div>
+        {/* No use this hour means nothing to reset: the reset time shows only once there is one. */}
+        {(used > 0 || dayLimit !== undefined) && (
+          <div className="mt-1 flex items-center gap-1.5 font-mono text-[11.5px] text-muted">
+            {used > 0 && (
+              <>
+                <Clock3 size={12} strokeWidth={2} />
+                resets {resetsAt}
+              </>
+            )}
+            {used > 0 && dayLimit !== undefined && " · "}
+            {dayLimit !== undefined && `today ${dayUsed ?? 0}/${dayLimit}`}
+          </div>
+        )}
       </div>
     </div>
   );

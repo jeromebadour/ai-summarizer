@@ -18,11 +18,19 @@ type DialogProps = {
   detail: string;
   children?: ReactNode;
   actions: ReactNode;
+  /** When set, the content and the actions are one form sent to this action (a dialog that changes something). */
+  formAction?: (form: FormData) => void;
 };
 
 /** The one dialog shell: blurred page behind, glyph + title + one line, content, actions in the footer. */
-export function Dialog({ tone, icon: Icon, title, detail, children, actions }: DialogProps) {
+export function Dialog({ tone, icon: Icon, title, detail, children, actions, formAction }: DialogProps) {
   const look = tones[tone];
+  const body = (
+    <>
+      {children && <div className="space-y-4 px-6">{children}</div>}
+      <div className="mt-6 flex justify-end gap-2 border-t border-border bg-panel-raised/40 px-6 py-4">{actions}</div>
+    </>
+  );
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--overlay)] backdrop-blur-[3px]">
       <div
@@ -43,8 +51,7 @@ export function Dialog({ tone, icon: Icon, title, detail, children, actions }: D
             <p className="mt-1 text-[13px] leading-relaxed text-muted">{detail}</p>
           </div>
         </div>
-        {children && <div className="space-y-4 px-6">{children}</div>}
-        <div className="mt-6 flex justify-end gap-2 border-t border-border bg-panel-raised/40 px-6 py-4">{actions}</div>
+        {formAction ? <form action={formAction}>{body}</form> : body}
       </div>
     </div>
   );

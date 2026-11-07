@@ -12,7 +12,7 @@ import { ProfileSecurity } from "@/components/ProfileSecurity";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
 import { StatusPill } from "@/components/StatusPill";
-import { sampleAccount, sampleDevices, sampleGuest, sampleGuestStats, samplePasswordChanged, sampleStats } from "@/lib/sample";
+import { loadProfile, requireUser } from "@/lib/server/account";
 
 const tabs = [
   { key: "overview", label: "Overview", icon: ChartColumn },
@@ -29,13 +29,15 @@ export default function ProfilePage({ searchParams }: PageProps<"/profile">) {
 }
 
 async function Profile({ searchParams }: Pick<PageProps<"/profile">, "searchParams">) {
+  const user = await requireUser();
   const params = await searchParams;
-  const guest = params.as === "guest";
-  const account = guest ? sampleGuest : sampleAccount;
-  const stats = guest ? sampleGuestStats : sampleStats;
+  const { account, stats, devices, passwordChanged, quota } = await loadProfile(user);
+  const guest = account.isGuest;
+  // Guests have no password, devices list or account to delete: no Security tab.
   const shownTabs = guest ? tabs.filter((t) => t.key !== "security") : tabs;
-  const requested = params.tab;
-  const tab = shownTabs.find((t) => t.key === requested)?.key ?? "overview";
+  const tab = shownTabs.find((t) => t.key === params.tab)?.key ?? "overview";
+  const tabHref = (key: string) => (key === "overview" ? "/profile" : `/profile?tab=${key}`);
+  const dialog = params.dialog;
 
   return (
     <div className="flex h-screen">
@@ -44,38 +46,24 @@ async function Profile({ searchParams }: Pick<PageProps<"/profile">, "searchPara
         <div className="flex items-center gap-4">
           <UserRound size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Profile</h1>
-          <PageTabs
-            current={tab}
-            tabs={shownTabs.map((t) => ({ ...t, href: t.key === "overview" ? `/profile${guest ? "?as=guest" : ""}` : `/profile?tab=${t.key}${guest ? "&as=guest" : ""}` }))}
-          />
-          <StatusPill status={tab === "preferences" ? { kind: "saved", label: "Preference saved", at: "11:53" } : { kind: "ready" }} />
+          <PageTabs current={tab} tabs={shownTabs.map((t) => ({ ...t, href: tabHref(t.key) }))} />
+          <StatusPill status={{ kind: "ready" }} />
           <div className="ml-auto">
-            {guest ? <QuotaRing used={3} limit={5} resetsAt="14:42" /> : <QuotaRing used={1} limit={10} resetsAt="12:52" dayUsed={2} dayLimit={30} />}
+            <QuotaRing {...quota} />
           </div>
         </div>
         {tab === "overview" && <ProfileOverview account={account} stats={stats} />}
-        {tab === "preferences" && <ProfilePreferences account={account} defaultLength="medium" />}
-        {tab === "security" && <ProfileSecurity devices={sampleDevices} passwordChanged={samplePasswordChanged} />}
+        {tab === "preferences" && <ProfilePreferences account={account} defaultLength={user.defaultLength} />}
+        {tab === "security" && <ProfileSecurity devices={devices} passwordChanged={passwordChanged} canDelete={account.role !== "owner"} />}
       </main>
-      {guest && params.dialog === "keep" && (
-        <KeepSummariesDialog
-          summaries={stats.summaries}
-          initial={{ name: "Oliver Hart", username: "oliver_h", usernameStatus: { status: "available" }, email: "oliver@example.com", password: "lantern42" }}
-        />
+      {/* Dialogs live in the URL, so Back closes them and each has a link. Only the ones this user can use open. */}
+      {guest && tab === "overview" && dialog === "keep" && <KeepSummariesDialog summaries={stats.summaries} closeHref="/profile" />}
+      {!guest && tab === "overview" && dialog === "edit" && <EditProfileDialog account={account} closeHref="/profile" />}
+      {!guest && tab === "security" && dialog === "delete" && account.role !== "owner" && (
+        <DeleteAccountDialog account={account} summaries={stats.summaries} devices={devices.length} closeHref="/profile?tab=security" />
       )}
-      {tab === "overview" && params.dialog === "edit" && (
-        <EditProfileDialog account={sampleAccount} initialName="Maya Klein" initialEmail="maya@kleinstudio.com" />
-      )}
-      {tab === "security" && params.dialog === "delete" && (
-        <DeleteAccountDialog account={sampleAccount} summaries={sampleStats.summaries} devices={sampleDevices.length} initialConfirm="maya_k" />
-      )}
-      {tab === "security" && params.dialog === "password" && (
-        <ChangePasswordDialog
-          email={sampleAccount.email}
-          otherDevices={sampleDevices.filter((d) => !d.current).length}
-          initialCurrent="harbor2026"
-          initialNext="riverdesk7"
-        />
+      {!guest && tab === "security" && dialog === "password" && (
+        <ChangePasswordDialog email={account.email} otherDevices={devices.filter((d) => !d.current).length} closeHref="/profile?tab=security" />
       )}
     </div>
   );

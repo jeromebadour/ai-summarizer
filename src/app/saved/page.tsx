@@ -8,6 +8,7 @@ import { SavedList } from "@/components/SavedList";
 import { StatusPill } from "@/components/StatusPill";
 import { pageOf, pageSizes } from "@/lib/paging";
 import { sampleLongLibrary } from "@/lib/sample";
+import { requireAccount } from "@/lib/server/account";
 
 export default function SavedPage({ searchParams }: PageProps<"/saved">) {
   return (
@@ -18,6 +19,7 @@ export default function SavedPage({ searchParams }: PageProps<"/saved">) {
 }
 
 async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">) {
+  const { account } = await requireAccount();
   const params = await searchParams;
   // Sample data stands in for the database here: the real query reads only this page (LIMIT / OFFSET) and a count.
   const all = params.empty === "1" ? [] : sampleLongLibrary;
@@ -25,7 +27,7 @@ async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">
   const items = all.slice(page.offset, page.offset + page.size);
   return (
     <div className="flex h-screen">
-      <Rail page="saved" />
+      <Rail page="saved" account={account} />
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
         <div className="flex items-center gap-4">
           <Library size={22} strokeWidth={1.9} className="text-brand-strong" />

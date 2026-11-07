@@ -1,0 +1,42 @@
+import { DoorOpen, ShieldUser } from "lucide-react";
+import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
+/**
+ * The public admin demo's rail. Nobody is signed in, so only the console and a way back out are shown. Kept apart
+ * from the signed-in Rail so the demo never loads sign-out or any other server action (and so no database code).
+ */
+export function DemoRail() {
+  const item = "flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium transition-colors";
+  return (
+    <aside className="flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5">
+      <RailLogo />
+      <nav className="flex flex-col gap-2">
+        <Link href="/demo/admin" aria-current="page" className={`${item} bg-brand-soft text-brand-strong`}>
+          <ShieldUser size={20} strokeWidth={1.75} />
+          Admin
+        </Link>
+      </nav>
+      <div className="mt-auto flex flex-col items-center gap-2">
+        <ThemeToggle className={`${item} text-muted hover:bg-panel-raised hover:text-text`} />
+        <Link href="/login" className={`${item} text-muted hover:bg-panel-raised hover:text-text`}>
+          <DoorOpen size={20} strokeWidth={1.75} />
+          Exit demo
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+export function RailLogo() {
+  return (
+    <div className="mb-8 grid size-11 place-items-center rounded-xl bg-brand shadow-[0_0_24px_var(--glow)]" aria-label="Distill">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
+        <rect x="2" y="3" width="18" height="3.2" rx="1.6" fill="var(--on-brand)" />
+        <rect x="5" y="9.4" width="12" height="3.2" rx="1.6" fill="var(--on-brand)" />
+        <rect x="8" y="15.8" width="6" height="3.2" rx="1.6" fill="var(--on-brand)" />
+      </svg>
+    </div>
+  );
+}
+

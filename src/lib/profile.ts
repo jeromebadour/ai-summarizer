@@ -74,7 +74,12 @@ function daysBetween(a: string, b: string): number {
  * Profile numbers computed from the user's own summaries, the way the server computes them from their rows,
  * so the profile can never disagree with the library.
  */
-export function statsFromLibrary(items: SavedItem[], today: string, accountDays: number): ProfileStats {
+/** What the stats need from each summary: a saved item has it all; the server reads just these columns. */
+export type LibraryFacts = Pick<SavedItem, "length" | "wordsIn" | "wordsOut" | "figureStatus" | "date"> & {
+  keyFigures: { length: number };
+};
+
+export function statsFromLibrary(items: LibraryFacts[], today: string, accountDays: number): ProfileStats {
   const lengths: SummaryLength[] = ["short", "medium", "bullets"];
   const lengthMix = { short: 0, medium: 0, bullets: 0 };
   const shorterSum = { short: 0, medium: 0, bullets: 0 };
@@ -85,7 +90,7 @@ export function statsFromLibrary(items: SavedItem[], today: string, accountDays:
   let figuresFlagged = 0;
   for (const item of items) {
     lengthMix[item.length] += 1;
-    shorterSum[item.length] += 1 - item.wordsOut / item.wordsIn;
+    shorterSum[item.length] += item.wordsIn > 0 ? 1 - item.wordsOut / item.wordsIn : 0;
     wordsIn += item.wordsIn;
     wordsOut += item.wordsOut;
     figuresChecked += item.keyFigures.length;

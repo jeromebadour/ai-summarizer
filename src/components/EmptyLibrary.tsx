@@ -18,7 +18,11 @@ function GhostRow({ width }: { width: string }) {
   );
 }
 
-export function EmptyLibrary() {
+/** The empty state shared by Saved (the defaults) and a new account's profile. */
+export function EmptyLibrary({
+  title = "Nothing saved yet",
+  detail = "Every summary you distill is saved here with its source, figures and checks.",
+}: { title?: string; detail?: string }) {
   return (
     <section className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-panel p-5">
       <div className="ghost-rows space-y-2 opacity-70 [mask-image:linear-gradient(to_bottom,black,transparent_75%)]" aria-hidden>
@@ -37,9 +41,9 @@ export function EmptyLibrary() {
               <rect x="8" y="15.8" width="6" height="3.2" rx="1.6" fill="var(--brand-strong)" opacity="0.5" />
             </svg>
           </span>
-          <h2 className="mt-5 text-[20px] font-semibold tracking-[-0.01em]">Nothing saved yet</h2>
+          <h2 className="mt-5 text-[20px] font-semibold tracking-[-0.01em]">{title}</h2>
           <p className="mt-1.5 max-w-[360px] text-[13.5px] leading-relaxed text-muted">
-            Every summary you distill is saved here with its source, figures and checks.
+            {detail}
           </p>
           <Link
             href="/"

@@ -12,8 +12,10 @@ import {
   UserRound,
   UserRoundPlus,
 } from "lucide-react";
+import Link from "next/link";
 import { Avatar } from "@/components/Avatar";
 import { DayBars } from "@/components/DayBars";
+import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { StatTile } from "@/components/StatTile";
 import { lengthStyles } from "@/components/LengthPicker";
 import { formatDuration, minutesSaved, mostUsedLength, type Account, type ProfileStats } from "@/lib/profile";
@@ -39,7 +41,10 @@ function Activity({ daily: lastFourteen, accountDays }: { daily: number[]; accou
 function LengthMix({ mix, shorter }: { mix: Record<SummaryLength, number>; shorter: Record<SummaryLength, number> }) {
   const keys = Object.keys(mix) as SummaryLength[];
   const total = keys.reduce((sum, key) => sum + mix[key], 0);
-  const favourite = lengthStyles[mostUsedLength(mix)];
+  const top = mostUsedLength(mix);
+  // "Most used" only when one length really leads: a tie has no favourite.
+  const leads = keys.every((key) => key === top || mix[key] < mix[top]);
+  const favourite = lengthStyles[top];
   const FavouriteIcon = favourite.icon;
   const bar: Record<SummaryLength, string> = { short: "bg-short", medium: "bg-medium", bullets: "bg-bullets" };
 
@@ -47,10 +52,12 @@ function LengthMix({ mix, shorter }: { mix: Record<SummaryLength, number>; short
     <div className="flex flex-col rounded-2xl border border-border bg-panel p-5">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-muted">
         <span className="text-text">Length mix</span>
-        <span className={`ml-auto flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] ${favourite.on}`}>
-          <FavouriteIcon size={13} strokeWidth={2.2} />
-          Most used: {favourite.label}
-        </span>
+        {leads && (
+          <span className={`ml-auto flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11.5px] ${favourite.on}`}>
+            <FavouriteIcon size={13} strokeWidth={2.2} />
+            Most used: {favourite.label}
+          </span>
+        )}
       </div>
       <div className="mt-5 flex h-3 gap-1 overflow-hidden rounded-full">
         {keys.map((key) => (
@@ -74,7 +81,7 @@ function LengthMix({ mix, shorter }: { mix: Record<SummaryLength, number>; short
                 )}
               </span>
               <span className="ml-auto font-mono text-[12.5px] text-muted">
-                {mix[key]} · {Math.round((mix[key] / total) * 100)}%
+                {mix[key]} · {total > 0 ? Math.round((mix[key] / total) * 100) : 0}%
               </span>
             </li>
           );
@@ -110,19 +117,19 @@ function GuestCard({ account }: { account: Account }) {
           </span>
         </div>
       </div>
-      <button
-        type="button"
+      <Link
+        href="/profile?dialog=keep"
         className="ml-auto flex items-center gap-2.5 self-center rounded-xl bg-brand py-2.5 pl-4 pr-5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
       >
         <UserRoundPlus size={19} strokeWidth={2} />
         Keep your summaries
-      </button>
+      </Link>
     </section>
   );
 }
 
 export function ProfileOverview({ account, stats }: { account: Account; stats: ProfileStats }) {
-  const shorter = Math.round((1 - stats.wordsOut / stats.wordsIn) * 100);
+  const shorter = stats.wordsIn > 0 ? Math.round((1 - stats.wordsOut / stats.wordsIn) * 100) : 0;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5">
@@ -146,13 +153,21 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
             </span>
           </div>
         </div>
-        <button type="button" className="ml-auto flex items-center gap-2.5 self-start rounded-xl border border-brand-line py-2 pl-3 pr-4 text-[13.5px] font-semibold text-text hover:bg-brand-soft">
+        <Link href="/profile?dialog=edit" className="ml-auto flex items-center gap-2.5 self-start rounded-xl border border-brand-line py-2 pl-3 pr-4 text-[13.5px] font-semibold text-text hover:bg-brand-soft">
           <UserPen size={19} strokeWidth={1.9} className="text-brand-strong" />
           Edit
-        </button>
+        </Link>
       </section>
       )}
 
+      {stats.summaries === 0 ? (
+        // A new account has no numbers yet: one calm invitation instead of a wall of zeros and empty charts.
+        <EmptyLibrary
+          title="No numbers yet"
+          detail="Words distilled, reading time saved and figures checked fill in from the summaries you make."
+        />
+      ) : (
+      <>
       <div className="grid grid-cols-4 gap-5">
         <StatTile icon={FileText} tone="text-brand-strong" label="Summaries" value={String(stats.summaries)} note={`${stats.lengthMix.medium} medium · ${stats.lengthMix.short} short · ${stats.lengthMix.bullets} bullets`} />
         <StatTile
@@ -189,6 +204,8 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
         <Activity daily={stats.daily} accountDays={stats.accountDays} />
         <LengthMix mix={stats.lengthMix} shorter={stats.lengthShorter} />
       </div>
+      </>
+      )}
     </div>
   );
 }

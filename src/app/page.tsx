@@ -10,6 +10,7 @@ import { SourcePanel } from "@/components/SourcePanel";
 import { StatusPill } from "@/components/StatusPill";
 import { SummaryPanel } from "@/components/SummaryPanel";
 import { sampleSentences as sentences, sampleSummary as summary } from "@/lib/sample";
+import { requireAccount } from "@/lib/server/account";
 import { countWords, type DistillRun, type Summary } from "@/lib/summary";
 
 const charLimit = 20000;
@@ -31,6 +32,7 @@ export default function Home({ searchParams }: PageProps<"/">) {
 }
 
 async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
+  const { account } = await requireAccount();
   const params = await searchParams;
   const failed = params.state === "error";
   const limited = params.state === "limit";
@@ -63,7 +65,7 @@ async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">)
 
   return (
     <div className="flex h-screen">
-      <Rail page="distill" />
+      <Rail page="distill" account={account} />
       <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
         <div className="flex items-center gap-4">
           <LengthPicker value={summary.length} />
