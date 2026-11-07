@@ -156,7 +156,7 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
 export function AdminOverview({ overview: o, recent, base, serverReady }: { overview: Overview; recent: ActivityEntry[]; base: string; serverReady: boolean }) {
   const f = overviewFigures(o);
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+    <div className="flex min-h-fit flex-1 flex-col gap-4">
       {o.attention.length > 0 && <Attention items={o.attention} base={base} serverReady={serverReady} />}
 
       <div className="grid grid-cols-6 gap-4">
@@ -182,7 +182,7 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
       </div>
 
       {/* Extra height is shared between the charts (never under 96 px) and the row below (never under what its rows need). */}
-      <div className="grid min-h-24 flex-1 grid-cols-3 gap-4">
+      <div className="grid min-h-40 flex-1 grid-cols-3 gap-4">
         <Chart icon={UserRoundPlus} tone="text-input" title="Sign-ups" total={`${f.signups.fortnight} in 14 days`}>
           <DayBars values={o.daily.signups} label="Sign-ups per day" bar="bg-input/55" today="bg-input" />
         </Chart>

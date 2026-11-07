@@ -9,6 +9,7 @@ import { AdminServer } from "@/components/AdminServer";
 import { AdminSpend } from "@/components/AdminSpend";
 import { AdminUserDetail } from "@/components/AdminUserDetail";
 import { AdminUsers } from "@/components/AdminUsers";
+import { demoExit } from "@/components/DemoRail";
 import { PageTabs, type PageTab } from "@/components/PageTabs";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { overviewFigures, whenLabel, type AdminOverview as Overview } from "@/lib/admin";
@@ -30,7 +31,7 @@ export type AdminMode =
   /** A signed-in staff member looking at the live app. */
   | { kind: "live"; account: Account }
   /** The public demo: invented data, owner's view, nothing can be changed. */
-  | { kind: "demo" };
+  | { kind: "demo"; signedIn: boolean };
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -75,7 +76,7 @@ export async function AdminShell({
   return (
     <div className="flex h-screen">
       {rail}
-      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
         <div className="flex items-center gap-4">
           <ShieldUser size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Admin</h1>
@@ -108,6 +109,7 @@ export async function AdminShell({
                 </span>
               );
             })}
+          {mode.kind === "demo" && <DemoExitButton signedIn={mode.signedIn} />}
         </div>
         {tab === "overview" && overview && <AdminOverview overview={overview} recent={await source.recentNotable()} base={base} serverReady={source.serverReady} />}
         {tab === "server" && overview && <AdminServer overview={overview} base={base} />}
@@ -355,4 +357,15 @@ function doneStatus(params: Params, clock: string): AppStatus {
     return { kind: "saved", label: who && !appWide.includes(done) ? `${doneLabels[done]} @${who} ·` : `${doneLabels[done]} ·`, at: clock };
   }
   return { kind: "saved", label: "Live · updated", at: clock };
+}
+
+/** The demo's way out, top right of every tab: the page's main action, so it wears the brand. */
+function DemoExitButton({ signedIn }: { signedIn: boolean }) {
+  const exit = demoExit(signedIn);
+  return (
+    <Link href={exit.href} className="ml-auto flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2 text-[13.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110">
+      <exit.Icon size={16} strokeWidth={2.2} />
+      {exit.label}
+    </Link>
+  );
 }

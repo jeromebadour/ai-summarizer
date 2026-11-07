@@ -229,6 +229,21 @@ with sync_playwright() as p:
     check("the demo pages its users too", dpg.locator("main ul li").count() == 15)
     shot(dpg, "09-demo-users")
 
+    # 10. The demo's way out is in plain sight, and fits who is looking.
+    exit_btn = dpg.locator("main a", has_text="Sign in to Distill")
+    check("a visitor sees Sign in to Distill at the top right", exit_btn.count() == 1 and exit_btn.get_attribute("href") == "/login")
+    exit_btn.click()
+    dpg.wait_for_url(BASE + "/login")
+    check("it opens sign-in", dpg.url == BASE + "/login")
+    mpg.goto(BASE + "/demo/admin")
+    back = mpg.locator("main a", has_text="Back to Distill")
+    check("a signed-in person sees Back to Distill instead", back.count() == 1 and mpg.locator("text=Sign in to Distill").count() == 0)
+    shot(mpg, "10-demo-signed-in")
+    back.click()
+    mpg.wait_for_url(BASE + "/")
+    mpg.wait_for_selector("textarea")
+    check("it goes back to their own Distill", mpg.url == BASE + "/", mpg.url)
+
     b.close()
 
 passed = sum(ok for _, ok in results)

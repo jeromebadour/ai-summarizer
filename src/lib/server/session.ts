@@ -4,14 +4,14 @@ import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { describeDevice } from "@/lib/device";
 import { actAs, actingAs, type Db } from "./db";
+import { SESSION_COOKIE } from "./session-cookie";
 
 /**
  * Sessions: the browser holds a random 32-byte token in an httpOnly cookie; the database holds only its SHA-256, so a
  * leaked database can't sign anyone in. A session lives 30 days from its last use (extended by `session_owner`).
  */
 const secure = process.env.NODE_ENV === "production";
-// `__Host-` makes the browser refuse the cookie unless it is Secure, path=/ and set by this exact host.
-export const SESSION_COOKIE = secure ? "__Host-distill_session" : "distill_session";
+export { SESSION_COOKIE };
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
 export function hashToken(token: string): Buffer {
