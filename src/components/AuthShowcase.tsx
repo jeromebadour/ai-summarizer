@@ -19,7 +19,7 @@ const threadY = [68, 88, 148];
  */
 export function AuthShowcase() {
   return (
-    <div className="relative mt-10 h-[300px] w-[560px]" aria-hidden>
+    <div className="relative mt-6 h-[300px] w-[560px]" aria-hidden>
       <div className="absolute left-0 top-6 w-[210px] overflow-hidden rounded-2xl border border-border/70 bg-paper p-5">
         <div className="space-y-3">
           {lines.map((line, index) => (

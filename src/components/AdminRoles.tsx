@@ -10,7 +10,7 @@ const groups = ["See", "Act on users", "Brakes", "Owner only"] as const;
 
 function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode; grow?: boolean }) {
   return (
-    <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5 ${grow ? "flex-1" : ""}`}>
+    <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
@@ -31,8 +31,8 @@ const changeLook: Record<RoleChange["action"], { label: string; joiner: string; 
 /** Owner only: who holds Admin and Moderator, the fixed permission matrix, and every grant and revoke with its reason. */
 export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; changes: RoleChange[]; base: string }) {
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-5">
-      <div className="flex min-h-0 flex-col gap-5">
+    <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-4">
+      <div className="flex min-h-0 flex-col gap-4">
         <Panel
           icon={KeyRound}
           tone="text-figure"
@@ -53,7 +53,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
               holders
                 .filter((h) => h.person.role === role)
                 .map((h) => (
-                  <li key={h.person.id} className="grid grid-cols-[minmax(0,1fr)_170px_96px] items-center gap-4 border-b border-border py-2.5 last:border-b-0">
+                  <li key={h.person.id} className="grid grid-cols-[minmax(0,1fr)_170px_96px] items-center gap-4 border-b border-border py-1.5 last:border-b-0">
                     <PersonLine person={h.person} size={32} />
                     <span className="font-mono text-[11.5px] text-muted">
                       {role === "owner" ? (
@@ -103,7 +103,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
         >
           <ul className="mt-3 flex flex-col">
             {changes.map((c, i) => (
-              <li key={c.id} className="grid grid-cols-[20px_52px_minmax(0,1fr)] items-start gap-3 border-b border-border py-2 last:border-b-0">
+              <li key={c.id} className="grid grid-cols-[20px_52px_minmax(0,1fr)] items-start gap-3 border-b border-border py-1 last:border-b-0">
                 <RowNumber n={i + 1} />
                 <span className="pt-0.5 font-mono text-[11.5px] text-input">{c.at}</span>
                 <div className="min-w-0">
@@ -127,7 +127,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
       </div>
 
       <Panel icon={ShieldCheck} tone="text-verify" title="What each role can do" aside={<span className="font-mono text-[11.5px] text-muted">fixed in code · checked on the server</span>}>
-        <div className="mt-4 grid grid-cols-[minmax(0,1fr)_repeat(3,92px)] gap-y-0.5">
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_repeat(3,92px)]">
           <span />
           {staffRoles.map((role) => (
             <span key={role} className="flex justify-center pb-2">
@@ -136,14 +136,14 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
           ))}
           {groups.map((group) => (
             <div key={group} className="contents">
-              <span className="col-span-4 mt-3 border-b border-border pb-1.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">{group}</span>
+              <span className="col-span-4 mt-1.5 border-b border-border pb-1 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">{group}</span>
               {permissions
                 .filter((p) => permissionInfo[p].group === group)
                 .map((p: Permission) => (
                   <div key={p} className="contents">
-                    <span className="py-2 text-[13px] text-text">{permissionInfo[p].label}</span>
+                    <span className="py-0.5 text-[13px] text-text">{permissionInfo[p].label}</span>
                     {staffRoles.map((role) => (
-                      <span key={role} className="flex items-center justify-center py-2">
+                      <span key={role} className="flex items-center justify-center py-0.5">
                         {can(role, p) ? (
                           <span className="grid size-6 place-items-center rounded-md border border-verify/35 bg-verify-soft text-verify" aria-label={`${roleLabel[role]}: yes`}>
                             <Check size={14} strokeWidth={2.4} />
@@ -160,7 +160,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
             </div>
           ))}
         </div>
-        <p className="mt-auto pt-4 text-[12px] leading-relaxed text-muted">
+        <p className="mt-auto pt-3 text-[12px] leading-relaxed text-muted">
           Nobody, the owner included, can read what users paste or get back. Every staff action lands in Activity with its reason.
         </p>
       </Panel>

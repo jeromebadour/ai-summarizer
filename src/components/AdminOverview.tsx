@@ -50,7 +50,7 @@ function Attention({ items, base, serverReady }: { items: AttentionItem[]; base:
 
 function Chart({ icon: Icon, tone, title, total, children }: { icon: LucideIcon; tone: string; title: string; total: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
+    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className={`flex items-center gap-2 text-[12.5px] font-semibold ${tone}`}>
         <Icon size={16} strokeWidth={2} />
         {title}
@@ -79,7 +79,7 @@ function Meter({ icon: Icon, label, percent, bar }: { icon: LucideIcon; label: s
 function ServerGlance({ server, claude, base, serverReady }: { server: Overview["server"]; claude: OverviewFigures["claude"]; base: string; serverReady: boolean }) {
   const look = healthLook[server.health];
   return (
-    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
+    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
         <Server size={16} strokeWidth={2} className="text-input" />
         Server
@@ -99,7 +99,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
         <Meter icon={MemoryStick} label="Memory" percent={server.memory} bar={look.bar} />
         <Meter icon={HardDrive} label="Disk" percent={server.disk} bar={look.bar} />
       </div>
-      <div className="mt-3.5 flex flex-1 flex-col justify-around gap-2 border-t border-border pt-3">
+      <div className="mt-3.5 flex flex-col gap-2.5 border-t border-border pt-3">
         <Fact icon={Database} tone="text-verify" label="Database" value={`up · ${server.database.sizeMb} MB · ${server.database.connections} connections`} />
         <Fact
           icon={RadioTower}
@@ -121,7 +121,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
 
 function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: string }) {
   return (
-    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
+    <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
         <Activity size={16} strokeWidth={2} className="text-brand-strong" />
         Latest account activity
@@ -134,7 +134,7 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
         {entries.slice(0, 5).map((entry) => {
           const { icon: Icon, tone, label } = activityLook[entry.kind];
           return (
-            <li key={entry.id} className="grid grid-cols-[44px_230px_minmax(0,1fr)] items-center gap-3 border-b border-border py-1.5 last:border-b-0">
+            <li key={entry.id} className="grid grid-cols-[44px_230px_minmax(0,1fr)] items-center gap-3 border-b border-border py-1 last:border-b-0">
               <span className="font-mono text-[12px] text-muted">{entry.at}</span>
               <PersonLine person={entry.person} />
               <span className="flex min-w-0 items-center gap-2.5">
@@ -156,10 +156,10 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
 export function AdminOverview({ overview: o, recent, base, serverReady }: { overview: Overview; recent: ActivityEntry[]; base: string; serverReady: boolean }) {
   const f = overviewFigures(o);
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {o.attention.length > 0 && <Attention items={o.attention} base={base} serverReady={serverReady} />}
 
-      <div className="grid grid-cols-6 gap-5">
+      <div className="grid grid-cols-6 gap-4">
         <StatTile icon={UsersRound} tone="text-brand-strong" label="Accounts" value={String(o.users.registered)} note={`+${f.signups.today} today · +${f.signups.week} this week`} />
         <StatTile icon={UserRound} tone="text-input" label="Guests" value={String(o.guests.active)} note={`${o.guests.today} today · ${o.guests.upgradedWeek} kept theirs`} />
         <StatTile icon={Activity} tone="text-verify" label="Active now" value={String(o.active.now)} note={`${o.active.week} this week`} />
@@ -181,7 +181,8 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
         <StatTile icon={Hourglass} tone="text-brand-strong" label="Limits reached today" value={String(o.limitsHit.today)} note={`${o.limitsHit.users} ${o.limitsHit.users === 1 ? "account" : "accounts"} · ${o.limitsHit.guests} ${o.limitsHit.guests === 1 ? "guest" : "guests"}`} />
       </div>
 
-      <div className="grid min-h-0 flex-[0.85] grid-cols-3 gap-5">
+      {/* Extra height is shared between the charts (never under 96 px) and the row below (never under what its rows need). */}
+      <div className="grid min-h-24 flex-1 grid-cols-3 gap-4">
         <Chart icon={UserRoundPlus} tone="text-input" title="Sign-ups" total={`${f.signups.fortnight} in 14 days`}>
           <DayBars values={o.daily.signups} label="Sign-ups per day" bar="bg-input/55" today="bg-input" />
         </Chart>
@@ -193,7 +194,7 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
         </Chart>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.55fr] gap-5">
+      <div className="grid min-h-fit flex-1 grid-cols-[1fr_1.55fr] gap-4">
         <ServerGlance server={o.server} claude={f.claude} base={base} serverReady={serverReady} />
         <LatestActivity entries={recent} base={base} />
       </div>

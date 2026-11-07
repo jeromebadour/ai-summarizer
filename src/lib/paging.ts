@@ -8,6 +8,23 @@ export const pageSizes = {
   adminTable: 15,
 } as const;
 
+/**
+ * A page always fits the window without scrolling (BUILD-RULES 3.2), so the page size follows the window's height:
+ * what is left after the screen's fixed parts (header, search, column heads, pager), divided by one row's height,
+ * between a floor and the size above. `height` comes from the `vh` cookie; without it, the full size.
+ */
+const fit: Record<keyof typeof pageSizes, { chrome: number; row: number; min: number }> = {
+  saved: { chrome: 300, row: 80, min: 4 },
+  adminTable: { chrome: 270, row: 37, min: 8 },
+};
+
+export function pageSizeFor(list: keyof typeof pageSizes, height: number | null): number {
+  const max = pageSizes[list];
+  if (!height) return max;
+  const { chrome, row, min } = fit[list];
+  return Math.min(max, Math.max(min, Math.floor((height - chrome) / row)));
+}
+
 export type Page = {
   page: number;
   pages: number;

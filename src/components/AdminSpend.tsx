@@ -39,9 +39,9 @@ export function AdminSpend({
   const at = (usd: number) => `${Math.min(100, (usd / workspaceCapUsd) * 100)}%`;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
-      <div className={`grid gap-5 ${canPause ? "grid-cols-[2.6fr_1fr_1.75fr]" : "grid-cols-[2fr_1fr_1fr]"}`}>
-        <section className="rounded-2xl border border-border bg-panel p-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className={`grid gap-4 ${canPause ? "grid-cols-[2.6fr_1fr_1.75fr]" : "grid-cols-[2fr_1fr_1fr]"}`}>
+        <section className="rounded-2xl border border-border bg-panel p-4">
           <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
             <Gauge size={16} strokeWidth={2} />
             Spend this month
@@ -135,8 +135,8 @@ export function AdminSpend({
         )}
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.7fr] gap-5">
-        <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.7fr] gap-4">
+        <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
           <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
             <ChartColumn size={16} strokeWidth={2} />
             Per day
@@ -148,7 +148,7 @@ export function AdminSpend({
           <DayBars values={overview.daily.spendCents} label="Claude spend per day in cents" bar="bg-figure/55" today="bg-figure" format={(c) => `${Math.round(c)}¢`} />
         </section>
 
-        <section className="flex min-h-0 flex-col gap-3 rounded-2xl border border-border bg-panel p-5">
+        <section className="flex min-h-0 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
           <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
             <UsersRound size={16} strokeWidth={2} className="text-brand-strong" />
             Per person this month

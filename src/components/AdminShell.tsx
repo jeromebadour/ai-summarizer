@@ -75,7 +75,7 @@ export async function AdminShell({
   return (
     <div className="flex h-screen">
       {rail}
-      <main className="flex min-w-0 flex-1 flex-col gap-5 p-6">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
         <div className="flex items-center gap-4">
           <ShieldUser size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Admin</h1>

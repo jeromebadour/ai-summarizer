@@ -13,6 +13,12 @@ export async function viewerZone(): Promise<string> {
   }
 }
 
+/** The window's height from the `vh` cookie (set before first paint), for page sizes that fit; null if missing. */
+export async function viewerHeight(): Promise<number | null> {
+  const n = Number((await cookies()).get("vh")?.value);
+  return Number.isInteger(n) && n >= 300 && n <= 4000 ? n : null;
+}
+
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** Parts of a moment as seen in `zone`. */

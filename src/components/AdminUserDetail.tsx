@@ -42,7 +42,7 @@ function Action({ href, icon: Icon, label, tone }: { href: string; icon: LucideI
 
 function Panel({ icon: Icon, tone, title, aside, grow = false, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; grow?: boolean; children: React.ReactNode }) {
   return (
-    <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5 ${grow ? "flex-1" : ""}`}>
+    <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
@@ -67,7 +67,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
   const roleHref = person.role === "user" ? open("grant", `&who=${person.username}`) : open("role", `&who=${person.username}`);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <section className="relative flex items-center gap-6 overflow-hidden rounded-2xl border border-border bg-panel px-6 py-5">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/50 to-transparent" aria-hidden />
         <Link href={`${base}?tab=users` as never} className="flex items-center gap-1.5 self-start rounded-lg border border-border px-2.5 py-1.5 text-[12.5px] font-semibold text-muted hover:border-brand-line hover:text-text">
@@ -172,12 +172,12 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-5">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-4">
         <Panel icon={ChartColumn} tone="text-brand-strong" title={days === 1 ? "Today" : `Last ${days} days`} aside={`${daily.reduce((s, n) => s + n, 0)} summaries`}>
           <DayBars values={daily} label="Summaries per day" bar="bg-brand" today="bg-brand-strong" />
         </Panel>
 
-        <div className="flex min-h-0 flex-col gap-5">
+        <div className="flex min-h-0 flex-col gap-4">
           <Panel icon={Monitor} tone="text-input" title="Signed in on" aside={`${d.sessions.length} ${d.sessions.length === 1 ? "device" : "devices"}`}>
             <ul className="mt-3 flex flex-col">
               {d.sessions.map((s, i) => {

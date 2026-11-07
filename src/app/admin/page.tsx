@@ -5,7 +5,8 @@ import { Rail } from "@/components/Rail";
 import { requireStaff, toAccount } from "@/lib/server/account";
 import { findAccount, staffAction } from "@/app/actions/admin";
 import { liveSource } from "@/lib/server/admin-source";
-import { partsIn, viewerZone } from "@/lib/server/zone";
+import { pageSizeFor } from "@/lib/paging";
+import { partsIn, viewerHeight, viewerZone } from "@/lib/server/zone";
 
 export default function AdminPage({ searchParams }: PageProps<"/admin">) {
   return (
@@ -26,7 +27,7 @@ async function Admin({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
     <AdminShell
       mode={{ kind: "live", account }}
       params={params}
-      source={liveSource(user, zone)}
+      source={liveSource(user, zone, pageSizeFor("adminTable", await viewerHeight()))}
       rail={<Rail page="admin" account={account} />}
       clock={now.time}
       today={now.day}

@@ -61,7 +61,7 @@ export function AdminUsers({
   const roles: Role[] = ["owner", "admin", "moderator", "user", "guest"];
   const grid = showSpend ? columns : columnsNoSpend;
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-5">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-3">
         <AdminSearch name="q" value={filters.query} hrefBase={usersHref(base, { ...filters, query: "" })} placeholder="Search name, @username or email" width="w-[360px]" />
         <div className="flex gap-1.5">

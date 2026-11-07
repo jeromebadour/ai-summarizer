@@ -22,7 +22,7 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
 
   return (
     <div className="grid h-screen grid-cols-[1.15fr_1fr]">
-      <section className="flex flex-col justify-between border-r border-border bg-[radial-gradient(900px_500px_at_20%_10%,var(--glow),transparent_70%)] px-16 py-12">
+      <section className="flex flex-col justify-between border-r border-border bg-[radial-gradient(900px_500px_at_20%_10%,var(--glow),transparent_70%)] px-16 py-9">
         <div className="flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-xl bg-brand">
             <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden>

@@ -39,9 +39,9 @@ function Row({
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-6 border-b border-border px-7 py-6 last:border-b-0">
+    <div className="flex items-center gap-5 border-b border-border px-6 py-3 last:border-b-0">
       <span
-        className={`grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-panel-raised/60 ${tone}`}
+        className={`grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-panel-raised/60 ${tone}`}
       >
         <Icon size={19} strokeWidth={1.9} />
       </span>
@@ -284,12 +284,12 @@ const shortcuts: { keys: string[]; action: string }[] = [
 
 function Shortcuts() {
   return (
-    <section className="rounded-2xl border border-border bg-panel px-7 py-5">
+    <section className="rounded-2xl border border-border bg-panel px-6 py-4">
       <h3 className="flex items-center gap-2 text-[13px] font-semibold text-input">
         <Keyboard size={16} strokeWidth={2} />
         Keyboard shortcuts
       </h3>
-      <ul className="mt-4 grid grid-cols-4 gap-3">
+      <ul className="mt-3 grid grid-cols-4 gap-3">
         {shortcuts.map(({ keys, action }) => (
           <li
             key={action}

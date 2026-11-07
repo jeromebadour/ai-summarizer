@@ -31,7 +31,7 @@ export function AdminActivity({
   base: string;
 }) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-5">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-3">
         <AdminSearch name="who" value={filters.who} hrefBase={activityHref(base, { ...filters, who: "" })} placeholder="Search @username" width="w-[260px]" />
         <div className="flex flex-wrap gap-1.5">

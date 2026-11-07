@@ -72,7 +72,8 @@ function health(cpu: number, memory: number, disk: number): ServerHealth {
   return top >= 90 ? "strained" : top >= 70 ? "busy" : "comfortable";
 }
 
-export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
+/** `rows` is how many table rows fit the viewer's window (pageSizeFor). */
+export function liveSource(viewer: CurrentUser, zone: string, rows: number = pageSizes.adminTable): AdminSource {
   const now = new Date();
   const today = partsIn(now, zone).day;
   const stamp = (iso: string) => {
@@ -224,7 +225,7 @@ export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
 
     async users(f, rawPage) {
       const first = await call<J>("select admin_users($1, $2, $3, 0, 0) as out", [f.query, f.roles, f.suspendedOnly]);
-      const page = pageOf(rawPage, Number(first.total), pageSizes.adminTable);
+      const page = pageOf(rawPage, Number(first.total), rows);
       const j = await call<J>("select admin_users($1, $2, $3, $4, $5) as out", [f.query, f.roles, f.suspendedOnly, page.size, page.offset]);
       const counts = j.counts as J;
       const byRole = counts.roles as J;
@@ -282,7 +283,7 @@ export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
 
     async activity(f, rawPage) {
       const first = await call<J>("select admin_activity($1, $2, 0, 0) as out", [f.kinds, f.who]);
-      const page = pageOf(rawPage, Number(first.total), pageSizes.adminTable);
+      const page = pageOf(rawPage, Number(first.total), rows);
       const j = await call<J>("select admin_activity($1, $2, $3, $4) as out", [f.kinds, f.who, page.size, page.offset]);
       const counts = j.counts as J;
       const kinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
@@ -297,7 +298,7 @@ export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
       // The month starts at midnight in the viewer's zone.
       const from = new Date(new Date(`${fromDay}T00:00:00Z`).getTime() - offsetMs(zone, new Date(`${fromDay}T12:00:00Z`)));
       const first = await call<J>("select admin_spend($1, 0, 0) as out", [from]);
-      const page = pageOf(rawPage, Number(first.total), pageSizes.adminTable);
+      const page = pageOf(rawPage, Number(first.total), rows);
       const j = await call<J>("select admin_spend($1, $2, $3) as out", [from, page.size, page.offset]);
       return {
         rows: (j.rows as J[]).map((r) => ({

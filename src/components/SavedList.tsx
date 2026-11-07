@@ -86,7 +86,7 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
     <li>
       <Link
         href={`/saved/${item.id}`}
-        className="group grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] items-center gap-5 rounded-xl border border-transparent px-4 py-3.5 transition-colors hover:border-brand-line hover:bg-brand-soft"
+        className="group grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] items-center gap-4 rounded-xl border border-transparent px-4 py-3.5 transition-colors hover:border-brand-line hover:bg-brand-soft"
       >
         <RowNumber n={n} />
         <span className={`grid size-11 place-items-center rounded-xl border ${length.on}`}>
@@ -126,7 +126,7 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
 
 export function SavedList({ items, page, filter }: SavedListProps) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-panel p-5">
+    <section className="flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-panel p-4">
       <Toolbar filter={filter} />
       {items.length === 0 ? (
         // A filter that matches nothing: say so, and offer the way back (the library itself isn't empty).
@@ -153,7 +153,7 @@ export function SavedList({ items, page, filter }: SavedListProps) {
         </div>
       ) : (
       <>
-      <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] gap-5 border-b border-border px-4 pb-2.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">
+      <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] gap-4 border-b border-border px-4 pb-2.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">
         <RowNumberHead />
         <span />
         <span>Summary</span>

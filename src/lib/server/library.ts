@@ -30,7 +30,8 @@ function label(at: Date, zone: string, now: Date): string {
 }
 
 /** One page of the library (7, newest first) and the total, filtered in the database. */
-export async function listLibrary(user: CurrentUser, filter: LibraryFilter, rawPage: string | string[] | undefined): Promise<{ items: SavedItem[]; page: Page }> {
+/** One page of the library; `size` is how many rows fit the viewer's window (pageSizeFor). */
+export async function listLibrary(user: CurrentUser, filter: LibraryFilter, rawPage: string | string[] | undefined, size: number = pageSizes.saved): Promise<{ items: SavedItem[]; page: Page }> {
   const zone = await viewerZone();
   const now = new Date();
   return actingAs(user.id, async (db) => {
@@ -50,7 +51,7 @@ export async function listLibrary(user: CurrentUser, filter: LibraryFilter, rawP
     const clause = where.length ? `where ${where.join(" and ")}` : "";
 
     const total = Number((await db.query(`select count(*) as n from summaries ${clause}`, args)).rows[0].n);
-    const page = pageOf(rawPage, total, pageSizes.saved);
+    const page = pageOf(rawPage, total, size);
     const rows = (
       await db.query(
         `select id, title, length, created_at, words_in, words_out, figure_status,

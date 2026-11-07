@@ -27,7 +27,7 @@ function Activity({ daily: lastFourteen, accountDays }: { daily: number[]; accou
   const daily = lastFourteen.slice(-days);
   const total = daily.reduce((sum, n) => sum + n, 0);
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-panel p-5">
+    <div className="flex flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-brand-strong">
         <ChartColumn size={16} strokeWidth={2} />
         {days === 1 ? "Today" : `Last ${days} days`}
@@ -49,7 +49,7 @@ function LengthMix({ mix, shorter }: { mix: Record<SummaryLength, number>; short
   const bar: Record<SummaryLength, string> = { short: "bg-short", medium: "bg-medium", bullets: "bg-bullets" };
 
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-panel p-5">
+    <div className="flex flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-muted">
         <span className="text-text">Length mix</span>
         {leads && (
@@ -132,7 +132,7 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
   const shorter = stats.wordsIn > 0 ? Math.round((1 - stats.wordsOut / stats.wordsIn) * 100) : 0;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {account.isGuest ? (
         <GuestCard account={account} />
       ) : (
@@ -168,7 +168,7 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
         />
       ) : (
       <>
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-4 gap-4">
         <StatTile icon={FileText} tone="text-brand-strong" label="Summaries" value={String(stats.summaries)} note={`${stats.lengthMix.medium} medium · ${stats.lengthMix.short} short · ${stats.lengthMix.bullets} bullets`} />
         <StatTile
           icon={Type}
@@ -200,7 +200,7 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
         />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1.4fr_1fr] gap-5">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.4fr_1fr] gap-4">
         <Activity daily={stats.daily} accountDays={stats.accountDays} />
         <LengthMix mix={stats.lengthMix} shorter={stats.lengthShorter} />
       </div>

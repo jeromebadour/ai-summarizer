@@ -32,13 +32,13 @@ import { overviewFigures, type AdminOverview } from "@/lib/admin";
 
 function Card({ icon: Icon, tone, title, aside, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
+    <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
         {aside && <span className="ml-auto">{aside}</span>}
       </div>
-      <div className="mt-4 flex flex-1 flex-col justify-around gap-3">{children}</div>
+      <div className="mt-3 flex flex-1 flex-col justify-around gap-2">{children}</div>
     </section>
   );
 }
@@ -50,18 +50,18 @@ function Metric({ icon: Icon, label, value, note, values, unit = "%", digits = 0
   const pad = Math.max((high - low) * 0.25, high * 0.02);
   const range = `${low.toFixed(digits)}–${high.toFixed(digits)}${unit}`;
   return (
-    <section className="rounded-2xl border border-border bg-panel p-5">
+    <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className={`flex items-center gap-2 text-[12.5px] font-semibold ${tone}`}>
         <Icon size={16} strokeWidth={2} />
         {label}
         <span className="ml-auto font-mono text-[11px] font-medium text-muted">48 h · {range}</span>
       </div>
-      <div className="mt-2 flex items-baseline gap-2.5">
-        <span className="font-mono text-[28px] font-semibold tracking-tight text-text">{value}</span>
+      <div className="mt-1.5 flex items-baseline gap-2.5">
+        <span className="font-mono text-[24px] font-semibold tracking-tight text-text">{value}</span>
         <span className="font-mono text-[11.5px] text-muted">{note}</span>
       </div>
-      <div className={`mt-3 ${tone}`}>
-        <Sparkline values={values} min={Math.max(0, low - pad)} max={high + pad} tall label={`${label} over the last 48 hours, between ${range}`} />
+      <div className={`mt-2 min-h-8 flex-1 ${tone}`}>
+        <Sparkline values={values} min={Math.max(0, low - pad)} max={high + pad} fill label={`${label} over the last 48 hours, between ${range}`} />
       </div>
     </section>
   );
@@ -79,7 +79,7 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
   const failing = claude.failedRate >= 5;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <section className="flex items-center gap-6 rounded-2xl border border-border bg-panel px-6 py-4">
         <span className={`flex items-center gap-2 text-[15px] font-semibold ${look.tone}`}>
           <CircleCheck size={19} strokeWidth={2.1} />
@@ -103,14 +103,15 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
         </span>
       </section>
 
-      <div className="grid grid-cols-4 gap-5">
+      {/* The four lines take the height that is left (never under 7.5 rem); the rows below keep what they need. */}
+      <div className="grid min-h-30 flex-1 grid-cols-4 gap-4">
         <Metric icon={Cpu} tone="text-verify" label="CPU" value={`${s.cpu}%`} note={`of ${s.host.cpus} vCPU`} values={s.series.cpu} />
         <Metric icon={Gauge} tone="text-verify" label="Load" value={s.load.toFixed(2)} note={`${s.host.cpus} cores = full`} values={s.series.load} unit="" digits={2} />
         <Metric icon={MemoryStick} tone="text-input" label="Memory" value={`${s.memory}%`} note={`${memoryUsed.toFixed(1)} of ${s.host.memoryGb} GB`} values={s.series.memory} />
         <Metric icon={HardDrive} tone="text-figure" label="Disk" value={`${s.disk}%`} note={`${diskUsed} of ${s.host.diskGb} GB`} values={s.series.disk} digits={1} />
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid shrink-0 grid-cols-3 gap-4">
         <Card icon={Database} tone="text-verify" title="Database" aside={<span className="font-mono text-[11.5px] font-medium text-verify">PostgreSQL · up</span>}>
           <Fact icon={Database} tone="text-verify" label="Size" value={`${s.database.sizeMb} MB`} />
           <Fact icon={Layers} tone="text-brand-strong" label="Largest table" value={`${s.database.largestTable.name} · ${s.database.largestTable.sizeMb} MB`} />
@@ -138,18 +139,18 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
         </Card>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] gap-5">
+      <div className="grid shrink-0 grid-cols-[1.25fr_1fr] gap-4">
         <Card icon={DatabaseBackup} tone="text-figure" title="Backups" aside={<span className="font-mono text-[11.5px] font-medium text-muted">{s.backup.target}</span>}>
           <div className="grid flex-1 grid-cols-[1fr_1fr] gap-8">
-            <div className="flex flex-col justify-around gap-3">
+            <div className="flex flex-col justify-around gap-2">
               <Fact icon={DatabaseBackup} tone="text-figure" label="Last backup" value={`${s.backup.last} today`} />
               <Fact icon={CalendarClock} tone="text-figure" label="Next" value={s.backup.next} />
               <Fact icon={RefreshCw} tone="text-verify" label="Restore tested" value={`${s.backup.restoreTested} · ${s.backup.restoreSeconds} s`} />
               <Fact icon={HardDrive} tone="text-figure" label="Kept" value={`last ${s.backup.keepDays} days`} />
             </div>
-            <ul className="flex flex-col justify-around gap-2 border-l border-border pl-8">
+            <ul className="flex flex-col justify-around gap-1.5 border-l border-border pl-8">
               {s.backup.recent.map((b) => (
-                <li key={b.id} className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-[11.5px] ${b.ok ? "border-verify/30 bg-verify-soft text-verify" : "border-flag/40 bg-flag-soft text-flag"}`}>
+                <li key={b.id} className={`flex items-center gap-2 rounded-lg border px-3 py-1 font-mono text-[11.5px] ${b.ok ? "border-verify/30 bg-verify-soft text-verify" : "border-flag/40 bg-flag-soft text-flag"}`}>
                   {b.ok ? <CircleCheck size={13} strokeWidth={2.2} /> : <TriangleExclamationPoint size={13} strokeWidth={2.2} />}
                   {b.at}
                   <span className="ml-auto text-muted">{b.sizeMb} MB</span>
