@@ -20,6 +20,7 @@ import { pageOf, pageSizes } from "@/lib/paging";
 import { roles, type Role } from "@/lib/permissions";
 import type { DeviceKind } from "@/lib/profile";
 import { staffActionLabel, staffSentence, type AuditFacts } from "@/lib/staff-words";
+import { version as nextVersion } from "next/package.json";
 import { actingAs } from "./db";
 import type { CurrentUser } from "./session";
 import { agoLabel, partsIn } from "./zone";
@@ -66,6 +67,17 @@ async function diskPercent(): Promise<{ percent: number; sizeGb: number }> {
     return { percent: 0, sizeGb: 0 };
   }
 }
+
+/** "3 days", "5 hours", "12 min": how long the box has been up. */
+function uptimeLabel(seconds: number): string {
+  const days = Math.floor(seconds / 86400);
+  if (days >= 1) return `${days} ${days === 1 ? "day" : "days"}`;
+  const hours = Math.floor(seconds / 3600);
+  if (hours >= 1) return `${hours} ${hours === 1 ? "hour" : "hours"}`;
+  return `${Math.max(1, Math.floor(seconds / 60))} min`;
+}
+
+const num = (v: unknown): number | null => (typeof v === "number" ? v : null);
 
 function health(cpu: number, memory: number, disk: number): ServerHealth {
   const top = Math.max(cpu, memory, disk);
@@ -138,11 +150,29 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
   }
 
   return {
-    serverReady: false,
+    serverReady: () => call<boolean>("select server_reported() as out", []),
 
     async overview() {
-      const [o, cpu, disk] = await Promise.all([call<J>("select admin_overview($1) as out", [zone]), cpuPercent(), diskPercent()]);
-      const memory = Math.round((1 - os.freemem() / os.totalmem()) * 100);
+      const [o, box] = await Promise.all([call<J>("select admin_overview($1) as out", [zone]), call<J>("select admin_server() as out", [])]);
+      // The box's collector (migration 011) once it has reported; until then, what the app's container can see.
+      const latest = box.latest as J | null;
+      const facts = (box.facts ?? {}) as J;
+      // Hourly once there are two hours; before that, the last hour minute by minute (never an empty card).
+      type Lines = Record<"cpu" | "load" | "memory" | "disk", number[]>;
+      const hourly = box.series as Lines;
+      const byMinute = box.minutes as Lines;
+      const useHours = hourly.cpu.length >= 2;
+      const series = useHours ? hourly : byMinute;
+      const seriesSpan = useHours ? `${hourly.cpu.length} h` : `${byMinute.cpu.length} min`;
+      const [cpu, disk] = latest
+        ? [Math.round(Number(latest.cpu)), { percent: Math.round(Number(latest.disk)), sizeGb: num(facts.diskGb) ?? 0 }]
+        : await Promise.all([cpuPercent(), diskPercent()]);
+      const memory = latest ? Math.round(Number(latest.memory)) : Math.round((1 - os.freemem() / os.totalmem()) * 100);
+      const load = latest ? Number(latest.load) : Math.round(os.loadavg()[0] * 100) / 100;
+      const certExpires = typeof facts.certExpires === "string" ? new Date(facts.certExpires) : null;
+      const httpsDays = certExpires ? Math.floor((certExpires.getTime() - now.getTime()) / 86_400_000) : null;
+      const dateLong = (d: Date) => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: zone }).format(d);
+      const started = typeof facts.appStartedAt === "string" ? stamp(facts.appStartedAt).at : "";
       const settings = o.settings as J;
       const pause = (p: J | null) => (p ? { since: stamp(String(p.since)).when, by: person(p.by as J)!, reason: String(p.reason ?? "") } : null);
       const summaries = (o.summaries as number[]).map(Number);
@@ -167,6 +197,15 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
       if (serverHealth === "strained") {
         attention.push({ id: "server", kind: "server", title: "The server is under strain", detail: `CPU ${cpu}% · memory ${memory}% · disk ${disk.percent}%` });
       }
+      if (latest && Number(latest.ageSeconds) > 300) {
+        attention.push({ id: "collector", kind: "server", title: "The box stopped reporting", detail: `last reading ${agoLabel(new Date(String(latest.at)), now, zone).toLowerCase()} · the numbers below are from then` });
+      }
+      if (httpsDays !== null && httpsDays < 14) {
+        attention.push({ id: "https", kind: "server", title: "The HTTPS certificate expires soon", detail: `${httpsDays} days left; it should have renewed itself` });
+      }
+      if (facts.sshPasswordOff === false) {
+        attention.push({ id: "ssh", kind: "server", title: "The box accepts passwords for sign-in", detail: "SSH should be key only" });
+      }
 
       const overview: AdminOverview = {
         today,
@@ -180,19 +219,25 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
         server: {
           health: serverHealth,
           host: {
-            os: `${os.type()} ${os.release()}`,
-            kernel: os.release(),
-            region: "",
-            cpus: os.cpus().length,
-            memoryGb: Math.round(os.totalmem() / 1e9),
-            diskGb: disk.sizeGb,
-            uptime: `${Math.floor(os.uptime() / 86400)} days`,
+            os: typeof facts.os === "string" ? facts.os : `${os.type()} ${os.release()}`,
+            kernel: typeof facts.kernel === "string" ? facts.kernel : os.release(),
+            region: typeof facts.region === "string" ? facts.region : "",
+            cpus: num(facts.cpus) ?? os.cpus().length,
+            memoryGb: num(facts.memoryGb) ?? Math.round(os.totalmem() / 1e9),
+            diskGb: num(facts.diskGb) ?? disk.sizeGb,
+            uptime: uptimeLabel(num(facts.uptimeSeconds) ?? os.uptime()),
           },
           cpu,
-          load: Math.round(os.loadavg()[0] * 100) / 100,
+          load,
           memory,
           disk: disk.percent,
-          series: { cpu: [], load: [], memory: [], disk: [] },
+          seriesSpan,
+          series: {
+            cpu: series.cpu.map(Number),
+            load: series.load.map(Number),
+            memory: series.memory.map(Number),
+            disk: series.disk.map(Number),
+          },
           database: {
             up: true,
             sizeMb: Number(o.dbSizeMb),
@@ -206,11 +251,18 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
             failedToday,
             lastFailure: lastFailure ? { at: stamp(String(lastFailure.at)).at, code: String(lastFailure.code).replace("claude_", "") } : null,
           },
-          app: { commit: process.env.APP_COMMIT ?? "", deployedAt: "", next: "16", node: process.version },
-          // Filled by the box's collector, backups and certificate (step 3); hidden until then.
+          app: { commit: process.env.APP_COMMIT ?? "", deployedAt: started, next: nextVersion, node: process.version.replace(/^v(\d+\.\d+).*/, "$1") },
+          // Backups appear once they run on the box (open item 1.4); hidden until then.
           backup: null,
-          security: { firewallPorts: [], bannedNow: 0, bannedToday: 0, updatesPending: 0, httpsUntil: "" },
-          httpsDays: null,
+          security: {
+            sshPasswordOff: typeof facts.sshPasswordOff === "boolean" ? facts.sshPasswordOff : null,
+            firewallPorts: Array.isArray(facts.firewallPorts) ? facts.firewallPorts.map(Number) : null,
+            bannedNow: num(facts.bannedNow),
+            bannedToday: num(facts.bannedToday),
+            updatesPending: num(facts.updatesPending),
+            httpsUntil: certExpires ? dateLong(certExpires) : null,
+          },
+          httpsDays,
         },
         attention,
       };

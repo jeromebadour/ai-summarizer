@@ -1,0 +1,11 @@
+# The box reports itself to Distill's admin console (ops/collector.py). Installed by scripts/deploy.sh.
+[Unit]
+Description=Distill: record the box's readings for the admin console
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/sites/tools/distill/collector.py
+Nice=10
+TimeoutStartSec=90

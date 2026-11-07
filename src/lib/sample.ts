@@ -172,6 +172,7 @@ export const sampleOverview: AdminOverview = {
     load: 0.42,
     memory: 38,
     disk: 14,
+    seriesSpan: "48 h",
     series: {
       cpu: [4, 2, 2, 2, 4, 5, 6, 10, 8, 10, 10, 11, 11, 11, 13, 10, 8, 7, 6, 5, 3, 5, 2, 2, 2, 2, 2, 2, 6, 5, 6, 7, 8, 10, 10, 14, 11, 11, 10, 10, 8, 7, 9, 5, 4, 2, 2, 7],
       load: [0.35, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.44, 0.32, 0.4, 0.45, 0.49, 0.5, 0.49, 0.65, 0.4, 0.32, 0.24, 0.15, 0.15, 0.15, 0.35, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.35, 0.15, 0.15, 0.24, 0.32, 0.4, 0.45, 0.69, 0.5, 0.49, 0.45, 0.4, 0.32, 0.24, 0.35, 0.15, 0.15, 0.15, 0.15, 0.42],
@@ -195,7 +196,7 @@ export const sampleOverview: AdminOverview = {
         { id: "b2", at: "Nov 4, 03:00", sizeMb: 38, ok: true },
       ],
     },
-    security: { firewallPorts: [22, 80, 443], bannedNow: 3, bannedToday: 17, updatesPending: 0, httpsUntil: "Feb 5, 2027" },
+    security: { sshPasswordOff: true, firewallPorts: [22, 80, 443], bannedNow: 3, bannedToday: 17, updatesPending: 0, httpsUntil: "Feb 5, 2027" },
     httpsDays: 90,
   },
   attention: [],

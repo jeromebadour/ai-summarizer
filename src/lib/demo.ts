@@ -11,7 +11,7 @@ import { adminActivity, adminOverview, adminRoleChanges, adminRoleHolders, admin
  */
 export function demoSource(rows: number = pageSizes.adminTable): AdminSource {
   return {
-    serverReady: true,
+    serverReady: async () => true,
 
     async overview() {
       return adminOverview;

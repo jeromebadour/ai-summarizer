@@ -1,0 +1,10 @@
+# Every minute, on the minute. Installed and enabled by scripts/deploy.sh.
+[Unit]
+Description=Distill: record the box's readings every minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

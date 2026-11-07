@@ -67,8 +67,9 @@ export async function AdminShell({
   const requested = typeof params.tab === "string" ? params.tab : undefined;
   const role: Role = mode.kind === "demo" ? "owner" : mode.account.role;
   const base = mode.kind === "demo" ? "/demo/admin" : "/admin";
-  // The Server tab waits for the box (collector, backups, certificate): hidden until it can show real numbers.
-  const shownTabs = tabs.filter((t) => can(role, t.needs) && (t.key !== "server" || source.serverReady));
+  // The Server tab waits for the box's collector: hidden until it can show real numbers.
+  const serverReady = can(role, "server.view") && (await source.serverReady());
+  const shownTabs = tabs.filter((t) => can(role, t.needs) && (t.key !== "server" || serverReady));
   const tab = shownTabs.find((t) => t.key === requested)?.key ?? shownTabs[0].key;
   // Moderators don't see the overview (the database refuses it), so they get no figures and no brake pills.
   const overview = can(role, "overview.view") ? await source.overview() : null;
@@ -111,7 +112,7 @@ export async function AdminShell({
             })}
           {mode.kind === "demo" && <DemoExitButton signedIn={mode.signedIn} />}
         </div>
-        {tab === "overview" && overview && <AdminOverview overview={overview} recent={await source.recentNotable()} base={base} serverReady={source.serverReady} />}
+        {tab === "overview" && overview && <AdminOverview overview={overview} recent={await source.recentNotable()} base={base} serverReady={serverReady} />}
         {tab === "server" && overview && <AdminServer overview={overview} base={base} />}
         {tab === "roles" && <RolesTab source={source} base={base} />}
         {tab === "spend" && overview && <SpendTab overview={overview} source={source} params={params} role={role} base={base} />}

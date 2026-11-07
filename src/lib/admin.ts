@@ -92,6 +92,8 @@ export type AdminOverview = {
     disk: number;
     /** One sample an hour, oldest first, the last 48 hours (the collector keeps one a minute; the chart shows hourly). */
     series: { cpu: number[]; load: number[]; memory: number[]; disk: number[] };
+    /** What the lines cover: "48 h" once full; in the first hours "5 h", or "12 min" from the minute readings. */
+    seriesSpan: string;
     database: { up: boolean; sizeMb: number; connections: number; maxConnections: number; largestTable: { name: string; sizeMb: number } };
     claude: { avgSeconds: number; p95Seconds: number; failedToday: number; lastFailure: { at: string; code: string } | null };
     app: { commit: string; deployedAt: string; next: string; node: string };
@@ -106,7 +108,15 @@ export type AdminOverview = {
       /** Newest first, a short preview; the full list is paged. */
       recent: { id: string; at: string; sizeMb: number; ok: boolean }[];
     } | null;
-    security: { firewallPorts: number[]; bannedNow: number; bannedToday: number; updatesPending: number; httpsUntil: string };
+    /** Each is null when the box couldn't read it (that line is hidden, never guessed). */
+    security: {
+      sshPasswordOff: boolean | null;
+      firewallPorts: number[] | null;
+      bannedNow: number | null;
+      bannedToday: number | null;
+      updatesPending: number | null;
+      httpsUntil: string | null;
+    };
     /** Null until the certificate is read on the box. */
     httpsDays: number | null;
   };

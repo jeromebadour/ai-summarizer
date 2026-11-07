@@ -10,3 +10,5 @@ delete from users;
 update settings set monthly_cap_usd = 40, daily_cap_usd = 3, workspace_cap_usd = 50,
   guests_paused_at = null, guests_paused_by = null, guests_paused_reason = null,
   all_paused_at = null, all_paused_by = null, all_paused_reason = null;
+delete from server_samples;
+delete from server_facts;

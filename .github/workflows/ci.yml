@@ -87,6 +87,16 @@ jobs:
           echo "$out"
           if echo "$out" | grep -q applying; then echo "a migration ran twice"; exit 1; fi
 
+      - name: The box's collector reports to the real database
+        # The real script, as root, as the box runs it: it finds the stack by its labels and signs in over the
+        # database container's own socket as distill_collector (migration 011).
+        run: |
+          sudo /usr/bin/python3 ops/collector.py --facts
+          got=$(psql -Atc "select count(*) || ' ' || (select facts ? 'os' and facts ? 'appStartedAt' from server_facts) from server_samples")
+          echo "readings, facts present: $got"
+          [ "$got" = "1 true" ] || { echo "the collector did not report"; exit 1; }
+          psql -qc "delete from server_samples; delete from server_facts"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

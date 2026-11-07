@@ -5,16 +5,17 @@
 #   /srv/distill/app/scripts/deploy.sh <commit> --check  only say whether it may be deployed
 #
 # It refuses unless: this is the Freelance box, the commit is on main, and CI passed on it (both jobs, read from
-# GitHub). Then it moves the checkout forward to that commit, builds and starts it, waits for the health check and
-# checks the public site. The build log goes to /srv/distill/deploy-logs/. The running version is only replaced once
-# the new image has built; a failed build leaves it untouched.
+# GitHub). Then it moves the checkout forward to that commit, builds and starts it, waits for the health check,
+# checks the public site, and installs and runs the box's collector (ops/collector.py, every minute by systemd).
+# The build log goes to /srv/distill/deploy-logs/. The running version is only replaced once the new image has built;
+# a failed build leaves it untouched.
 #
 # The whole script lives in main(), which bash reads in full before running anything: the deploy moves this very file
 # forward, and a script edited while it runs must not pick up the new lines halfway.
 
 main() {
   set -uo pipefail
-  local box=vmi3464201 app=/srv/distill/app env=/srv/distill/.env logs=/srv/distill/deploy-logs
+  local box=vmi3464201 app=/srv/distill/app env=/srv/distill/.env logs=/srv/distill/deploy-logs tools=/opt/sites/tools/distill
   local repo=jeromebadour/ai-summarizer site=https://distill.jeromebadour.com
 
   stop() { echo "STOPPED: $*"; exit 1; }
@@ -78,7 +79,18 @@ print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub
   [ "$image" = "distill-app:$short" ] || stop "running $image, expected distill-app:$short"
   code=$(curl -s -o /dev/null -w '%{http_code}' "$site/login")
   [ "$code" = 200 ] || stop "$site/login answered $code"
-  echo "DEPLOYED $short: $image healthy, $site/login 200"
+
+  # The box reports itself to the console (ops/collector.py, migration 011): installed from this commit, run once now
+  # with the host's facts (so "Deployed" is current), then every minute by its timer.
+  echo "== the box's collector"
+  install -d -m 755 "$tools"
+  install -m 755 "$app/ops/collector.py" "$tools/collector.py"
+  install -m 644 "$app/ops/systemd/distill-collector.service" "$app/ops/systemd/distill-collector.timer" /etc/systemd/system/
+  systemctl daemon-reload
+  systemctl enable --now --quiet distill-collector.timer || stop "the collector's timer would not start"
+  /usr/bin/python3 "$tools/collector.py" --facts || stop "the collector failed (journalctl -u distill-collector -n 20)"
+  echo "   reading and facts recorded; next reading $(systemctl show distill-collector.timer -p NextElapseUSecRealtime --value)"
+  echo "DEPLOYED $short: $image healthy, $site/login 200, the box reporting"
 }
 
 main "$@"; exit

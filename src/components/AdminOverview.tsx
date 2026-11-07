@@ -106,7 +106,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
           tone="text-brand-strong"
           label="Claude API"
           alert={claude.failedRate >= 5}
-          value={`${server.claude.avgSeconds.toFixed(1)} s avg · ${server.claude.failedToday} of ${claude.requestsToday} failed today (${claude.failedRate}%)`}
+          value={claude.requestsToday === 0 ? "no requests today" : `${server.claude.avgSeconds.toFixed(1)} s avg · ${server.claude.failedToday} of ${claude.requestsToday} failed today (${claude.failedRate}%)`}
         />
         {/* Hidden until the box reports them (backups and the certificate are read there), never guessed. */}
         {server.backup && (

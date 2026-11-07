@@ -265,6 +265,56 @@ with sync_playwright() as p:
     mpg.wait_for_selector("textarea")
     check("it goes back to their own Distill", mpg.url == BASE + "/", mpg.url)
 
+    # 11. The box reports itself (migration 011, ops/collector.py): the Server tab opens on real readings.
+    soon = "2027-02-05T10:00:00+00:00"
+    import datetime as _dt
+    from zoneinfo import ZoneInfo
+    started = _dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(minutes=10)
+    started_at = started.astimezone(ZoneInfo("Europe/Istanbul")).strftime("%H:%M")
+    facts = ('{"os": "Ubuntu 24.04.5 LTS", "kernel": "6.8.0-149-generic", "region": "Singapore", "cpus": 6, "memoryGb": 12, '
+             '"diskGb": 194, "uptimeSeconds": 302400, "firewallPorts": [22, 80, 443], "bannedNow": 2, "bannedToday": 9, '
+             '"updatesPending": 0, "sshPasswordOff": true, "certExpires": "' + soon + '", "appStartedAt": "' + started.isoformat() + '"}')
+    sql("insert into server_samples (taken_at, cpu, load1, memory, disk, db_size_mb, connections) values "
+        "(now() - interval '2 hours', 30, 0.9, 40, 22.4, 9, 4), (now() - interval '1 hour', 20, 0.5, 39, 22.4, 9, 4)")
+    sql(f"set role distill_collector; select record_server_sample(12, 0.3, 41, 22.5); select record_server_facts('{facts}')")
+    opg.goto(BASE + "/admin")
+    opg.wait_for_selector("h1:has-text('Admin')")
+    check("the owner sees the Server tab once the box reports", "Server" in tabs(opg), str(tabs(opg)))
+    check("the Overview links to it", opg.locator("main a:has-text('Details')").count() == 1)
+    check("the Overview shows the certificate from the box", "HTTPS" in opg.inner_text("main"))
+    opg.goto(BASE + "/admin?tab=server")
+    opg.wait_for_selector("text=Singapore")
+    body = opg.inner_text("main")
+    for want in ["Ubuntu 24.04.5 LTS", "6 vCPU · 12 GB memory · 194 GB disk", "up 3 days", "41%", "open: 22, 80, 443",
+                 "2 now · 9 today", "SSH key only · passwords off", "none pending", "valid until Feb 5, 2027", started_at]:
+        check(f"the Server tab shows {want}", want in body, body[:400])
+    check("its lines are the box's hours", body.count("3 h ·") == 4, body[:400])
+    shot(opg, "11-server")
+    apg = pages["admin"]
+    apg.goto(BASE + "/admin")
+    apg.wait_for_selector("h1:has-text('Admin')")
+    check("an admin sees it too", "Server" in tabs(apg))
+    mpg.goto(BASE + "/admin?tab=server")
+    mpg.wait_for_selector("h1:has-text('Admin')")
+    check("a moderator never does", "Server" not in tabs(mpg) and "Singapore" not in mpg.inner_text("main"))
+
+    # A line the box couldn't read is left out, not guessed.
+    sql("set role distill_collector; select record_server_facts('{\"os\": \"Ubuntu 24.04.5 LTS\", \"cpus\": 6}')")
+    opg.goto(BASE + "/admin?tab=server")
+    opg.wait_for_selector("text=Ubuntu 24.04.5 LTS")
+    body = opg.inner_text("main")
+    check("no Security card without facts", "Firewall" not in body and "Security" not in body, body[-300:])
+
+    # Real problems, and only those, raise the alarm.
+    in5 = sql("select to_char(now() + interval '5 days', 'YYYY-MM-DD\"T\"HH24:MI:SS\"+00:00\"')")
+    sql(f"set role distill_collector; select record_server_facts('{{\"certExpires\": \"{in5}\"}}')")
+    sql("update server_samples set taken_at = taken_at - interval '20 minutes'")
+    opg.goto(BASE + "/admin")
+    opg.wait_for_selector("h1:has-text('Admin')")
+    alarm = opg.locator("section[role=alert]").inner_text() if opg.locator("section[role=alert]").count() else ""
+    check("a silent collector is flagged", "The box stopped reporting" in alarm, alarm)
+    check("a certificate near its end is flagged", "The HTTPS certificate expires soon" in alarm, alarm)
+
     b.close()
 
 passed = sum(ok for _, ok in results)

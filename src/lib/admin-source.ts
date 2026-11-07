@@ -25,8 +25,8 @@ export type AdminSource = {
   roles(): Promise<{ holders: RoleHolder[]; changes: RoleChange[] }>;
   /** Who suspended this person, when and why (for Restore). */
   suspension(username: string): Promise<{ by: Person | null; on: string; reason: string } | null>;
-  /** False until the box's collector, backups and certificate exist: the Server tab and those lines stay hidden. */
-  serverReady: boolean;
+  /** Whether the box has reported (the Server tab and its links stay hidden until it has). */
+  serverReady(): Promise<boolean>;
 };
 
 const activityKindList: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
