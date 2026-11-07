@@ -194,7 +194,7 @@ begin
 end $$;
 
 -- Roles tab (from 007): a change between staff roles counts as well. A holder's "since" and "by" come from the latest
--- grant or change; the history lists grants, changes and revokes.
+-- grant or change. The history is a preview, the latest 5 grants, changes and revokes; Activity holds them all, paged.
 create or replace function admin_roles() returns jsonb
 language plpgsql stable security definer set search_path = public as $$
 declare out jsonb;
@@ -212,7 +212,8 @@ begin
     'changes', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'at', a.created_at, 'action', a.action, 'role', a.details->>'role',
                  'reason', a.reason, 'actor', (select person_json(x) from users x where x.id = a.actor_id),
                  'target', (select person_json(t) from users t where t.id = a.target_user_id)) order by a.created_at desc, a.id desc)
-               from audit_log a where a.action in ('grant_role', 'change_role', 'revoke_role')), '[]')
+               from (select * from audit_log where action in ('grant_role', 'change_role', 'revoke_role')
+                     order by created_at desc, id desc limit 5) a), '[]')
   ) into out;
   return out;
 end $$;

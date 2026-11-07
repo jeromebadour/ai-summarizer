@@ -126,6 +126,12 @@ begin
   -- The Roles tab lists all three, newest first.
   assert (select string_agg(c->>'action', ',') from jsonb_array_elements(admin_roles()->'changes') c) = 'revoke_role,change_role,grant_role',
     'roles history wrong';
+  -- It shows the latest 5 only (Activity has them all).
+  perform staff_set_role('kevin_n', 'moderator', 'One');
+  perform staff_set_role('kevin_n', 'admin', 'Two');
+  perform staff_set_role('kevin_n', 'user', 'Three');
+  assert jsonb_array_length(admin_roles()->'changes') = 5, 'the roles preview is not 5 rows';
+  assert admin_roles()->'changes'->0->>'reason' = 'Three', 'the preview is not newest first';
   -- The owner finds accounts by username or email, never guests.
   assert staff_find_account('@Kevin_N ')->>'username' = 'kevin_n', 'find by username';
   assert staff_find_account('hana@example.com')->>'role' = 'admin', 'find by email';

@@ -1,4 +1,4 @@
-import { Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";
 import { RowNumber } from "@/components/RowNumber";
@@ -89,7 +89,18 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
           </ul>
         </Panel>
 
-        <Panel icon={ScrollText} tone="text-brand-strong" title="Role changes" aside={<span className="font-mono text-[11.5px] text-muted">newest first</span>} grow>
+        <Panel
+          icon={ScrollText}
+          tone="text-brand-strong"
+          title="Role changes"
+          aside={
+            <Link href={`${base}?tab=activity&kind=staff` as never} className="flex items-center gap-1 text-[12px] font-semibold text-brand-strong hover:underline">
+              All staff actions
+              <ArrowUpRight size={14} strokeWidth={2} />
+            </Link>
+          }
+          grow
+        >
           <ul className="mt-3 flex flex-col">
             {changes.map((c, i) => (
               <li key={c.id} className="grid grid-cols-[20px_52px_minmax(0,1fr)] items-start gap-3 border-b border-border py-2 last:border-b-0">

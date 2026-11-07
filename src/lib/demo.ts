@@ -60,7 +60,8 @@ export const demoSource: AdminSource = {
   },
 
   async roles() {
-    return { holders: adminRoleHolders, changes: adminRoleChanges };
+    // The latest 5, like the live preview; Activity holds them all.
+    return { holders: adminRoleHolders, changes: adminRoleChanges.slice(0, 5) };
   },
 
   async suspension(username) {

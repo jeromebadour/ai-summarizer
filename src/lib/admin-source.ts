@@ -21,6 +21,7 @@ export type AdminSource = {
   activity(filters: ActivityFilters, rawPage: string | string[] | undefined): Promise<{ rows: ActivityEntry[]; page: Page; counts: Record<ActivityKind, number> }>;
   /** This month's spend per person, most first. */
   spend(fromDay: string, rawPage: string | string[] | undefined): Promise<{ rows: SpendRow[]; page: Page }>;
+  /** The staff, and the latest 5 role changes (a preview; Activity holds them all, paged). */
   roles(): Promise<{ holders: RoleHolder[]; changes: RoleChange[] }>;
   /** Who suspended this person, when and why (for Restore). */
   suspension(username: string): Promise<{ by: Person | null; on: string; reason: string } | null>;
