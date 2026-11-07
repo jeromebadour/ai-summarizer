@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { BrandMark } from "@/components/BrandMark";
 import { CodeXml, Library, Link2, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -24,13 +26,7 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
     <div className="grid h-screen grid-cols-[1.15fr_1fr]">
       <section className="flex flex-col justify-between border-r border-border bg-[radial-gradient(900px_500px_at_20%_10%,var(--glow),transparent_70%)] px-16 py-9">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-brand">
-            <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden>
-              <rect x="2" y="3" width="18" height="3.2" rx="1.6" fill="var(--on-brand)" />
-              <rect x="5" y="9.4" width="12" height="3.2" rx="1.6" fill="var(--on-brand)" />
-              <rect x="8" y="15.8" width="6" height="3.2" rx="1.6" fill="var(--on-brand)" />
-            </svg>
-          </span>
+          <BrandMark size={40} />
           <span className="text-[19px] font-semibold tracking-[-0.01em]">Distill</span>
         </div>
 
@@ -59,6 +55,9 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
         <div className="flex items-center gap-4 font-mono text-[11.5px] text-muted">
           <span>Built by Jerome Badour</span>
           <span>© 2026 Jerome Badour</span>
+          <Link href="/about" className="text-brand-strong hover:text-text">About</Link>
+          <Link href="/privacy" className="text-brand-strong hover:text-text">Privacy</Link>
+          <Link href="/terms" className="text-brand-strong hover:text-text">Terms</Link>
           <a href="https://github.com/jeromebadour/ai-summarizer" className="flex items-center gap-1.5 text-brand-strong hover:text-text">
             <CodeXml size={14} strokeWidth={2} />
             Source on GitHub

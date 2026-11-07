@@ -132,9 +132,8 @@
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 70% -10%, var(--glow), transparent 70%),
-    var(--bg);
+  /* The glow is drawn once at the top; repeated, it showed again halfway down long pages (About, Privacy, Terms). */
+  background: radial-gradient(1200px 600px at 70% -10%, var(--glow), transparent 70%) no-repeat, var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
 }

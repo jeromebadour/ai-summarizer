@@ -1,4 +1,4 @@
-import { FlaskConical, Library, LogOut, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
+import { FlaskConical, Info, Library, LogOut, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { savePreference } from "@/app/actions/account";
 import { signOut } from "@/app/actions/auth";
@@ -51,6 +51,8 @@ export function Rail({ page, account }: { page: RailPage; account: Account }) {
         {isStaff(account.role) && <RailItem icon={ShieldUser} label="Admin" href="/admin" active={page === "admin"} />}
       </nav>
       <div className="mt-auto flex flex-col items-center gap-2">
+        {/* About, Privacy and Terms: reading pages, so they sit with the quiet controls, not the main three. */}
+        <RailItem icon={Info} label="About" href="/about" />
         <ThemeToggle save={savePreference} className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text" />
         <form action={signOut}>
           <PendingButton

@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/BrandMark";
 import { DoorOpen, ShieldUser } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -30,12 +31,8 @@ export function DemoRail() {
 
 export function RailLogo() {
   return (
-    <div className="mb-8 grid size-11 place-items-center rounded-xl bg-brand shadow-[0_0_24px_var(--glow)]" aria-label="Distill">
-      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
-        <rect x="2" y="3" width="18" height="3.2" rx="1.6" fill="var(--on-brand)" />
-        <rect x="5" y="9.4" width="12" height="3.2" rx="1.6" fill="var(--on-brand)" />
-        <rect x="8" y="15.8" width="6" height="3.2" rx="1.6" fill="var(--on-brand)" />
-      </svg>
+    <div className="mb-8" aria-label="Distill">
+      <BrandMark size={44} glow />
     </div>
   );
 }

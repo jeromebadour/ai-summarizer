@@ -12,7 +12,7 @@ export async function GET() {
   const data = await actingAs(user.id, async (db) => {
     const account = (
       await db.query(
-        "select name, username, email, role, avatar_colour, default_length, theme, motion, created_at from users",
+        "select name, username, email, role, avatar_colour, default_length, theme, motion, links, created_at from users",
       )
     ).rows[0];
     const summaries = (
