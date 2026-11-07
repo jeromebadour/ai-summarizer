@@ -43,7 +43,7 @@ jobs:
 
       - name: Types and lint
         run: |
-          npx tsc --noEmit
+          npm run typecheck
           npx eslint src
 
       - name: Unit tests
