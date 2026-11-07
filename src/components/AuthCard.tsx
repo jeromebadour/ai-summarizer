@@ -5,15 +5,19 @@ import {
   Eye,
   EyeOff,
   IdCard,
+  LoaderCircle,
   LockKeyhole,
   LogIn,
   Mail,
   ShieldUser,
+  TriangleExclamationPoint,
   UserRound,
   UserRoundPlus,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { signIn, signUp, startGuest, usernameFree, type AuthState } from "@/app/actions/auth";
 import { Field } from "@/components/Field";
 import { PasswordCheck } from "@/components/PasswordCheck";
 import { UsernameStatus } from "@/components/UsernameStatus";
@@ -21,31 +25,38 @@ import { checkUsernameFormat, type UsernameCheck } from "@/lib/username";
 
 export type AuthMode = "signin" | "signup";
 
-type AuthCardProps = {
-  initialMode: AuthMode;
-  initialName?: string;
-  initialUsername?: string;
-  initialUsernameStatus?: UsernameCheck;
-  initialEmail?: string;
-  initialPassword?: string;
-};
-
-export function AuthCard({
-  initialMode,
-  initialName = "",
-  initialUsername = "",
-  initialUsernameStatus,
-  initialEmail = "",
-  initialPassword = "",
-}: AuthCardProps) {
+export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
-  const [name, setName] = useState(initialName);
-  const [username, setUsername] = useState(initialUsername);
-  const [usernameStatus, setUsernameStatus] = useState<UsernameCheck>(initialUsernameStatus ?? checkUsernameFormat(initialUsername));
-  const [email, setEmail] = useState(initialEmail);
-  const [password, setPassword] = useState(initialPassword);
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<UsernameCheck>({ status: "empty" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [signInState, signInAction] = useActionState<AuthState, FormData>(signIn, undefined);
+  const [signUpState, signUpAction] = useActionState<AuthState, FormData>(signUp, undefined);
   const signin = mode === "signin";
+  const state = signin ? signInState : signUpState;
+
+  // The server answers whether a well-formed username is free, a moment after typing stops.
+  useEffect(() => {
+    if (usernameStatus.status !== "checking") return;
+    let live = true;
+    const timer = setTimeout(async () => {
+      const free = await usernameFree(username);
+      if (live && free !== null) setUsernameStatus({ status: free ? "available" : "taken" });
+    }, 350);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [username, usernameStatus.status]);
+
+  // A server refusal for the username (taken in a race) shows in the field's own status.
+  const shownUsernameStatus: UsernameCheck =
+    !signin && signUpState?.field === "username" && signUpState.error === "That username is taken" && usernameStatus.status !== "checking"
+      ? { status: "taken" }
+      : usernameStatus;
 
   return (
     <div className="w-[400px]">
@@ -70,13 +81,14 @@ export function AuthCard({
         })}
       </div>
 
-      <form className="mt-6 space-y-4" onSubmit={(event) => event.preventDefault()}>
+      <form key={mode} action={signin ? signInAction : signUpAction} className="mt-6 space-y-4">
         {!signin && (
           <>
-            <Field icon={IdCard} label="Name" type="text" placeholder="What should we call you?" value={name} onChange={setName} autoComplete="name" />
+            <Field icon={IdCard} label="Name" name="name" type="text" placeholder="What should we call you?" value={name} onChange={setName} autoComplete="name" />
             <Field
               icon={AtSign}
               label="Username"
+              name="username"
               type="text"
               placeholder="maya_k"
               value={username}
@@ -85,13 +97,14 @@ export function AuthCard({
                 setUsernameStatus(checkUsernameFormat(value));
               }}
               autoComplete="username"
-              trailing={<UsernameStatus check={usernameStatus} />}
+              trailing={<UsernameStatus check={shownUsernameStatus} />}
             />
           </>
         )}
         <Field
           icon={signin ? AtSign : Mail}
           label={signin ? "Email or username" : "Email"}
+          name={signin ? "identifier" : "email"}
           type={signin ? "text" : "email"}
           placeholder={signin ? "you@company.com or maya_k" : "you@company.com"}
           value={email}
@@ -101,6 +114,7 @@ export function AuthCard({
         <Field
           icon={LockKeyhole}
           label="Password"
+          name="password"
           type={showPassword ? "text" : "password"}
           placeholder={signin ? "Your password" : "Choose a password"}
           value={password}
@@ -118,13 +132,13 @@ export function AuthCard({
           }
         />
         {!signin && <PasswordCheck password={password} email={email} />}
-        <button
-          type="submit"
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-[14.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
-        >
-          {signin ? <LogIn size={18} strokeWidth={2.1} /> : <UserRoundPlus size={18} strokeWidth={2.1} />}
-          {signin ? "Sign in" : "Create account"}
-        </button>
+        {state?.error && (
+          <p role="alert" className="flex items-center gap-2 rounded-lg border border-flag/30 bg-flag-soft px-3 py-2 text-[13px] font-semibold text-flag">
+            <TriangleExclamationPoint size={15} strokeWidth={2.2} />
+            {state.error}
+          </p>
+        )}
+        <SubmitButton signin={signin} />
       </form>
 
       <div className="my-6 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-faint">
@@ -133,13 +147,9 @@ export function AuthCard({
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <button
-        type="button"
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-input/40 bg-input-soft py-3 text-[14px] font-semibold text-input hover:border-input/70"
-      >
-        <UserRound size={18} strokeWidth={2} />
-        Try it as a guest
-      </button>
+      <form action={startGuest}>
+        <GuestButton />
+      </form>
       <p className="mt-2.5 text-center font-mono text-[11px] text-muted">No account needed · 5 summaries an hour</p>
 
       <Link
@@ -151,5 +161,35 @@ export function AuthCard({
       </Link>
       <p className="mt-2.5 text-center font-mono text-[11px] text-muted">The owner&apos;s console · invented data · read-only</p>
     </div>
+  );
+}
+
+function SubmitButton({ signin }: { signin: boolean }) {
+  const { pending } = useFormStatus();
+  const Icon = pending ? LoaderCircle : signin ? LogIn : UserRoundPlus;
+  const label = pending ? (signin ? "Signing in" : "Creating your account") : signin ? "Sign in" : "Create account";
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-[14.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:cursor-progress"
+    >
+      <Icon size={18} strokeWidth={2.1} className={pending ? "animate-spin" : undefined} />
+      {label}
+    </button>
+  );
+}
+
+function GuestButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center justify-center gap-2 rounded-xl border border-input/40 bg-input-soft py-3 text-[14px] font-semibold text-input hover:border-input/70 disabled:cursor-progress"
+    >
+      {pending ? <LoaderCircle size={18} strokeWidth={2} className="animate-spin" /> : <UserRound size={18} strokeWidth={2} />}
+      {pending ? "Starting a guest session" : "Try it as a guest"}
+    </button>
   );
 }

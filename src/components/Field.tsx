@@ -10,9 +10,11 @@ type FieldProps = {
   onChange: (value: string) => void;
   autoComplete: string;
   trailing?: ReactNode;
+  /** The form field name, so a form action receives the value. */
+  name?: string;
 };
 
-export function Field({ icon: Icon, label, type, placeholder, value, onChange, autoComplete, trailing }: FieldProps) {
+export function Field({ icon: Icon, label, type, placeholder, value, onChange, autoComplete, trailing, name }: FieldProps) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-[12.5px] font-semibold text-muted">{label}</span>
@@ -20,6 +22,7 @@ export function Field({ icon: Icon, label, type, placeholder, value, onChange, a
         <Icon size={17} strokeWidth={2} className="text-brand-strong" />
         <input
           type={type}
+          name={name}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}

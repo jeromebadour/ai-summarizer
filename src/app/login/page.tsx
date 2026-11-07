@@ -1,8 +1,10 @@
 import { CodeXml, Library, Link2, ShieldCheck } from "lucide-react";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AuthCard } from "@/components/AuthCard";
 import { AuthShowcase } from "@/components/AuthShowcase";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { currentUser } from "@/lib/server/session";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
@@ -13,6 +15,8 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 }
 
 async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
+  // Already signed in (or a guest): nothing to do here.
+  if (await currentUser()) redirect("/");
   const mode = (await searchParams).mode === "signup" ? "signup" : "signin";
 
   return (
@@ -61,14 +65,7 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
       </section>
 
       <section className="grid place-items-center px-12">
-        <AuthCard
-          initialMode={mode}
-          initialName={mode === "signup" ? "Maya Klein" : ""}
-          initialUsername={mode === "signup" ? "maya_k" : ""}
-          initialUsernameStatus={mode === "signup" ? { status: "available" } : undefined}
-          initialEmail={mode === "signup" ? "maya.k@example.com" : ""}
-          initialPassword={mode === "signup" ? "harbor2026" : ""}
-        />
+        <AuthCard initialMode={mode} />
       </section>
     </div>
   );
