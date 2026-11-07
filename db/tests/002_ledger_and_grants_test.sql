@@ -8,7 +8,7 @@ values ('00000000-0000-0000-0000-000000000001', 'Jerome Badour', 'jerome', 'jero
 on conflict do nothing;
 delete from summaries;
 delete from users where role <> 'owner';
-update settings set monthly_cap_usd = 0.05;
+update settings set daily_cap_usd = least(3, 0.05), monthly_cap_usd = 0.05;
 insert into users (id, name, username, email, password_hash) values
   ('00000000-0000-0000-0000-0000000000a1', 'Lena Schmidt', 'lena_s', 'lena.s@example.com', 'x');
 
@@ -65,7 +65,7 @@ do $$ begin
   assert (select count(*) from usage_events where user_id is null and cost_usd = 0.05) = 1,
     'deleting the account removed its spend';
 end $$;
-update settings set monthly_cap_usd = 8;
+update settings set daily_cap_usd = least(3, 8), monthly_cap_usd = 8;
 
 -- 4. Guests: numbered by the database, limits survive deleting and re-creating.
 set role distill_app;

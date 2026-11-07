@@ -157,7 +157,8 @@ export const sampleOverview: AdminOverview = {
   users: { registered: 128 },
   guests: { active: 37, today: 9, upgradedWeek: 4 },
   active: { now: 6, week: 41 },
-  spend: { capUsd: 8, workspaceCapUsd: 10 },
+  spend: { capUsd: 40, workspaceCapUsd: 50, dailyCapUsd: 3 },
+  pauses: { guests: null, all: null },
   limitsHit: { today: 4, users: 3, guests: 1 },
   daily: {
     signups: [1, 0, 2, 4, 1, 0, 3, 2, 5, 1, 2, 4, 2, 3],

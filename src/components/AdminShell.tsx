@@ -1,12 +1,13 @@
-import { Coins, Eye, KeyRound, LayoutDashboard, ScrollText, Server, ShieldUser, UsersRound } from "lucide-react";
+import { Coins, Eye, KeyRound, LayoutDashboard, OctagonPause, ScrollText, Server, ShieldUser, UsersRound } from "lucide-react";
 import { AdminActivity, activityKinds } from "@/components/AdminActivity";
 import { AdminOverview } from "@/components/AdminOverview";
-import { ChangeCapDialog, ChangeRoleDialog, GrantRoleDialog, ResetLimitDialog, RestoreDialog, RevokeDialog, SignOutDialog, SuspendDialog } from "@/components/AdminDialogs";
+import { ChangeCapDialog, ChangeRoleDialog, GrantRoleDialog, PauseDialog, ResetLimitDialog, RestoreDialog, ResumeDialog, RevokeDialog, SignOutDialog, SuspendDialog } from "@/components/AdminDialogs";
 import { AdminRoles } from "@/components/AdminRoles";
 import { AdminServer } from "@/components/AdminServer";
 import { AdminSpend } from "@/components/AdminSpend";
 import { AdminUserDetail } from "@/components/AdminUserDetail";
 import { AdminUsers } from "@/components/AdminUsers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageTabs, type PageTab } from "@/components/PageTabs";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
@@ -68,6 +69,25 @@ export function AdminShell({ mode, params, data, rail }: { mode: AdminMode; para
           ) : (
             <StatusPill status={doneStatus(params)} />
           )}
+          {/* A pulled brake shows on every tab: calm indigo, since it is a chosen state, not a problem (no hatching behind text). */}
+          {(["all", "guests"] as const).map((kind) => {
+            const p = overview.pauses[kind];
+            if (!p || (kind === "guests" && overview.pauses.all)) return null;
+            const [day, time] = p.since.split("T");
+            const since = day === overview.today ? time : whenLabel(p.since, overview.today);
+            const label = `${kind === "all" ? "All summaries" : "Guests"} paused · since ${since}`;
+            return can(role, "spend.view") ? (
+              <Link key={kind} href={`${base}?tab=spend`} className="flex items-center gap-2 rounded-full border border-brand-line bg-brand-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-brand-strong hover:border-brand-strong">
+                <OctagonPause size={14} strokeWidth={2.2} />
+                {label}
+              </Link>
+            ) : (
+              <span key={kind} className="flex items-center gap-2 rounded-full border border-brand-line bg-brand-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-brand-strong">
+                <OctagonPause size={14} strokeWidth={2.2} />
+                {label}
+              </span>
+            );
+          })}
         </div>
         {tab === "overview" && <AdminOverview overview={overview} recent={data.activity.filter(isNotable).slice(0, 5)} base={base} />}
         {tab === "server" && <AdminServer overview={overview} base={base} />}
@@ -129,6 +149,7 @@ function SpendTab({ data, params, role, base }: { data: AdminData; params: Recor
       page={page}
       monthLabel={d === 1 ? `${monthNames[m - 1]} 1` : `${monthNames[m - 1]} 1–${d}`}
       canChangeCap={can(role, "limits.change")}
+      canPause={can(role, "summaries.pause")}
       base={base}
     />
   );
@@ -185,12 +206,46 @@ function AdminDialog({ name, data, params, demo }: { name: string; data: AdminDa
       return (
         <ChangeCapDialog
           capUsd={data.overview.spend.capUsd}
+          dailyCapUsd={data.overview.spend.dailyCapUsd}
           workspaceCapUsd={data.overview.spend.workspaceCapUsd}
           monthUsd={f.spend.monthUsd}
+          todayUsd={f.spend.todayUsd}
           projectedUsd={f.spend.projectedUsd}
           demo={demo}
         />
       );
+    case "pause-guests":
+      return (
+        !data.overview.pauses.guests && (
+          <PauseDialog
+            kind="guests"
+            demo={demo}
+            facts={[
+              { kind: "people", text: `${data.overview.guests.active} guests active now: their next summary is refused` },
+              { kind: "stop", text: `"Try it as a guest" is replaced by a note on the sign-in page` },
+              { kind: "keep", text: `${data.overview.users.registered} accounts keep working` },
+            ]}
+          />
+        )
+      );
+    case "pause-all":
+      return (
+        !data.overview.pauses.all && (
+          <PauseDialog
+            kind="all"
+            demo={demo}
+            facts={[
+              { kind: "stop", text: `Every new summary is refused, including yours (${f.summaries.today} made today)` },
+              { kind: "keep", text: "Summaries already made stay readable in Saved" },
+            ]}
+          />
+        )
+      );
+    case "resume-guests":
+    case "resume-all": {
+      const p = name === "resume-guests" ? data.overview.pauses.guests : data.overview.pauses.all;
+      return p && <ResumeDialog kind={name === "resume-guests" ? "guests" : "all"} pausedBy={p.by} pausedOn={whenLabel(p.since, data.overview.today)} pausedFor={p.reason} demo={demo} />;
+    }
     default:
       return null;
   }

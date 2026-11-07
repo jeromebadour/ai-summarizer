@@ -14,6 +14,12 @@ import {
   MessageSquareText,
   Minus,
   Monitor,
+  OctagonPause,
+  Pause,
+  Play,
+  UserRound,
+  FlaskConical,
+  CalendarDays,
   Plus,
   RotateCcw,
   Search,
@@ -299,17 +305,36 @@ export function RevokeDialog({ person, since, demo }: { person: Person; since: s
   );
 }
 
-export function ChangeCapDialog({ capUsd, workspaceCapUsd, monthUsd, projectedUsd, demo }: { capUsd: number; workspaceCapUsd: number; monthUsd: number; projectedUsd: number; demo: boolean }) {
-  const [value, setValue] = useState((capUsd + 1).toFixed(2));
+export function ChangeCapDialog({
+  capUsd,
+  dailyCapUsd,
+  workspaceCapUsd,
+  monthUsd,
+  todayUsd,
+  projectedUsd,
+  demo,
+}: {
+  capUsd: number;
+  dailyCapUsd: number;
+  workspaceCapUsd: number;
+  monthUsd: number;
+  todayUsd: number;
+  projectedUsd: number;
+  demo: boolean;
+}) {
+  const [value, setValue] = useState(capUsd.toFixed(2));
+  const [daily, setDaily] = useState(dailyCapUsd.toFixed(2));
   const next = Number(value);
+  const nextDaily = Number(daily);
   const over = !Number.isFinite(next) || next > workspaceCapUsd || next < monthUsd;
+  const dailyOver = !Number.isFinite(nextDaily) || nextDaily <= 0 || nextDaily > next || nextDaily < todayUsd;
   return (
     <Dialog
       tone="figure"
       icon={Gauge}
-      title="Change the monthly cap"
-      detail="At the cap, new summaries are paused with a calm notice until the month ends or the cap is raised."
-      actions={<Actions demo={demo} confirm={{ icon: Gauge, label: "Save cap", className: gold }} />}
+      title="Change the caps"
+      detail="At a cap, new summaries stop with a calm notice: the daily one until midnight UTC, the monthly one until the month ends."
+      actions={<Actions demo={demo} confirm={{ icon: Gauge, label: "Save caps", className: gold }} />}
     >
       <div className="grid grid-cols-3 gap-2 text-center">
         {[
@@ -323,12 +348,92 @@ export function ChangeCapDialog({ capUsd, workspaceCapUsd, monthUsd, projectedUs
           </div>
         ))}
       </div>
-      <Field icon={DollarSign} label="New cap (US dollars a month)" type="text" placeholder="8.00" value={value} onChange={setValue} autoComplete="off" />
+      <Field icon={DollarSign} label="Monthly cap (US dollars)" type="text" placeholder="40.00" value={value} onChange={setValue} autoComplete="off" />
       <p className={`-mt-2 flex items-center gap-2 font-mono text-[11.5px] ${over ? "text-flag" : "text-verify"}`}>
         {over ? <X size={13} strokeWidth={2.4} /> : <Check size={13} strokeWidth={2.4} />}
         Between {formatUsd(monthUsd)} (spent) and {formatUsd(workspaceCapUsd)} (the Anthropic limit)
       </p>
+      <Field icon={CalendarDays} label="Daily cap (US dollars)" type="text" placeholder="3.00" value={daily} onChange={setDaily} autoComplete="off" />
+      <p className={`-mt-2 flex items-center gap-2 font-mono text-[11.5px] ${dailyOver ? "text-flag" : "text-verify"}`}>
+        {dailyOver ? <X size={13} strokeWidth={2.4} /> : <Check size={13} strokeWidth={2.4} />}
+        Up to the monthly cap; today so far {formatUsd(todayUsd)}
+      </p>
       <Reason initial="More guests than expected this month" />
+    </Dialog>
+  );
+}
+
+const pauseInfo = {
+  guests: {
+    icon: UserRound,
+    title: "Pause guests?",
+    detail: "No new guest sessions, and guests are told summaries are paused. Accounts keep working.",
+    label: "Pause guests",
+  },
+  all: {
+    icon: FlaskConical,
+    title: "Pause all summaries?",
+    detail: "Every new summary is refused with a calm notice, staff included. Sign-in, Saved and the console keep working.",
+    label: "Pause all",
+  },
+} as const;
+
+/** What a pause does, line by line: who is affected now, what stops, what keeps working. */
+export type PauseFact = { kind: "people" | "stop" | "keep"; text: string };
+const factLook: Record<PauseFact["kind"], { icon: LucideIcon; tone: string }> = {
+  people: { icon: UserRound, tone: "text-input" },
+  stop: { icon: Ban, tone: "text-clear" },
+  keep: { icon: Check, tone: "text-verify" },
+};
+
+/** Pulling a brake: what stops, what keeps going, and a reason for the audit log. */
+export function PauseDialog({ kind, facts, demo }: { kind: "guests" | "all"; facts: PauseFact[]; demo: boolean }) {
+  const info = pauseInfo[kind];
+  const Icon = info.icon;
+  return (
+    <Dialog tone="clear" icon={Pause} title={info.title} detail={info.detail} actions={<Actions demo={demo} confirm={{ icon: Pause, label: info.label, className: rose }} />}>
+      <ul className="space-y-2 rounded-xl border border-border bg-paper px-3.5 py-3 text-[13px]">
+        <li className="flex items-center gap-2.5 font-semibold">
+          <Icon size={15} strokeWidth={2} className="text-clear" />
+          {kind === "guests" ? "Guests" : "All summaries"}
+        </li>
+        {facts.map((fact, i) => {
+          const { icon: FactIcon, tone } = factLook[fact.kind];
+          return (
+            <li key={i} className="flex items-center gap-2.5">
+              <FactIcon size={15} strokeWidth={2} className={`shrink-0 ${tone}`} />
+              <span className="min-w-0">{fact.text}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <Reason initial={kind === "guests" ? "Guest farming from one network" : "Claude incident, waiting for it to settle"} />
+    </Dialog>
+  );
+}
+
+/** Releasing a brake: who pulled it, when and why, then back to running. */
+export function ResumeDialog({ kind, pausedBy, pausedOn, pausedFor, demo }: { kind: "guests" | "all"; pausedBy: Person; pausedOn: string; pausedFor: string; demo: boolean }) {
+  return (
+    <Dialog
+      tone="verify"
+      icon={Play}
+      title={kind === "guests" ? "Resume guests?" : "Resume all summaries?"}
+      detail={kind === "guests" ? "Visitors can start guest sessions again, and guests can distill." : "Everyone can distill again, within their own limits."}
+      actions={<Actions demo={demo} confirm={{ icon: Play, label: "Resume", className: teal }} />}
+    >
+      <ul className="space-y-2 rounded-xl border border-border bg-paper px-3.5 py-3 text-[13px]">
+        <li className="flex items-center gap-2.5">
+          <OctagonPause size={15} strokeWidth={2} className="shrink-0 text-brand-strong" />
+          <span>
+            Paused {pausedOn} by <span className={roleTone[pausedBy.role].text}>@{pausedBy.username}</span>
+          </span>
+        </li>
+        <li className="flex items-center gap-2.5">
+          <MessageSquareText size={15} strokeWidth={2} className="shrink-0 text-muted" />
+          <span className="text-muted">{pausedFor}</span>
+        </li>
+      </ul>
     </Dialog>
   );
 }

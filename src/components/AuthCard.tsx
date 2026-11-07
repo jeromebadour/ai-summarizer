@@ -9,6 +9,7 @@ import {
   LockKeyhole,
   LogIn,
   Mail,
+  OctagonPause,
   ShieldUser,
   UserRound,
   UserRoundPlus,
@@ -26,7 +27,8 @@ import type { UsernameCheck } from "@/lib/username";
 
 export type AuthMode = "signin" | "signup";
 
-export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
+/** `guestsOpen` is false while guests are paused from the console: the guest button gives way to a calm note. */
+export function AuthCard({ initialMode, guestsOpen }: { initialMode: AuthMode; guestsOpen: boolean }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [name, setName] = useState("");
   const { username, status: usernameStatus, change: changeUsername } = useUsernameCheck();
@@ -147,10 +149,22 @@ export function AuthCard({ initialMode }: { initialMode: AuthMode }) {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form action={startGuest}>
-        <GuestButton />
-      </form>
-      <p className="mt-2.5 text-center font-mono text-[11px] text-muted">No account needed · 5 summaries an hour</p>
+      {guestsOpen ? (
+        <>
+          <form action={startGuest}>
+            <GuestButton />
+          </form>
+          <p className="mt-2.5 text-center font-mono text-[11px] text-muted">No account needed · 5 summaries an hour</p>
+        </>
+      ) : (
+        <div role="status" className="flex items-center gap-3 rounded-xl border border-brand-line bg-brand-soft/60 px-4 py-3">
+          <OctagonPause size={18} strokeWidth={2} className="shrink-0 text-brand-strong" />
+          <span className="text-[13px]">
+            <span className="block font-semibold text-text">Guest access is paused right now</span>
+            <span className="text-muted">Create an account to keep going; it takes a few seconds.</span>
+          </span>
+        </div>
+      )}
 
       <Link
         href="/demo/admin"

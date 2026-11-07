@@ -3,7 +3,7 @@
 
 delete from usage_events;
 delete from users where role <> 'owner';
-update settings set monthly_cap_usd = 0.05;
+update settings set daily_cap_usd = least(3, 0.05), monthly_cap_usd = 0.05;
 insert into users (id, name, username, email, password_hash) values
   ('00000000-0000-0000-0000-0000000000c1', 'Lena Schmidt', 'lena_s', 'lena.s@example.com', 'x');
 
@@ -34,7 +34,7 @@ end $$;
 reset role;
 
 -- 4. An old use can't be given back.
-update settings set monthly_cap_usd = 8;
+update settings set daily_cap_usd = least(3, 8), monthly_cap_usd = 8;
 insert into usage_events (user_id, is_guest, created_at)
 values ('00000000-0000-0000-0000-0000000000c1', false, now() - interval '11 minutes');
 set role distill_app;

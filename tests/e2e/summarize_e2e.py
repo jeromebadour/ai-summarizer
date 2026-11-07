@@ -136,10 +136,10 @@ check("refused before anything was sent", [e for e in ev if e["type"] == "step"]
 t2, u2 = make_user("oliver_h")
 # The cap is kept in whole cents: make this month's spend reach $0.05 and set the cap there.
 sql(f"update usage_events set cost_usd = 0.05 where id = (select max(id) from usage_events where user_id = '{uid}' and recorded)")
-sql("update settings set monthly_cap_usd = 0.05")
+sql("update settings set daily_cap_usd = least(3, 0.05), monthly_cap_usd = 0.05")
 status, ev = post(t2, {"text": SOURCE, "length": "short"})
 check("the monthly cap refuses calmly", ev[-1]["type"] == "refused" and ev[-1]["reason"] == "cap", str(ev)[:200])
-sql("update settings set monthly_cap_usd = 8")
+sql("update settings set daily_cap_usd = least(3, 8), monthly_cap_usd = 8")
 
 # 8. Guests: 5 an hour.
 tg, ug = make_user("guest-901", role="guest")

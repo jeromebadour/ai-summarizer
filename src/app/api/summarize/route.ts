@@ -12,7 +12,8 @@ import { currentUser } from "@/lib/server/session";
  * screen can show each real stage as it happens:
  *   {"type":"step","step":"checking"|"sending"|"writing"|"linking"|"saving"}
  *   {"type":"quota","used":3,"limit":10,"nextFreeAt":"..."}          after the limit check
- *   {"type":"refused","reason":"hour"|"day"|"guests_day"|"cap"|"suspended","nextFreeAt":...}  a calm stop
+ *   {"type":"refused","reason":...,"nextFreeAt":...}   a calm stop: hour, day, guests_day, daily_cap (until midnight
+ *                                                      UTC), cap (the month), paused, guests_paused, suspended
  *   {"type":"partial","text":"..."}                                  the point being written
  *   {"type":"point","point":{...}}                                   a finished point
  *   {"type":"done","id":"...","summary":{...}}                       checked and saved

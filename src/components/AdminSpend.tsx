@@ -1,11 +1,13 @@
-import { Binary, Calculator, ChartColumn, Coins, Gauge, Pencil, UsersRound } from "lucide-react";
+import { Binary, Calculator, ChartColumn, Coins, FlaskConical, Gauge, OctagonPause, Pause, Pencil, Play, UserRound, UsersRound, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import type { SpendRow } from "@/components/AdminShell";
 import { DayBars } from "@/components/DayBars";
 import { Pager } from "@/components/Pager";
 import { PersonLine } from "@/components/PersonLine";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
 import { StatTile } from "@/components/StatTile";
-import { claudePrice, formatCost, formatUsd, overviewFigures, type AdminOverview } from "@/lib/admin";
+import { roleTone } from "@/components/PersonLine";
+import { claudePrice, formatCost, formatUsd, overviewFigures, whenLabel, type AdminOverview, type Pause as PauseState } from "@/lib/admin";
 import type { Page } from "@/lib/paging";
 
 const columns = "grid-cols-[28px_minmax(0,1fr)_78px_128px_74px_70px_96px]";
@@ -18,6 +20,7 @@ export function AdminSpend({
   page,
   monthLabel,
   canChangeCap,
+  canPause,
   base,
 }: {
   overview: AdminOverview;
@@ -26,6 +29,8 @@ export function AdminSpend({
   page: Page;
   monthLabel: string;
   canChangeCap: boolean;
+  /** Owners and admins: the two brakes. Nobody else sees the switches (the state still shows in the header). */
+  canPause: boolean;
   base: string;
 }) {
   const f = overviewFigures(overview);
@@ -35,17 +40,19 @@ export function AdminSpend({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5">
-      <div className="grid grid-cols-[2fr_1fr_1fr] gap-5">
+      <div className={`grid gap-5 ${canPause ? "grid-cols-[2.6fr_1fr_1.75fr]" : "grid-cols-[2fr_1fr_1fr]"}`}>
         <section className="rounded-2xl border border-border bg-panel p-5">
           <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
             <Gauge size={16} strokeWidth={2} />
             Spend this month
-            <span className="font-mono text-[11.5px] font-medium text-muted">{monthLabel}</span>
+            <span className="font-mono text-[11.5px] font-medium text-muted">
+              {monthLabel}
+            </span>
             {canChangeCap && (
-              <button type="button" className="ml-auto flex items-center gap-1.5 rounded-lg border border-figure/40 px-2.5 py-1 text-[12px] font-semibold text-figure hover:bg-figure-soft">
+              <Link href={`${base}?tab=spend&dialog=cap`} className="ml-auto flex items-center gap-1.5 rounded-lg border border-figure/40 px-2.5 py-1 text-[12px] font-semibold text-figure hover:bg-figure-soft">
                 <Pencil size={13} strokeWidth={2.1} />
-                Change cap
-              </button>
+                Change caps
+              </Link>
             )}
           </div>
           <div className="mt-2 flex items-baseline gap-3">
@@ -63,7 +70,7 @@ export function AdminSpend({
           <div className="mt-2 flex items-center gap-4 font-mono text-[11px] text-muted">
             <span className="flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-figure" />
-              <span className="text-figure">{f.spend.capShare}%</span> of the app cap
+              <span className="text-figure">{f.spend.capShare}%</span> of cap
             </span>
             <span className="flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-figure/30" />
@@ -73,17 +80,59 @@ export function AdminSpend({
               <span className="h-2.5 w-0.5 rounded bg-brand-strong" />
               <span className="text-brand-strong">app cap {formatUsd(capUsd)}</span>
             </span>
-            <span>Anthropic limit {formatUsd(workspaceCapUsd)} (end of bar)</span>
+            <span>Anthropic {formatUsd(workspaceCapUsd)}</span>
           </div>
         </section>
-        <StatTile icon={Coins} tone="text-figure" label="Today" value={formatCost(f.spend.todayUsd)} note={`${f.summaries.today} summaries`} />
         <StatTile
-          icon={Calculator}
-          tone="text-brand-strong"
-          label="Per summary"
-          value={formatCost(f.spend.monthUsd / Math.max(1, monthSummaries))}
-          note={`at $${claudePrice.inputPerMillion.toFixed(2)} / $${claudePrice.outputPerMillion.toFixed(2)} per M tokens`}
+          icon={Coins}
+          tone="text-figure"
+          label="Today"
+          value={formatCost(f.spend.todayUsd)}
+          note={
+            <>
+              of <span className="text-figure">{formatUsd(overview.spend.dailyCapUsd)}</span> a day · {f.summaries.today} summaries ·{" "}
+              {formatCost(f.spend.monthUsd / Math.max(1, monthSummaries))} each
+            </>
+          }
         />
+        {canPause ? (
+          <section className="flex flex-col gap-2.5 rounded-2xl border border-border bg-panel p-4">
+            <div className="flex items-center gap-2 px-1 text-[12.5px] font-semibold text-clear">
+              <OctagonPause size={16} strokeWidth={2} />
+              Brakes
+            </div>
+            <Brake
+              icon={UserRound}
+              tone="text-input"
+              title="Guests"
+              facts={`${overview.guests.active} active · ${overview.guests.today} new today`}
+              pause={overview.pauses.guests}
+              today={overview.today}
+              pauseHref={`${base}?tab=spend&dialog=pause-guests`}
+              resumeHref={`${base}?tab=spend&dialog=resume-guests`}
+              pauseLabel="Pause"
+            />
+            <Brake
+              icon={FlaskConical}
+              tone="text-brand-strong"
+              title="All summaries"
+              facts={`${f.summaries.today} today · staff included`}
+              pause={overview.pauses.all}
+              today={overview.today}
+              pauseHref={`${base}?tab=spend&dialog=pause-all`}
+              resumeHref={`${base}?tab=spend&dialog=resume-all`}
+              pauseLabel="Pause"
+            />
+          </section>
+        ) : (
+          <StatTile
+            icon={Calculator}
+            tone="text-brand-strong"
+            label="Per summary"
+            value={formatCost(f.spend.monthUsd / Math.max(1, monthSummaries))}
+            note={`at $${claudePrice.inputPerMillion.toFixed(2)} / $${claudePrice.outputPerMillion.toFixed(2)} per M tokens`}
+          />
+        )}
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.7fr] gap-5">
@@ -91,7 +140,10 @@ export function AdminSpend({
           <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
             <ChartColumn size={16} strokeWidth={2} />
             Per day
-            <span className="ml-auto font-mono text-[11.5px] font-medium text-muted">{formatUsd(overview.daily.spendCents.reduce((s, c) => s + c, 0) / 100)} in 14 days</span>
+            <span className="ml-auto font-mono text-[11.5px] font-medium text-muted">
+              {formatUsd(overview.daily.spendCents.reduce((s, c) => s + c, 0) / 100)} in 14 days · ${claudePrice.inputPerMillion.toFixed(2)} / $
+              {claudePrice.outputPerMillion.toFixed(2)} per M tokens
+            </span>
           </div>
           <DayBars values={overview.daily.spendCents} label="Claude spend per day in cents" bar="bg-figure/55" today="bg-figure" format={(c) => `${Math.round(c)}¢`} />
         </section>
@@ -139,5 +191,77 @@ export function AdminSpend({
         </section>
       </div>
     </div>
+  );
+}
+
+/**
+ * One brake. Running is the normal state (teal "Running", a rose Pause button). Pulled, it is a chosen state, not a
+ * problem: calm indigo with since when, by whom and why, and a teal Resume.
+ */
+function Brake({
+  icon: Icon,
+  tone,
+  title,
+  facts,
+  pause,
+  today,
+  pauseHref,
+  resumeHref,
+  pauseLabel,
+}: {
+  icon: LucideIcon;
+  tone: string;
+  title: string;
+  facts: string;
+  pause: PauseState | null;
+  today: string;
+  pauseHref: string;
+  resumeHref: string;
+  pauseLabel: string;
+}) {
+  return (
+    <section
+      className={`flex items-center gap-3 rounded-xl border px-3 py-2 ${pause ? "border-brand-line bg-brand-soft/60" : "border-border bg-panel-raised/30"}`}
+    >
+      <span className={`grid size-8 shrink-0 place-items-center rounded-lg border border-border bg-panel-raised/60 ${tone}`}>
+        <Icon size={16} strokeWidth={1.9} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2.5">
+          <h3 className="text-[13.5px] font-semibold">{title}</h3>
+          {pause ? (
+            <span className="flex items-center gap-1.5 rounded-md border border-brand-line bg-brand-soft px-2 py-0.5 text-[11.5px] font-semibold text-brand-strong">
+              <OctagonPause size={12} strokeWidth={2.3} />
+              Paused
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 rounded-md border border-verify/30 bg-verify-soft px-2 py-0.5 text-[11.5px] font-semibold text-verify">
+              <span className="size-1.5 rounded-full bg-verify" />
+              Running
+            </span>
+          )}
+        </div>
+        {pause ? (
+          <p className="mt-0.5 truncate text-[11.5px] text-muted">
+            {whenLabel(pause.since, today)} by <span className={`font-semibold ${roleTone[pause.by.role].text}`}>@{pause.by.username}</span>
+            <span className="text-faint"> · </span>
+            {pause.reason}
+          </p>
+        ) : (
+          <p className="mt-0.5 truncate font-mono text-[11px] text-muted">{facts}</p>
+        )}
+      </div>
+      {pause ? (
+        <Link href={resumeHref} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-verify/40 bg-verify-soft py-1.5 pl-2.5 pr-3 text-[12.5px] font-semibold text-verify hover:border-verify/70">
+          <Play size={14} strokeWidth={2.2} />
+          Resume
+        </Link>
+      ) : (
+        <Link href={pauseHref} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-clear/35 py-1.5 pl-2.5 pr-3 text-[12.5px] font-semibold text-clear hover:bg-clear-soft">
+          <Pause size={14} strokeWidth={2.2} />
+          {pauseLabel}
+        </Link>
+      )}
+    </section>
   );
 }

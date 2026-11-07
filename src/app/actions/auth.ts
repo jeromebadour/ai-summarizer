@@ -77,13 +77,16 @@ export async function signIn(_: AuthState, form: FormData): Promise<AuthState> {
 }
 
 export async function startGuest(): Promise<void> {
-  await actingAs(null, async (db) => {
-    const id = (await db.query("select create_guest() as id")).rows[0].id as string;
+  const started = await actingAs(null, async (db) => {
+    // Null while guests are paused from the console: back to /login, which then shows the paused note.
+    const id = (await db.query("select create_guest() as id")).rows[0].id as string | null;
+    if (!id) return false;
     await actAs(db, id);
     await db.query("insert into auth_events (user_id, kind) values ($1, 'guest')", [id]);
     await openSession(db, id);
+    return true;
   });
-  redirect("/");
+  redirect(started ? "/" : "/login");
 }
 
 export async function signOut(): Promise<void> {

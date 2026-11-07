@@ -13,13 +13,14 @@ export const permissions = [
   "roles.view",
   "roles.change",
   "limits.change",
+  "summaries.pause",
 ] as const;
 export type Permission = (typeof permissions)[number];
 
 /** The fixed matrix from the admin plan. Checked on the server for every admin request; the UI only hides. */
 const matrix: Record<Role, readonly Permission[]> = {
   owner: permissions,
-  admin: ["overview.view", "server.view", "spend.view", "users.view", "activity.view", "users.suspend", "users.signOut", "users.resetLimit"],
+  admin: ["overview.view", "server.view", "spend.view", "users.view", "activity.view", "users.suspend", "users.signOut", "users.resetLimit", "summaries.pause"],
   moderator: ["users.view", "activity.view", "users.suspend", "users.signOut"],
   user: [],
   guest: [],
@@ -31,6 +32,7 @@ const parent: Partial<Record<Permission, Permission>> = {
   "users.signOut": "users.view",
   "users.resetLimit": "users.view",
   "roles.change": "roles.view",
+  "summaries.pause": "spend.view",
 };
 
 export function can(role: Role, permission: Permission): boolean {
@@ -52,7 +54,7 @@ export const roleLabel: Record<Role, string> = {
 };
 
 /** What each permission means, in plain words, grouped the way the Roles tab shows them. */
-export const permissionInfo: Record<Permission, { label: string; group: "See" | "Act on users" | "Owner only" }> = {
+export const permissionInfo: Record<Permission, { label: string; group: "See" | "Act on users" | "Brakes" | "Owner only" }> = {
   "overview.view": { label: "Overview", group: "See" },
   "server.view": { label: "Server", group: "See" },
   "spend.view": { label: "Spend", group: "See" },
@@ -63,5 +65,6 @@ export const permissionInfo: Record<Permission, { label: string; group: "See" | 
   "users.resetLimit": { label: "Reset the hourly limit", group: "Act on users" },
   "roles.view": { label: "See roles", group: "Owner only" },
   "roles.change": { label: "Grant and revoke roles", group: "Owner only" },
-  "limits.change": { label: "Change limits and the cap", group: "Owner only" },
+  "limits.change": { label: "Change limits and the caps", group: "Owner only" },
+  "summaries.pause": { label: "Pause guests or all summaries", group: "Brakes" },
 };

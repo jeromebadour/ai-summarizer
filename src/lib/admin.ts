@@ -71,8 +71,11 @@ export type AdminOverview = {
   /**
    * capUsd: the app's own monthly cap; at it, new summaries are refused with a calm notice (owner can change it).
    * workspaceCapUsd: the Anthropic workspace limit set in Anthropic's console, the hard stop above it.
+   * dailyCapUsd: the app's own daily cap, so a bad day can't eat the month (the day is UTC, like the limits).
    */
-  spend: { capUsd: number; workspaceCapUsd: number };
+  spend: { capUsd: number; workspaceCapUsd: number; dailyCapUsd: number };
+  /** The two switches on the Spend tab; null while running. */
+  pauses: { guests: Pause | null; all: Pause | null };
   limitsHit: { today: number; users: number; guests: number };
   /** Oldest first, last 14 days, today last. */
   daily: { signups: number[]; summaries: number[]; spendCents: number[] };
@@ -106,14 +109,22 @@ export type AdminOverview = {
   attention: AttentionItem[];
 };
 
+/** A pulled switch: when, by whom, why (from settings, kept in the audit log too). */
+export type Pause = { since: string; by: Person; reason: string };
+
 export function formatUsd(usd: number): string {
   return `$${usd.toFixed(2)}`;
 }
 
-/** Small amounts stay readable: under 10 cents in cents ("0.6¢"), above that in dollars ("$0.43"). */
+/**
+ * Small amounts stay readable: under 10 cents in cents ("0.6¢"), under a tenth of a cent with two decimals ("0.02¢",
+ * a typical Haiku summary), above 10 cents in dollars ("$0.43"). Never rounds a real cost down to "0.0¢".
+ */
 export function formatCost(usd: number): string {
   if (usd === 0) return "0¢";
-  return usd < 0.1 ? `${(usd * 100).toFixed(1)}¢` : formatUsd(usd);
+  const cents = usd * 100;
+  if (cents < 0.1) return `${cents < 0.01 ? "<0.01" : cents.toFixed(2)}¢`;
+  return usd < 0.1 ? `${cents.toFixed(1)}¢` : formatUsd(usd);
 }
 
 const sum = (values: number[]) => values.reduce((total, n) => total + n, 0);

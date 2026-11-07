@@ -5,7 +5,7 @@ import type { RoleChange, RoleHolder } from "@/lib/admin";
 import { can, permissionInfo, permissions, roleLabel, type Permission, type Role } from "@/lib/permissions";
 
 const staffRoles: Role[] = ["owner", "admin", "moderator"];
-const groups = ["See", "Act on users", "Owner only"] as const;
+const groups = ["See", "Act on users", "Brakes", "Owner only"] as const;
 
 function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode; grow?: boolean }) {
   return (

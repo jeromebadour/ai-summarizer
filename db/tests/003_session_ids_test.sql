@@ -4,7 +4,7 @@
 delete from usage_events;
 delete from sessions;
 delete from users where role <> 'owner';
-update settings set monthly_cap_usd = 8;
+update settings set daily_cap_usd = least(3, 8), monthly_cap_usd = 8;
 insert into users (id, name, username, email, password_hash) values
   ('00000000-0000-0000-0000-0000000000b1', 'Kevin Novak', 'kevin_n', 'kevin.n@example.com', 'x'),
   ('00000000-0000-0000-0000-0000000000b2', 'Oliver Hart', 'oliver_h', 'oliver.h@example.com', 'x');

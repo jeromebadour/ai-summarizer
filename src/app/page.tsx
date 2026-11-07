@@ -1,7 +1,8 @@
-import { FlaskConical, Hourglass, LoaderCircle } from "lucide-react";
+import { FlaskConical, Hourglass, LoaderCircle, OctagonPause } from "lucide-react";
 import { Suspense } from "react";
 import { LengthPicker } from "@/components/LengthPicker";
 import { LimitStrip } from "@/components/LimitStrip";
+import { StopStrip, type AppStop } from "@/components/StopStrip";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
@@ -36,6 +37,9 @@ async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">)
   const params = await searchParams;
   const failed = params.state === "error";
   const limited = params.state === "limit";
+  // Sample states for the pictures, until this screen is wired: the app stopped for everyone.
+  const stop: AppStop | null = params.state === "paused" ? { kind: "paused", guests: false } : params.state === "daily" ? { kind: "dailyCap", backAt: "03:00" } : null;
+  const stopped = stop !== null;
   const running = params.state === "running" || failed;
   const active = params.state === "running";
   const shownRun: DistillRun = failed
@@ -71,18 +75,20 @@ async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">)
           <LengthPicker value={summary.length} />
           <button
             type="button"
-            disabled={active || limited}
+            disabled={active || limited || stopped}
             className="flex items-center gap-2 rounded-xl bg-brand py-2.5 pl-4 pr-2.5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none"
           >
             {active ? (
               <LoaderCircle size={17} strokeWidth={2.2} className="animate-spin" />
             ) : limited ? (
               <Hourglass size={17} strokeWidth={2.2} />
+            ) : stopped ? (
+              <OctagonPause size={17} strokeWidth={2.2} />
             ) : (
               <FlaskConical size={17} strokeWidth={2.2} />
             )}
-            {active ? "Distilling" : limited ? "Next at 12:00" : "Distill"}
-            {!limited && !active && <kbd className="ml-1.5 rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>}
+            {active ? "Distilling" : limited ? "Next at 12:00" : stop?.kind === "paused" ? "Paused" : stopped ? "Back at 03:00" : "Distill"}
+            {!limited && !active && !stopped && <kbd className="ml-1.5 rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>}
           </button>
           <StatusPill
             status={
@@ -100,6 +106,7 @@ async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">)
           </div>
         </div>
 
+        {stop && <StopStrip stop={stop} />}
         {limited && <LimitStrip limit={10} usedAt={[23, 25, 28, 31, 35, 39, 44, 49, 53, 57]} now="11:37" nextFree="12:00" minutesToNext={23} />}
 
         {running ? (

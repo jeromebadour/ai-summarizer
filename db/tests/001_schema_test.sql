@@ -108,7 +108,7 @@ reset role;
 -- 9. The app cap: once the month's spend reaches it, uses are refused calmly.
 -- (Spend is read from the usage ledger since migration 002.)
 update usage_events set cost_usd = 0.01, recorded = true;
-update settings set monthly_cap_usd = 0.02;
+update settings set daily_cap_usd = least(3, 0.02), monthly_cap_usd = 0.02;
 set role distill_app;
 select set_config('app.user_id', '00000000-0000-0000-0000-000000000003', false);
 do $$
@@ -120,7 +120,7 @@ end $$;
 reset role;
 
 -- 10. A staff reset starts Kevin's hour again; suspension refuses everything.
-update settings set monthly_cap_usd = 8;
+update settings set daily_cap_usd = least(3, 8), monthly_cap_usd = 8;
 insert into usage_events (user_id, is_guest) select '00000000-0000-0000-0000-000000000003', false from generate_series(1, 10);
 update users set limit_reset_at = now() where username = 'kevin_n';
 set role distill_app;

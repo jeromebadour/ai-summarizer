@@ -5,6 +5,7 @@ import { AuthCard } from "@/components/AuthCard";
 import { AuthShowcase } from "@/components/AuthShowcase";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { currentUser } from "@/lib/server/session";
+import { guestsOpen } from "@/lib/server/settings";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
@@ -65,7 +66,7 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
       </section>
 
       <section className="grid place-items-center px-12">
-        <AuthCard initialMode={mode} />
+        <AuthCard initialMode={mode} guestsOpen={await guestsOpen()} />
       </section>
     </div>
   );
