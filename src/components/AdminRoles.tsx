@@ -1,4 +1,5 @@
 import { Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";
 import { RowNumber } from "@/components/RowNumber";
 import type { RoleChange, RoleHolder } from "@/lib/admin";
@@ -20,8 +21,15 @@ function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { ico
   );
 }
 
+/** Each kind of role change keeps its own colour and glyph: granted teal, changed owner gold, revoked rose. */
+const changeLook: Record<RoleChange["action"], { label: string; joiner: string; tone: string; icon: React.ReactNode }> = {
+  granted: { label: "Granted", joiner: "to", tone: "border-verify/35 bg-verify-soft text-verify", icon: <UserRoundPlus size={12} strokeWidth={2.2} /> },
+  changed: { label: "Changed to", joiner: "for", tone: "border-figure/35 bg-figure-soft text-figure", icon: <KeyRound size={12} strokeWidth={2.2} /> },
+  revoked: { label: "Revoked", joiner: "from", tone: "border-clear/35 bg-clear-soft text-clear", icon: <UserRoundMinus size={12} strokeWidth={2.2} /> },
+};
+
 /** Owner only: who holds Admin and Moderator, the fixed permission matrix, and every grant and revoke with its reason. */
-export function AdminRoles({ holders, changes }: { holders: RoleHolder[]; changes: RoleChange[] }) {
+export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; changes: RoleChange[]; base: string }) {
   return (
     <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-5">
       <div className="flex min-h-0 flex-col gap-5">
@@ -30,10 +38,14 @@ export function AdminRoles({ holders, changes }: { holders: RoleHolder[]; change
           tone="text-figure"
           title="Staff"
           aside={
-            <button type="button" className="flex items-center gap-2 rounded-xl border border-figure/40 px-3 py-1.5 text-[12.5px] font-semibold text-figure hover:bg-figure-soft">
+            <Link
+              href={`${base}?tab=roles&dialog=grant` as never}
+              scroll={false}
+              className="flex items-center gap-2 rounded-xl border border-figure/40 px-3 py-1.5 text-[12.5px] font-semibold text-figure hover:bg-figure-soft"
+            >
               <UserRoundPlus size={15} strokeWidth={2} />
               Grant role
-            </button>
+            </Link>
           }
         >
           <ul className="mt-3 flex flex-col">
@@ -62,10 +74,14 @@ export function AdminRoles({ holders, changes }: { holders: RoleHolder[]; change
                     </span>
                     {/* The owner can't be removed; everyone else can be revoked (with a reason, in a dialog). */}
                     {role !== "owner" && (
-                      <button type="button" className="flex items-center justify-center gap-1.5 rounded-lg border border-clear/40 px-2.5 py-1.5 text-[12px] font-semibold text-clear hover:bg-clear-soft">
+                      <Link
+                        href={`${base}?tab=roles&dialog=revoke&who=${h.person.username}` as never}
+                        scroll={false}
+                        className="flex items-center justify-center gap-1.5 rounded-lg border border-clear/40 px-2.5 py-1.5 text-[12px] font-semibold text-clear hover:bg-clear-soft"
+                      >
                         <UserRoundMinus size={14} strokeWidth={2} />
                         Revoke
-                      </button>
+                      </Link>
                     )}
                   </li>
                 )),
@@ -82,16 +98,12 @@ export function AdminRoles({ holders, changes }: { holders: RoleHolder[]; change
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
                     <span className={`font-semibold ${roleTone[c.actor.role].text}`}>{c.actor.name}</span>
-                    <span
-                      className={`flex items-center gap-1 rounded-md border px-1.5 py-px text-[11px] font-semibold ${
-                        c.action === "granted" ? "border-verify/35 bg-verify-soft text-verify" : "border-clear/35 bg-clear-soft text-clear"
-                      }`}
-                    >
-                      {c.action === "granted" ? <UserRoundPlus size={12} strokeWidth={2.2} /> : <UserRoundMinus size={12} strokeWidth={2.2} />}
-                      {c.action === "granted" ? "Granted" : "Revoked"}
+                    <span className={`flex items-center gap-1 rounded-md border px-1.5 py-px text-[11px] font-semibold ${changeLook[c.action].tone}`}>
+                      {changeLook[c.action].icon}
+                      {changeLook[c.action].label}
                     </span>
                     <RoleBadge role={c.role} />
-                    <span className="text-muted">{c.action === "granted" ? "to" : "from"}</span>
+                    <span className="text-muted">{changeLook[c.action].joiner}</span>
                     <span className={`font-semibold ${roleTone[c.target.role].text}`}>{c.target.name}</span>
                     <span className="font-mono text-[11px] text-muted">@{c.target.username}</span>
                   </div>

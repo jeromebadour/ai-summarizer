@@ -62,8 +62,8 @@ begin
   assert set_pause('all', true, 'Claude incident'), 'the owner could not pause all';
   select * into r from claim_use('00000000-0000-0000-0000-000000000001');
   assert not r.ok and r.reason = 'paused', 'the owner could summarize while everything is paused';
-  assert set_pause('all', false, null), 'resume all failed';
-  assert set_pause('guests', false, null), 'resume guests failed';
+  assert set_pause('all', false, 'Incident over'), 'resume all failed';
+  assert set_pause('guests', false, 'Farming stopped'), 'resume guests failed';
   select * into r from claim_use('00000000-0000-0000-0000-000000000001');
   assert r.ok, 'still refused after resuming';
   assert create_guest() is not null, 'no guest after resuming';
@@ -73,7 +73,7 @@ reset role;
 -- 5. Every change is audited with who and why.
 do $$ begin
   assert (select string_agg(action || ':' || coalesce(reason, '-'), ' | ' order by id) from audit_log) =
-    'pause_guests:Guest farming from one network | pause_all:Claude incident | resume_all:- | resume_guests:-',
+    'pause_guests:Guest farming from one network | pause_all:Claude incident | resume_all:Incident over | resume_guests:Farming stopped',
     'audit log wrong: ' || (select string_agg(action, ',' order by id) from audit_log);
   assert (select guests_paused_by is null and all_paused_at is null from settings), 'resume left state behind';
 end $$;

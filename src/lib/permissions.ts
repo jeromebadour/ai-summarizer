@@ -68,3 +68,11 @@ export const permissionInfo: Record<Permission, { label: string; group: "See" | 
   "limits.change": { label: "Change limits and the caps", group: "Owner only" },
   "summaries.pause": { label: "Pause guests or all summaries", group: "Brakes" },
 };
+
+/** Owner > admin > moderator > user and guest: the same order as role_rank() in migration 008. */
+const rank: Record<Role, number> = { owner: 4, admin: 3, moderator: 2, user: 1, guest: 1 };
+
+/** Staff act only on people below their own role (never on themselves, never on the owner). The database checks it too. */
+export function outranks(viewer: Role, target: Role): boolean {
+  return rank[viewer] > rank[target];
+}

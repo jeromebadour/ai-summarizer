@@ -26,16 +26,17 @@ import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";
 import { RowNumber } from "@/components/RowNumber";
 import { StatTile } from "@/components/StatTile";
 import { formatCost, type UserDetail } from "@/lib/admin";
-import { can, type Role } from "@/lib/permissions";
+import { can, outranks, type Role } from "@/lib/permissions";
 
 const deviceIcon: Record<UserDetail["sessions"][number]["kind"], LucideIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
 
-function Action({ icon: Icon, label, tone }: { icon: LucideIcon; label: string; tone: string }) {
+/** Opens the action's dialog (named in the URL, so it can be linked and refreshed). */
+function Action({ href, icon: Icon, label, tone }: { href: string; icon: LucideIcon; label: string; tone: string }) {
   return (
-    <button type="button" className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-[13px] font-semibold ${tone}`}>
+    <Link href={href as never} scroll={false} className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-[13px] font-semibold ${tone}`}>
       <Icon size={17} strokeWidth={2} />
       {label}
-    </button>
+    </Link>
   );
 }
 
@@ -59,7 +60,11 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
   const days = Math.max(1, Math.min(14, d.accountDays));
   const daily = d.daily.slice(-days);
   const suspended = d.row.status === "suspended";
-  const isOwner = person.role === "owner";
+  // Staff act only on people below their role: never on their own page, never on the owner (the database agrees).
+  const actable = outranks(viewer, person.role);
+  const open = (dialog: string, extra = "") => `${base}?tab=users&user=${person.username}&dialog=${dialog}${extra}`;
+  // A staff member's role changes in the role dialog; a user's role is granted (guests and suspended users get none).
+  const roleHref = person.role === "user" ? open("grant", `&who=${person.username}`) : open("role", `&who=${person.username}`);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5">
@@ -105,17 +110,23 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
             </div>
           </div>
         )}
-        {/* The owner can't be acted on; everyone else gets only the actions the viewer's role holds. */}
-        {!isOwner && (
+        {/* Only the actions the viewer's role holds, and only those that would change something. */}
+        {actable && (
           <div className="ml-auto flex items-center gap-2 self-start">
-            {can(viewer, "users.resetLimit") && <Action icon={TimerReset} label="Reset limit" tone="border-brand-line text-brand-strong hover:bg-brand-soft" />}
-            {can(viewer, "roles.change") && !guest && <Action icon={KeyRound} label="Change role" tone="border-figure/40 text-figure hover:bg-figure-soft" />}
-            {can(viewer, "users.signOut") && d.sessions.length > 0 && <Action icon={LogOut} label="Sign out everywhere" tone="border-clear/40 text-clear hover:bg-clear-soft" />}
+            {can(viewer, "users.resetLimit") && d.hour.used > 0 && (
+              <Action href={open("reset")} icon={TimerReset} label="Reset limit" tone="border-brand-line text-brand-strong hover:bg-brand-soft" />
+            )}
+            {can(viewer, "roles.change") && !guest && !(suspended && person.role === "user") && (
+              <Action href={roleHref} icon={KeyRound} label="Change role" tone="border-figure/40 text-figure hover:bg-figure-soft" />
+            )}
+            {can(viewer, "users.signOut") && d.sessions.length > 0 && (
+              <Action href={open("signout")} icon={LogOut} label="Sign out everywhere" tone="border-clear/40 text-clear hover:bg-clear-soft" />
+            )}
             {can(viewer, "users.suspend") &&
               (suspended ? (
-                <Action icon={RotateCcw} label="Restore" tone="border-verify/40 text-verify hover:bg-verify-soft" />
+                <Action href={open("restore")} icon={RotateCcw} label="Restore" tone="border-verify/40 text-verify hover:bg-verify-soft" />
               ) : (
-                <Action icon={Ban} label="Suspend" tone="border-clear/50 bg-clear-soft text-clear hover:border-clear" />
+                <Action href={open("suspend")} icon={Ban} label="Suspend" tone="border-clear/50 bg-clear-soft text-clear hover:border-clear" />
               ))}
           </div>
         )}

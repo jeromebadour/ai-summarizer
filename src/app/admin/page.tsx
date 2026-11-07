@@ -3,6 +3,7 @@ import { AdminShell } from "@/components/AdminShell";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Rail } from "@/components/Rail";
 import { requireStaff, toAccount } from "@/lib/server/account";
+import { findAccount, staffAction } from "@/app/actions/admin";
 import { liveSource } from "@/lib/server/admin-source";
 import { partsIn, viewerZone } from "@/lib/server/zone";
 
@@ -29,6 +30,8 @@ async function Admin({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
       rail={<Rail page="admin" account={account} />}
       clock={now.time}
       today={now.day}
+      act={staffAction}
+      find={findAccount}
     />
   );
 }

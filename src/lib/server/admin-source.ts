@@ -323,7 +323,7 @@ export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
           id: String(c.id),
           at: stamp(String(c.at)).at.replace(/, \d\d:\d\d$/, ""),
           actor: person(c.actor as J)!,
-          action: c.action === "grant_role" ? ("granted" as const) : ("revoked" as const),
+          action: c.action === "grant_role" ? ("granted" as const) : c.action === "change_role" ? ("changed" as const) : ("revoked" as const),
           role: String(c.role) as Role,
           target: person(c.target as J)!,
           reason: String(c.reason ?? ""),
@@ -335,7 +335,7 @@ export function liveSource(viewer: CurrentUser, zone: string): AdminSource {
       const detail = await call<J | null>("select admin_user($1, $2) as out", [username, zone]);
       const action = (detail?.staffActions as J[] | undefined)?.find((a) => a.action === "suspend");
       if (!action) return null;
-      return { by: person(action.actor as J)!, on: stamp(String(action.at)).at, reason: String(action.reason ?? "") };
+      return { by: person(action.actor as J), on: stamp(String(action.at)).at, reason: String(action.reason ?? "") };
     },
   };
 }

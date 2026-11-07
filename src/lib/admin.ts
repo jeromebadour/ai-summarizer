@@ -223,4 +223,5 @@ export function isNotable(entry: ActivityEntry): boolean {
 
 /** One staff role held, with who granted it and when (from the audit log). */
 export type RoleHolder = { person: Person; since: string; grantedBy: Person | null };
-export type RoleChange = { id: string; at: string; actor: Person; action: "granted" | "revoked"; role: Role; target: Person; reason: string };
+/** `role` is the role granted, changed to, or revoked. */
+export type RoleChange = { id: string; at: string; actor: Person; action: "granted" | "changed" | "revoked"; role: Role; target: Person; reason: string };

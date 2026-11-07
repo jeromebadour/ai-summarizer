@@ -4,7 +4,8 @@ import { checkUsernameFormat, normalizeUsername } from "@/lib/username";
 import { uniqueViolation } from "./db";
 
 /** A refusal for one field of a form; `code` marks one the form answers with an action. */
-export type FormState = { error?: string; field?: string; code?: "email_exists" } | undefined;
+/** `nothing`: the action had nothing to change (already done, maybe by someone else): a calm answer, not a problem. */
+export type FormState = { error?: string; field?: string; code?: "email_exists" | "nothing" } | undefined;
 
 export function text(form: FormData, key: string): string {
   const value = form.get(key);

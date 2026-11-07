@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminActivity } from "@/components/AdminActivity";
 import { AdminOverview } from "@/components/AdminOverview";
-import { ChangeCapDialog, ChangeRoleDialog, GrantRoleDialog, PauseDialog, ResetLimitDialog, RestoreDialog, ResumeDialog, RevokeDialog, SignOutDialog, SuspendDialog } from "@/components/AdminDialogs";
+import { ChangeCapDialog, ChangeRoleDialog, GrantRoleDialog, PauseDialog, ResetLimitDialog, RestoreDialog, ResumeDialog, RevokeDialog, SignOutDialog, SuspendDialog, type FindAccount } from "@/components/AdminDialogs";
 import { AdminRoles } from "@/components/AdminRoles";
 import { AdminServer } from "@/components/AdminServer";
 import { AdminSpend } from "@/components/AdminSpend";
@@ -13,7 +13,8 @@ import { PageTabs, type PageTab } from "@/components/PageTabs";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { overviewFigures, whenLabel, type AdminOverview as Overview } from "@/lib/admin";
 import { activityFiltersFrom, userFiltersFrom, type AdminSource } from "@/lib/admin-source";
-import { can, type Permission, type Role } from "@/lib/permissions";
+import { can, outranks, type Permission, type Role } from "@/lib/permissions";
+import type { StaffAct, StaffProps } from "@/components/StaffForm";
 import type { Account } from "@/lib/profile";
 
 const tabs = [
@@ -39,7 +40,29 @@ type Params = Record<string, string | string[] | undefined>;
  * `rail` comes from the page: the live console passes the signed-in Rail, the demo its own (no server actions).
  * `clock` is "now" on the viewer's clock, for the header's "Live · updated 18:52".
  */
-export async function AdminShell({ mode, params, source, rail, clock, today }: { mode: AdminMode; params: Params; source: AdminSource; rail: React.ReactNode; clock: string; today: string }) {
+/**
+ * `act` and `find` are the staff server actions, passed in by the live page only; the demo passes neither, so its
+ * dialogs can't send anything (and its pages never load the code that would).
+ */
+export async function AdminShell({
+  mode,
+  params,
+  source,
+  rail,
+  clock,
+  today,
+  act,
+  find,
+}: {
+  mode: AdminMode;
+  params: Params;
+  source: AdminSource;
+  rail: React.ReactNode;
+  clock: string;
+  today: string;
+  act?: StaffAct;
+  find?: FindAccount;
+}) {
   const requested = typeof params.tab === "string" ? params.tab : undefined;
   const role: Role = mode.kind === "demo" ? "owner" : mode.account.role;
   const base = mode.kind === "demo" ? "/demo/admin" : "/admin";
@@ -88,7 +111,7 @@ export async function AdminShell({ mode, params, source, rail, clock, today }: {
         </div>
         {tab === "overview" && overview && <AdminOverview overview={overview} recent={await source.recentNotable()} base={base} serverReady={source.serverReady} />}
         {tab === "server" && overview && <AdminServer overview={overview} base={base} />}
-        {tab === "roles" && <RolesTab source={source} />}
+        {tab === "roles" && <RolesTab source={source} base={base} />}
         {tab === "spend" && overview && <SpendTab overview={overview} source={source} params={params} role={role} base={base} />}
         {tab === "activity" && <ActivityTab source={source} params={params} base={base} today={today} />}
         {tab === "users" &&
@@ -98,7 +121,9 @@ export async function AdminShell({ mode, params, source, rail, clock, today }: {
             <UsersTab source={source} params={params} base={base} showSpend={can(role, "spend.view")} />
           ))}
       </main>
-      {typeof params.dialog === "string" && <AdminDialog name={params.dialog} source={source} overview={overview} params={params} role={role} demo={mode.kind === "demo"} />}
+      {typeof params.dialog === "string" && (
+        <AdminDialog name={params.dialog} source={source} overview={overview} params={params} role={role} staff={{ demo: mode.kind === "demo", act, back: pageHref(base, params) }} find={find} />
+      )}
     </div>
   );
 }
@@ -122,9 +147,9 @@ async function ActivityTab({ source, params, base, today }: { source: AdminSourc
   return <AdminActivity rows={rows} page={page} counts={counts} filters={filters} today={today} base={base} />;
 }
 
-async function RolesTab({ source }: { source: AdminSource }) {
+async function RolesTab({ source, base }: { source: AdminSource; base: string }) {
   const { holders, changes } = await source.roles();
-  return <AdminRoles holders={holders} changes={changes} />;
+  return <AdminRoles holders={holders} changes={changes} base={base} />;
 }
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -151,7 +176,23 @@ async function SpendTab({ overview, source, params, role, base }: { overview: Ov
  * and only opens for someone who holds the permission. The server checks again when it's confirmed; the demo never
  * confirms.
  */
-async function AdminDialog({ name, source, overview, params, role, demo }: { name: string; source: AdminSource; overview: Overview | null; params: Params; role: Role; demo: boolean }) {
+async function AdminDialog({
+  name,
+  source,
+  overview,
+  params,
+  role,
+  staff,
+  find,
+}: {
+  name: string;
+  source: AdminSource;
+  overview: Overview | null;
+  params: Params;
+  role: Role;
+  staff: StaffProps;
+  find?: FindAccount;
+}) {
   const user = typeof params.user === "string" ? params.user : "";
   const who = typeof params.who === "string" ? params.who : "";
   const needs: Record<string, Permission> = {
@@ -170,21 +211,31 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
   };
   if (!needs[name] || !can(role, needs[name])) return null;
 
+  // Actions on a person show only for people below the viewer's role (never their own page, never the owner).
+  const target = async (username: string) => {
+    const detail = await source.userDetail(username);
+    return detail && outranks(role, detail.row.person.role) ? detail : null;
+  };
   switch (name) {
     case "suspend": {
-      const detail = await source.userDetail(user);
-      return detail && <SuspendDialog person={detail.row.person} devices={detail.sessions.length} summaries={detail.row.summaries} demo={demo} />;
+      const detail = await target(user);
+      return detail && detail.row.status !== "suspended" && <SuspendDialog person={detail.row.person} devices={detail.sessions.length} summaries={detail.row.summaries} staff={staff} />;
     }
     case "restore": {
-      const [detail, suspension] = await Promise.all([source.userDetail(user), source.suspension(user)]);
-      return detail && suspension && <RestoreDialog person={detail.row.person} suspendedBy={suspension.by} suspendedOn={suspension.on} suspendedFor={suspension.reason} demo={demo} />;
+      const [detail, suspension] = await Promise.all([target(user), source.suspension(user)]);
+      return (
+        detail &&
+        detail.row.status === "suspended" && (
+          <RestoreDialog person={detail.row.person} suspendedBy={suspension?.by ?? null} suspendedOn={suspension?.on ?? ""} suspendedFor={suspension?.reason ?? ""} staff={staff} />
+        )
+      );
     }
     case "signout": {
-      const detail = await source.userDetail(user);
-      return detail && <SignOutDialog person={detail.row.person} sessions={detail.sessions} demo={demo} />;
+      const detail = await target(user);
+      return detail && detail.sessions.length > 0 && <SignOutDialog person={detail.row.person} sessions={detail.sessions} staff={staff} />;
     }
     case "reset": {
-      const detail = await source.userDetail(user);
+      const detail = await target(user);
       return (
         detail && (
           <ResetLimitDialog
@@ -193,7 +244,7 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
             limit={detail.hour.limit}
             nextFree={detail.hour.resetsAt ?? "now"}
             today={detail.day ? `${detail.day.used} of ${detail.day.limit}` : "guest limit"}
-            demo={demo}
+            staff={staff}
           />
         )
       );
@@ -201,12 +252,14 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
     case "role":
     case "revoke": {
       const h = (await source.roles()).holders.find((x) => x.person.username === who);
-      if (!h) return null;
-      return name === "role" ? <ChangeRoleDialog person={h.person} to="admin" demo={demo} /> : <RevokeDialog person={h.person} since={h.since} demo={demo} />;
+      if (!h || !outranks(role, h.person.role)) return null;
+      return name === "role" ? <ChangeRoleDialog person={h.person} to={h.person.role} staff={staff} /> : <RevokeDialog person={h.person} since={h.since} staff={staff} />;
     }
     case "grant": {
-      const detail = await source.userDetail(who);
-      return detail && <GrantRoleDialog person={detail.row.person} to="moderator" demo={demo} />;
+      // From someone's page it starts with them; from Roles it starts empty and looks the account up.
+      const detail = who ? await target(who) : null;
+      const person = detail && detail.row.person.role === "user" && detail.row.status !== "suspended" ? detail.row.person : null;
+      return <GrantRoleDialog person={person} to="moderator" staff={staff} find={find} />;
     }
   }
 
@@ -222,7 +275,7 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
           monthUsd={f.spend.monthUsd}
           todayUsd={f.spend.todayUsd}
           projectedUsd={f.spend.projectedUsd}
-          demo={demo}
+          staff={staff}
         />
       );
     case "pause-guests":
@@ -230,7 +283,7 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
         !overview.pauses.guests && (
           <PauseDialog
             kind="guests"
-            demo={demo}
+            staff={staff}
             facts={[
               { kind: "people", text: `${overview.guests.active} guests active now: their next summary is refused` },
               { kind: "stop", text: `"Try it as a guest" is replaced by a note on the sign-in page` },
@@ -244,7 +297,7 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
         !overview.pauses.all && (
           <PauseDialog
             kind="all"
-            demo={demo}
+            staff={staff}
             facts={[
               { kind: "stop", text: `Every new summary is refused, including yours (${f.summaries.today} made today)` },
               { kind: "keep", text: "Summaries already made stay readable in Saved" },
@@ -255,7 +308,7 @@ async function AdminDialog({ name, source, overview, params, role, demo }: { nam
     case "resume-guests":
     case "resume-all": {
       const p = name === "resume-guests" ? overview.pauses.guests : overview.pauses.all;
-      return p && <ResumeDialog kind={name === "resume-guests" ? "guests" : "all"} pausedBy={p.by} pausedOn={whenLabel(p.since, overview.today)} pausedFor={p.reason} demo={demo} />;
+      return p && <ResumeDialog kind={name === "resume-guests" ? "guests" : "all"} pausedBy={p.by} pausedOn={whenLabel(p.since, overview.today)} pausedFor={p.reason} staff={staff} />;
     }
     default:
       return null;
@@ -271,9 +324,27 @@ const doneLabels: Record<string, string> = {
   grant: "Role granted to",
   revoke: "Role revoked from",
   cap: "Caps saved",
-  pause: "Paused",
-  resume: "Resumed",
+  "pause-guests": "Guests paused",
+  "pause-all": "All summaries paused",
+  "resume-guests": "Guests resumed",
+  "resume-all": "All summaries resumed",
 };
+/** Actions about the whole app, not one person: their header line names no one. */
+const appWide = ["cap", "pause-guests", "pause-all", "resume-guests", "resume-all"];
+
+/**
+ * The page under a dialog: the same URL without the dialog and without the last "done". `who` names a dialog's person
+ * everywhere but Activity, where it is the search, so it stays there.
+ */
+function pageHref(base: string, params: Params): string {
+  const p = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value !== "string" || key === "dialog" || key === "done" || (key === "who" && params.tab !== "activity")) continue;
+    p.set(key, value);
+  }
+  const query = p.toString();
+  return query ? `${base}?${query}` : base;
+}
 
 /** The header's status: live by default; after an action, what was just done (never silent), or why it failed. */
 function doneStatus(params: Params, clock: string): AppStatus {
@@ -281,7 +352,7 @@ function doneStatus(params: Params, clock: string): AppStatus {
   if (done === "error") return { kind: "error", label: "Couldn't save · try again" };
   if (done && doneLabels[done]) {
     const who = typeof params.user === "string" ? params.user : typeof params.who === "string" ? params.who : null;
-    return { kind: "saved", label: who && !["cap", "pause", "resume"].includes(done) ? `${doneLabels[done]} @${who} ·` : `${doneLabels[done]} ·`, at: clock };
+    return { kind: "saved", label: who && !appWide.includes(done) ? `${doneLabels[done]} @${who} ·` : `${doneLabels[done]} ·`, at: clock };
   }
   return { kind: "saved", label: "Live · updated", at: clock };
 }
