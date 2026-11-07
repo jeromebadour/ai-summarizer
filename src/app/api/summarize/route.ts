@@ -92,6 +92,10 @@ export async function POST(request: Request) {
         step("checking");
         const claim = await actingAs(user.id, async (db) => (await db.query("select * from claim_use($1)", [user.id])).rows[0]);
         if (!claim.ok) {
+          // The reason only, so the console can count limits reached (never the text).
+          await actingAs(user.id, (db) =>
+            db.query("insert into request_errors (request_id, user_id, code) values ($1, $2, $3)", [id, user.id, `limit_${claim.reason}`]),
+          ).catch(() => {});
           send({ type: "refused", reason: claim.reason, nextFreeAt: claim.next_free_at });
           return;
         }
@@ -144,7 +148,9 @@ export async function POST(request: Request) {
         const inputTokens = message.usage.input_tokens;
         const outputTokens = message.usage.output_tokens;
         const cost = costOf(inputTokens, outputTokens);
-        await actingAs(user.id, (db) => db.query("select record_cost($1, $2, $3, $4)", [useId, inputTokens, outputTokens, cost]));
+        await actingAs(user.id, (db) =>
+          db.query("select record_cost($1, $2, $3, $4, $5, $6)", [useId, inputTokens, outputTokens, cost, length, countWords(text)]),
+        );
         priced = true;
 
         // 4. Links and figures checked against the source.

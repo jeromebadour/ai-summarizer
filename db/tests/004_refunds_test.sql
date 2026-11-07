@@ -15,7 +15,7 @@ declare r record; q record;
 begin
   -- 1. A paid but unusable answer: the use comes back, the cost stays.
   select * into r from claim_use('00000000-0000-0000-0000-0000000000c1');
-  perform record_cost(r.use_id, 5000, 300, 0.02);
+  perform record_cost(r.use_id, 5000, 300, 0.02, 'short', 900);
   assert give_back(r.use_id), 'a paid use could not be given back';
   select * into q from quota_now('00000000-0000-0000-0000-0000000000c1');
   assert q.used_hour = 0 and q.used_day = 0, 'a given-back use still counts against the limit';
@@ -26,7 +26,7 @@ begin
 
   -- 3. Refunded costs still count toward the cap.
   select * into r from claim_use('00000000-0000-0000-0000-0000000000c1');
-  perform record_cost(r.use_id, 5000, 300, 0.03);
+  perform record_cost(r.use_id, 5000, 300, 0.03, 'short', 900);
   perform give_back(r.use_id);
   select * into r from claim_use('00000000-0000-0000-0000-0000000000c1');
   assert not r.ok and r.reason = 'cap', 'refunded spend did not count toward the cap';

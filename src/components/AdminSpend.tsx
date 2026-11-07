@@ -1,6 +1,6 @@
 import { Binary, Calculator, ChartColumn, Coins, FlaskConical, Gauge, OctagonPause, Pause, Pencil, Play, UserRound, UsersRound, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import type { SpendRow } from "@/components/AdminShell";
+import type { SpendRow } from "@/lib/admin-source";
 import { DayBars } from "@/components/DayBars";
 import { Pager } from "@/components/Pager";
 import { PersonLine } from "@/components/PersonLine";

@@ -38,7 +38,8 @@ export type ActivityEntry = {
   usage?: SummaryUsage;
 };
 
-export type SummaryUsage = { length: "Short" | "Medium" | "Bullets"; words: number; inputTokens: number; outputTokens: number; costUsd: number };
+/** Tokens and cost are null for a moderator: spend is for owner and admin. */
+export type SummaryUsage = { length: "Short" | "Medium" | "Bullets"; words: number; inputTokens: number | null; outputTokens: number | null; costUsd: number | null };
 
 /**
  * Claude's price per million tokens, used for every cost on screen. UNCONFIRMED: placeholder until checked against
@@ -55,7 +56,8 @@ export function costOf(inputTokens: number, outputTokens: number): number {
 
 /** "1,240 words · Medium · 0.4¢": the detail line of a summary event. */
 export function usageLine(u: SummaryUsage): string {
-  return `${u.words.toLocaleString("en-US")} words · ${u.length} · ${formatCost(u.costUsd)}`;
+  const words = `${u.words.toLocaleString("en-US")} words · ${u.length}`;
+  return u.costUsd === null ? words : `${words} · ${formatCost(u.costUsd)}`;
 }
 
 /**
@@ -93,6 +95,7 @@ export type AdminOverview = {
     database: { up: boolean; sizeMb: number; connections: number; maxConnections: number; largestTable: { name: string; sizeMb: number } };
     claude: { avgSeconds: number; p95Seconds: number; failedToday: number; lastFailure: { at: string; code: string } | null };
     app: { commit: string; deployedAt: string; next: string; node: string };
+    /** Null until backups run on the box: the Backup line and the Server tab stay hidden. */
     backup: {
       last: string;
       restoreTested: string;
@@ -102,9 +105,10 @@ export type AdminOverview = {
       next: string;
       /** Newest first, a short preview; the full list is paged. */
       recent: { id: string; at: string; sizeMb: number; ok: boolean }[];
-    };
+    } | null;
     security: { firewallPorts: number[]; bannedNow: number; bannedToday: number; updatesPending: number; httpsUntil: string };
-    httpsDays: number;
+    /** Null until the certificate is read on the box. */
+    httpsDays: number | null;
   };
   attention: AttentionItem[];
 };
@@ -177,7 +181,8 @@ export type UserRow = {
   joinedAt: string;
   lastActive: { label: string; recency: Recency };
   summaries: number;
-  costUsd: number;
+  /** Null for a moderator. */
+  costUsd: number | null;
   status: UserStatus;
 };
 

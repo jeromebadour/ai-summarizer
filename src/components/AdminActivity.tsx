@@ -1,6 +1,9 @@
-import { MapPin, Search } from "lucide-react";
+import { MapPin } from "lucide-react";
+import Link from "next/link";
 import { ActivityChip, activityLook } from "@/components/ActivityLook";
+import { AdminSearch } from "@/components/AdminSearch";
 import { Pager } from "@/components/Pager";
+import { activityHref, type ActivityFilters } from "@/lib/admin-source";
 import { PersonLine } from "@/components/PersonLine";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
 import { whenLabel, type ActivityEntry, type ActivityKind } from "@/lib/admin";
@@ -15,39 +18,38 @@ export function AdminActivity({
   rows,
   page,
   counts,
-  selected,
+  filters,
   today,
   base,
 }: {
   rows: ActivityEntry[];
   page: Page;
   counts: Record<ActivityKind, number>;
-  selected: ActivityKind[];
+  filters: ActivityFilters;
+  /** The viewer's date ("2026-11-07"), so today's rows show just the time. */
   today: string;
   base: string;
 }) {
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-5">
       <div className="flex items-center gap-3">
-        <label className="flex w-[260px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2 focus-within:border-brand-line">
-          <Search size={16} strokeWidth={2} className="text-brand-strong" />
-          <input placeholder="Search @username" className="min-w-0 flex-1 bg-transparent text-[13px] text-text outline-none placeholder:text-faint" />
-        </label>
+        <AdminSearch name="who" value={filters.who} hrefBase={activityHref(base, { ...filters, who: "" })} placeholder="Search @username" width="w-[260px]" />
         <div className="flex flex-wrap gap-1.5">
           {activityKinds.map((kind) => {
             const { icon: Icon, tone, label } = activityLook[kind];
-            const on = selected.includes(kind);
+            const on = filters.kinds.includes(kind);
+            const kinds = on ? filters.kinds.filter((k) => k !== kind) : [...filters.kinds, kind];
             return (
-              <button
+              <Link
                 key={kind}
-                type="button"
+                href={activityHref(base, { ...filters, kinds }) as never}
                 aria-pressed={on}
                 className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold ${on ? tone : `border-border ${tone.split(" ").find((c) => c.startsWith("text-"))} hover:bg-panel-raised`}`}
               >
                 <Icon size={13.5} strokeWidth={2.1} />
                 {label}
                 <span className="font-mono text-[10.5px] font-medium opacity-75">{counts[kind]}</span>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -80,7 +82,7 @@ export function AdminActivity({
         ))}
       </ul>
 
-      <Pager page={page} noun="events" href={(n) => (n === 1 ? `${base}?tab=activity` : `${base}?tab=activity&page=${n}`)} />
+      <Pager page={page} noun="events" href={(n) => activityHref(base, filters, n)} />
     </section>
   );
 }

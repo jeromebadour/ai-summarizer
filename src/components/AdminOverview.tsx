@@ -28,7 +28,7 @@ import { PersonLine } from "@/components/PersonLine";
 import { StatTile } from "@/components/StatTile";
 import { formatUsd, overviewFigures, type ActivityEntry, type AdminOverview as Overview, type AttentionItem, type OverviewFigures } from "@/lib/admin";
 
-function Attention({ items, base }: { items: AttentionItem[]; base: string }) {
+function Attention({ items, base, serverReady }: { items: AttentionItem[]; base: string; serverReady: boolean }) {
   return (
     <section role="alert" className="flex flex-col gap-2 rounded-2xl border border-flag/40 bg-flag-soft px-5 py-3.5">
       {items.map((item) => (
@@ -36,10 +36,12 @@ function Attention({ items, base }: { items: AttentionItem[]; base: string }) {
           <TriangleExclamationPoint size={18} strokeWidth={2.1} className="shrink-0 text-flag" />
           <span className="text-[13.5px] font-semibold text-flag">{item.title}</span>
           <span className="font-mono text-[12px] text-muted">{item.detail}</span>
-          <Link href={`${base}?tab=server` as never} className="ml-auto flex items-center gap-1.5 text-[12.5px] font-semibold text-flag hover:underline">
-            <Server size={14} strokeWidth={2} />
-            Server
-          </Link>
+          {serverReady && (
+            <Link href={`${base}?tab=server` as never} className="ml-auto flex items-center gap-1.5 text-[12.5px] font-semibold text-flag hover:underline">
+              <Server size={14} strokeWidth={2} />
+              Server
+            </Link>
+          )}
         </div>
       ))}
     </section>
@@ -74,7 +76,7 @@ function Meter({ icon: Icon, label, percent, bar }: { icon: LucideIcon; label: s
 }
 
 
-function ServerGlance({ server, claude, base }: { server: Overview["server"]; claude: OverviewFigures["claude"]; base: string }) {
+function ServerGlance({ server, claude, base, serverReady }: { server: Overview["server"]; claude: OverviewFigures["claude"]; base: string; serverReady: boolean }) {
   const look = healthLook[server.health];
   return (
     <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-5">
@@ -85,10 +87,12 @@ function ServerGlance({ server, claude, base }: { server: Overview["server"]; cl
           <CircleCheck size={14} strokeWidth={2.2} />
           {look.label}
         </span>
-        <Link href={`${base}?tab=server` as never} className="ml-auto flex items-center gap-1 text-[12px] font-semibold text-brand-strong hover:underline">
-          Details
-          <ArrowUpRight size={14} strokeWidth={2} />
-        </Link>
+        {serverReady && (
+          <Link href={`${base}?tab=server` as never} className="ml-auto flex items-center gap-1 text-[12px] font-semibold text-brand-strong hover:underline">
+            Details
+            <ArrowUpRight size={14} strokeWidth={2} />
+          </Link>
+        )}
       </div>
       <div className="mt-4 flex flex-col gap-2.5">
         <Meter icon={Cpu} label="CPU" percent={server.cpu} bar={look.bar} />
@@ -104,8 +108,11 @@ function ServerGlance({ server, claude, base }: { server: Overview["server"]; cl
           alert={claude.failedRate >= 5}
           value={`${server.claude.avgSeconds.toFixed(1)} s avg · ${server.claude.failedToday} of ${claude.requestsToday} failed today (${claude.failedRate}%)`}
         />
-        <Fact icon={DatabaseBackup} tone="text-figure" label="Backup" value={`${server.backup.last} today · restore tested ${server.backup.restoreTested}`} />
-        <Fact icon={LockKeyhole} tone="text-verify" label="HTTPS" value={`valid ${server.httpsDays} days · renews itself`} />
+        {/* Hidden until the box reports them (backups and the certificate are read there), never guessed. */}
+        {server.backup && (
+          <Fact icon={DatabaseBackup} tone="text-figure" label="Backup" value={`${server.backup.last} today · restore tested ${server.backup.restoreTested}`} />
+        )}
+        {server.httpsDays !== null && <Fact icon={LockKeyhole} tone="text-verify" label="HTTPS" value={`valid ${server.httpsDays} days · renews itself`} />}
       </div>
     </div>
   );
@@ -123,7 +130,7 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
           <ArrowUpRight size={14} strokeWidth={2} />
         </Link>
       </div>
-      <ul className="mt-3 flex flex-1 flex-col justify-between">
+      <ul className={`mt-3 flex flex-1 flex-col ${entries.length >= 5 ? "justify-between" : ""}`}>
         {entries.slice(0, 5).map((entry) => {
           const { icon: Icon, tone, label } = activityLook[entry.kind];
           return (
@@ -146,11 +153,11 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
 }
 
 /** `base` is /admin or /demo/admin, so links stay inside the console the viewer is in. */
-export function AdminOverview({ overview: o, recent, base }: { overview: Overview; recent: ActivityEntry[]; base: string }) {
+export function AdminOverview({ overview: o, recent, base, serverReady }: { overview: Overview; recent: ActivityEntry[]; base: string; serverReady: boolean }) {
   const f = overviewFigures(o);
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-5">
-      {o.attention.length > 0 && <Attention items={o.attention} base={base} />}
+      {o.attention.length > 0 && <Attention items={o.attention} base={base} serverReady={serverReady} />}
 
       <div className="grid grid-cols-6 gap-5">
         <StatTile icon={UsersRound} tone="text-brand-strong" label="Accounts" value={String(o.users.registered)} note={`+${f.signups.today} today · +${f.signups.week} this week`} />
@@ -187,7 +194,7 @@ export function AdminOverview({ overview: o, recent, base }: { overview: Overvie
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.55fr] gap-5">
-        <ServerGlance server={o.server} claude={f.claude} base={base} />
+        <ServerGlance server={o.server} claude={f.claude} base={base} serverReady={serverReady} />
         <LatestActivity entries={recent} base={base} />
       </div>
     </div>

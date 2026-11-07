@@ -48,8 +48,8 @@ declare r record;
 begin
   select * into r from claim_use('00000000-0000-0000-0000-0000000000a2');
   assert r.ok, 'first use refused';
-  assert record_cost(r.use_id, 1000, 200, 0.05), 'cost not recorded';
-  assert not record_cost(r.use_id, 1, 1, 0), 'a use was priced twice';
+  assert record_cost(r.use_id, 1000, 200, 0.05, 'medium', 100), 'cost not recorded';
+  assert not record_cost(r.use_id, 1, 1, 0, 'medium', 1), 'a use was priced twice';
   -- Since 004 a priced use can be given back (refunded), but its cost stays in the spend.
   assert give_back(r.use_id), 'a priced use could not be given back';
   insert into summaries (user_id, title, source_text, sentences, points, length, model, input_tokens, output_tokens,

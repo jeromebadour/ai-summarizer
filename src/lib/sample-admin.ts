@@ -142,9 +142,9 @@ export function spendByUser(fromDay: string) {
     if (e.kind !== "summary" || !e.person || !e.usage || e.when < fromDay) continue;
     const row = rows.get(e.person.id) ?? { person: e.person, summaries: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
     row.summaries += 1;
-    row.inputTokens += e.usage.inputTokens;
-    row.outputTokens += e.usage.outputTokens;
-    row.costUsd += e.usage.costUsd;
+    row.inputTokens += e.usage.inputTokens ?? 0;
+    row.outputTokens += e.usage.outputTokens ?? 0;
+    row.costUsd += e.usage.costUsd ?? 0;
     rows.set(e.person.id, row);
   }
   return [...rows.values()].sort((a, b) => b.costUsd - a.costUsd || b.summaries - a.summaries);

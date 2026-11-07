@@ -121,9 +121,9 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         )}
       </section>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className={`grid ${d.row.costUsd === null ? "grid-cols-3" : "grid-cols-4"} gap-5`}>
         <StatTile icon={FileText} tone="text-brand-strong" label="Summaries" value={String(d.row.summaries)} note={`${daily.at(-1) ?? 0} today`} />
-        <StatTile icon={Coins} tone="text-figure" label="Spend" value={formatCost(d.row.costUsd)} note="all time" />
+        {d.row.costUsd !== null && <StatTile icon={Coins} tone="text-figure" label="Spend" value={formatCost(d.row.costUsd)} note="all time" />}
         <StatTile
           icon={Hourglass}
           tone="text-brand-strong"
@@ -179,7 +179,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
                     </span>
                     <span className="min-w-0 leading-tight">
                       <span className="block truncate text-[13px] font-semibold">
-                        {s.browser} · {s.os}
+                        {s.os ? `${s.browser} · ${s.os}` : s.browser}
                       </span>
                       <span className="font-mono text-[11px] text-muted">{s.place}</span>
                     </span>

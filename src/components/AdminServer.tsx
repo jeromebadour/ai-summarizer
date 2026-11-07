@@ -69,7 +69,9 @@ function Metric({ icon: Icon, label, value, note, values, unit = "%", digits = 0
 
 /** The box itself: health, the four resources over 48 hours, and what runs on it. Metadata only. */
 export function AdminServer({ overview, base }: { overview: AdminOverview; base: string }) {
-  const s = overview.server;
+  // The tab only opens once the box reports backups (the console hides it until then).
+  if (!overview.server.backup) return null;
+  const s = { ...overview.server, backup: overview.server.backup };
   const look = healthLook[s.health];
   const claude = overviewFigures(overview).claude;
   const memoryUsed = (s.host.memoryGb * s.memory) / 100;
