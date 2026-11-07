@@ -58,6 +58,7 @@ async function Login({ searchParams }: Pick<PageProps<"/login">, "searchParams">
 
         <div className="flex items-center gap-4 font-mono text-[11.5px] text-muted">
           <span>Built by Jerome Badour</span>
+          <span>© 2026 Jerome Badour</span>
           <a href="https://github.com/jeromebadour/ai-summarizer" className="flex items-center gap-1.5 text-brand-strong hover:text-text">
             <CodeXml size={14} strokeWidth={2} />
             Source on GitHub
