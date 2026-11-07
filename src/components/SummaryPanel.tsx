@@ -3,7 +3,9 @@
 import {
   ArrowUpRight,
   Check,
+  ClipboardCheck,
   ClipboardCopy,
+  Link2,
   Coins,
   Cpu,
   LoaderCircle,
@@ -42,9 +44,17 @@ type DoneProps = {
   wordsIn: number;
   wordsOut: number;
   onFocus?: (focus: Focus) => void;
+  /** Copy as text; `copied` shows the clipboard-check for 2 s after. */
+  onCopy?: () => void;
+  copied?: boolean;
+  /** The saved summary's own page (result variant). */
+  openHref?: string;
 };
 
-type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number };
+type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number; onRetry?: () => void };
+
+/** Before the first Distill: what the result will be, so the empty half of the screen still says something. */
+type IdleProps = { state: "idle"; length: SummaryLength; /** Off while a limit or stop blocks Distill. */ hint: boolean };
 
 function sentenceTexts(sentences: SourceSentence[], ids: number[]): string[] {
   return sentences.filter((s) => ids.includes(s.id)).map((s) => s.text);
@@ -129,7 +139,7 @@ function FigureChip({ figure, sentences, active, onFocus }: { figure: KeyFigure;
   );
 }
 
-function FailureCard({ failure }: { failure: DistillFailure }) {
+function FailureCard({ failure, onRetry }: { failure: DistillFailure; onRetry?: () => void }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-flag/35 bg-flag-soft/60">
       <div className="flex gap-4 p-5">
@@ -148,10 +158,12 @@ function FailureCard({ failure }: { failure: DistillFailure }) {
         </div>
       </div>
       <div className="flex items-center gap-3 border-t border-flag/20 bg-panel/50 px-5 py-3">
-        <button type="button" className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-[13.5px] font-semibold text-on-brand hover:brightness-110">
-          <RotateCcw size={16} strokeWidth={2.2} />
-          Try again
-        </button>
+        {onRetry && (
+          <button type="button" onClick={onRetry} className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-[13.5px] font-semibold text-on-brand hover:brightness-110">
+            <RotateCcw size={16} strokeWidth={2.2} />
+            Try again
+          </button>
+        )}
         <span className="ml-auto font-mono text-[11px] text-muted">{failure.code}</span>
       </div>
     </div>
@@ -204,7 +216,8 @@ function Telemetry({ summary }: { summary: Summary }) {
   );
 }
 
-export function SummaryPanel(props: DoneProps | RunningProps) {
+export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
+  if (props.state === "idle") return <IdlePanel length={props.length} hint={props.hint} />;
   const lengthKey = props.state === "done" ? props.summary.length : props.length;
   const length = lengthStyles[lengthKey];
   const LengthIcon = length.icon;
@@ -237,9 +250,18 @@ export function SummaryPanel(props: DoneProps | RunningProps) {
         )}
         {props.state === "done" ? (
           <div className="ml-auto flex shrink-0 gap-2">
-            <button type="button" className="flex items-center gap-2.5 rounded-xl border border-brand-line py-2 pl-3 pr-4 text-[13.5px] font-semibold text-text hover:bg-brand-soft">
-              <ClipboardCopy size={21} strokeWidth={1.8} className="text-brand-strong" />
-              Copy
+            <button
+              type="button"
+              onClick={props.onCopy}
+              aria-live="polite"
+              className="flex items-center gap-2.5 rounded-xl border border-brand-line py-2 pl-3 pr-4 text-[13.5px] font-semibold text-text hover:bg-brand-soft"
+            >
+              {props.copied ? (
+                <ClipboardCheck size={21} strokeWidth={1.8} className="text-verify" />
+              ) : (
+                <ClipboardCopy size={21} strokeWidth={1.8} className="text-brand-strong" />
+              )}
+              {props.copied ? "Copied" : "Copy"}
             </button>
             {props.variant === "saved" ? (
               <button type="button" className="flex items-center gap-2.5 rounded-xl border border-clear/35 py-2 pl-3 pr-4 text-[13.5px] font-semibold text-clear hover:bg-clear-soft">
@@ -247,10 +269,12 @@ export function SummaryPanel(props: DoneProps | RunningProps) {
                 Delete
               </button>
             ) : (
-              <button type="button" className="flex items-center gap-2.5 rounded-xl border border-border-strong py-2 pl-3 pr-4 text-[13.5px] font-semibold text-muted hover:text-text">
-                <ArrowUpRight size={21} strokeWidth={1.8} />
-                Open
-              </button>
+              props.openHref && (
+                <a href={props.openHref} className="flex items-center gap-2.5 rounded-xl border border-border-strong py-2 pl-3 pr-4 text-[13.5px] font-semibold text-muted hover:text-text">
+                  <ArrowUpRight size={21} strokeWidth={1.8} />
+                  Open
+                </a>
+              )
             )}
           </div>
         ) : props.run.failed ? (
@@ -273,7 +297,7 @@ export function SummaryPanel(props: DoneProps | RunningProps) {
           </div>
           {props.run.failed ? (
             <div className="min-h-0 flex-1 px-7 py-5">
-              <FailureCard failure={props.run.failed} />
+              <FailureCard failure={props.run.failed} onRetry={props.onRetry} />
             </div>
           ) : (
             <ScrollArea as="ol" fade="panel" className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-4">
@@ -317,6 +341,59 @@ export function SummaryPanel(props: DoneProps | RunningProps) {
           <Telemetry summary={props.summary} />
         </>
       )}
+    </section>
+  );
+}
+
+function IdlePanel({ length, hint }: { length: SummaryLength; hint: boolean }) {
+  const look = lengthStyles[length];
+  const LengthIcon = look.icon;
+  const promises = [
+    { icon: Link2, tone: "text-brand-strong", text: "Every point links to the sentences it came from" },
+    { icon: ShieldCheck, tone: "text-verify", text: "Every number is checked against your text" },
+    { icon: Timer, tone: "text-input", text: "Points appear as Claude writes them" },
+  ];
+  return (
+    <section className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-line/60 bg-panel shadow-[0_24px_80px_-30px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/70 to-transparent" aria-hidden />
+      <header className="flex items-center gap-3 px-7 pb-4 pt-6">
+        <Sparkles size={20} strokeWidth={1.9} className="mt-1 shrink-0 self-start text-brand-strong" />
+        <h2 className="text-[22px] font-semibold tracking-[-0.01em]">Summary</h2>
+        <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold ${look.on}`}>
+          <LengthIcon size={13} strokeWidth={2.2} />
+          {look.label}
+        </span>
+      </header>
+      <div className="relative min-h-0 flex-1 px-4 py-2">
+        {/* Ghost points: the shape of what comes, fading out. */}
+        <ol className="space-y-2 opacity-70 [mask-image:linear-gradient(to_bottom,black,transparent_80%)]" aria-hidden>
+          {["72%", "58%", "66%", "49%"].map((w, i) => (
+            <li key={i} className="flex gap-4 rounded-xl border border-border/60 px-4 py-4">
+              <span className="grid size-7 shrink-0 place-items-center rounded-lg border border-border font-mono text-[11px] text-faint">{i + 1}</span>
+              <span className="flex-1 space-y-2 pt-1">
+                <span className="block h-2.5 rounded-full bg-border-strong/70" style={{ width: w }} />
+                <span className="block h-2.5 w-11/12 rounded-full bg-border/80" />
+              </span>
+            </li>
+          ))}
+        </ol>
+        <div className="absolute inset-0 grid place-items-center">
+          <ul className="space-y-3 rounded-2xl border border-border bg-panel/95 px-6 py-5 shadow-[var(--shadow-dialog)]">
+            {promises.map(({ icon: Icon, tone, text }) => (
+              <li key={text} className="flex items-center gap-3 text-[14px]">
+                <Icon size={17} strokeWidth={2} className={tone} />
+                {text}
+              </li>
+            ))}
+            {hint && (
+              <li className="flex items-center gap-2 border-t border-border pt-3 font-mono text-[11.5px] text-muted">
+                Paste your text, then
+                <kbd className="rounded-md border border-border-strong px-1.5 py-0.5 text-[10.5px] text-text">Ctrl ↵</kbd>
+              </li>
+            )}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }

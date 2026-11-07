@@ -78,6 +78,9 @@ check(
     str(k),
 )
 check("the quota comes after the limit check", k.index("quota") == 1, str(k))
+src = next((e for e in ev if e["type"] == "source"), None)
+check("the numbered source comes before Claude is asked", src is not None and k.index("source") < k.index("step:sending")
+      and [x["id"] for x in src["sentences"]] == [1, 2, 3, 4] and src["sentences"][1]["text"].startswith("Dr. Ana Weber"), str(src)[:200])
 check("points stream before the summary is done", k.count("point") == 3 and k.index("point") < k.index("done"), str(k))
 check("the live point text streams", "partial" in k)
 done = ev[-1]

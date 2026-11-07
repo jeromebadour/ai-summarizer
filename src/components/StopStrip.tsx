@@ -1,31 +1,53 @@
-import { CalendarClock, Library, OctagonPause } from "lucide-react";
+import { CalendarClock, CalendarX, Library, OctagonPause, UserRoundX, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+/** Why summaries can't run right now, for this person, beyond their hourly limit (that one has its own strip). */
 export type AppStop =
   /** A brake pulled from the console (all summaries, or guests while the viewer is a guest). */
   | { kind: "paused"; guests: boolean }
   /** The app's daily spend cap: back at midnight UTC, shown in the viewer's time. */
-  | { kind: "dailyCap"; backAt: string };
+  | { kind: "dailyCap"; backAt: string }
+  /** The person's own 30 a day, or the guests' shared 50 a day. */
+  | { kind: "dayLimit"; backAt: string; guests: boolean }
+  /** The month's budget: back on the 1st. */
+  | { kind: "monthCap" }
+  | { kind: "suspended" };
+
+const looks: Record<AppStop["kind"], LucideIcon> = {
+  paused: OctagonPause,
+  dailyCap: CalendarClock,
+  dayLimit: CalendarClock,
+  monthCap: CalendarX,
+  suspended: UserRoundX,
+};
+
+function words(stop: AppStop): { title: string; detail: string } {
+  const kept = "Your saved summaries are all still here.";
+  switch (stop.kind) {
+    case "paused":
+      return stop.guests
+        ? { title: "Summaries are paused for guests right now", detail: "Create an account to keep going; everything you made as a guest comes with you." }
+        : { title: "Summaries are paused right now", detail: `${kept} New ones come back soon.` };
+    case "dailyCap":
+      return { title: "Today's summaries are used up", detail: `New summaries are back at ${stop.backAt}. ${kept}` };
+    case "dayLimit":
+      return stop.guests
+        ? { title: "Guests have used today's summaries", detail: `Back at ${stop.backAt}, or create an account for your own 30 a day.` }
+        : { title: "You've used all 30 for today", detail: `Back at ${stop.backAt}. ${kept}` };
+    case "monthCap":
+      return { title: "Summaries are paused until the 1st", detail: `This month's budget is used. ${kept}` };
+    case "suspended":
+      return { title: "This account is suspended", detail: "Your saved summaries are still here to read and export." };
+  }
+}
 
 /**
- * The app has stopped summaries for everyone (not this person's own limit): a chosen or planned state, so calm
- * indigo (no hatching behind text), never amber. It says what still works, and when it comes back if that is known.
+ * Summaries can't run right now: a chosen, planned or known state, so calm indigo (no hatching behind text), never
+ * amber. It says what still works, and when it comes back if that is known.
  */
 export function StopStrip({ stop }: { stop: AppStop }) {
-  const Icon = stop.kind === "paused" ? OctagonPause : CalendarClock;
-  const title =
-    stop.kind === "paused"
-      ? stop.guests
-        ? "Summaries are paused for guests right now"
-        : "Summaries are paused right now"
-      : "Today's summaries are used up";
-  const detail =
-    stop.kind === "paused"
-      ? stop.guests
-        ? "Create an account to keep going; everything you made as a guest comes with you."
-        : "Your saved summaries are all still here. New ones come back soon."
-      : `New summaries are back at ${stop.backAt}. Your saved summaries are all still here.`;
-
+  const Icon = looks[stop.kind];
+  const { title, detail } = words(stop);
   return (
     <section role="status" className="flex items-center gap-5 rounded-2xl border border-brand-line bg-brand-soft/60 px-6 py-4">
       <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-brand-line bg-brand-soft text-brand-strong">

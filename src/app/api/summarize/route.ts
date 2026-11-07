@@ -12,6 +12,7 @@ import { currentUser } from "@/lib/server/session";
  * screen can show each real stage as it happens:
  *   {"type":"step","step":"checking"|"sending"|"writing"|"linking"|"saving"}
  *   {"type":"quota","used":3,"limit":10,"nextFreeAt":"..."}          after the limit check
+ *   {"type":"source","sentences":[{id,text,paragraph}]}             the numbered sentences points will cite
  *   {"type":"refused","reason":...,"nextFreeAt":...}   a calm stop: hour, day, guests_day, daily_cap (until midnight
  *                                                      UTC), cap (the month), paused, guests_paused, suspended
  *   {"type":"partial","text":"..."}                                  the point being written
@@ -96,6 +97,8 @@ export async function POST(request: Request) {
         }
         useId = Number(claim.use_id);
         send({ type: "quota", used: claim.used_hour, limit: claim.limit_hour, nextFreeAt: claim.next_free_at });
+        // The screen shows the source split exactly as Claude will see it, so cited numbers always line up.
+        send({ type: "source", sentences });
 
         // 2. Claude, streamed. The key lives only in the server's environment.
         if (!process.env.ANTHROPIC_API_KEY) throw Object.assign(new Error("ANTHROPIC_API_KEY is not set"), { distill: "no_key" });

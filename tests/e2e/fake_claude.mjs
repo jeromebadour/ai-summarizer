@@ -2,15 +2,19 @@
 // without a key or spend. Start: node tests/e2e/fake_claude.mjs 4010, then run the app with
 // ANTHROPIC_BASE_URL=http://127.0.0.1:4010 ANTHROPIC_API_KEY=test-key.
 // The scenario is picked by a marker in the source text: OVERLOADED, GARBAGE, INVENTED, else a faithful answer.
+// SLOW (with any of them) streams with real pauses between chunks, so a browser can watch the stages.
 // GET /last returns the last request (headers + body) so tests can check what the app sent.
 import http from "node:http";
 
 const port = Number(process.argv[2] || 4010);
 let last = null;
 
-function sse(res, events) {
+async function sse(res, events, delayMs = 0) {
   res.writeHead(200, { "content-type": "text/event-stream", "request-id": "req_fake" });
-  for (const [type, data] of events) res.write(`event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`);
+  for (const [type, data] of events) {
+    res.write(`event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`);
+    if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
+  }
   res.end();
 }
 
@@ -40,11 +44,34 @@ http
       const body = JSON.parse(raw || "{}");
       last = { headers: req.headers, body };
       const user = body.messages?.[0]?.content ?? "";
+      const delay = user.includes("SLOW") ? 90 : 0;
       if (user.includes("OVERLOADED")) {
         res.writeHead(529, { "content-type": "application/json", "request-id": "req_fake" });
         return res.end(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }));
       }
-      if (user.includes("GARBAGE")) return sse(res, answer(["Sure! Here is a lovely summary of your text.", "It is about housing."], 900));
+      if (user.includes("GARBAGE")) return sse(res, answer(["Sure! Here is a lovely summary of your text.", "It is about housing."], 900), delay);
+      // The app's invented sample text (Harbor Street) gets a faithful answer that cites its own sentence numbers.
+      if (user.includes("Harbor Street")) {
+        return sse(
+          res,
+          answer(
+            [
+              '{"title": "Harbor Street rail yard becomes a new district"}',
+              '{"point": "The council voted 7 to 2 to turn the old Harbor Street rail yard into a district with 1,200 homes, a park and a business incubator.", "sources": [1]}',
+              '{"point": "Building starts next spring and runs in phases over six years.", "sources": [2]}',
+              '{"point": "About 30 percent of the new homes will be priced for households below the area median income.", "sources": [4]}',
+              '{"point": "Opponents worry about traffic on the two access roads; a study is funded but will not hold up construction.", "sources": [5, 6]}',
+              '{"point": "A 40 million dollar state grant and private money pay for it, and it should bring around 900 permanent jobs.", "sources": [7, 8]}',
+              '{"figure": "1,200", "label": "new homes", "sources": [1]}',
+              '{"figure": "30 percent", "label": "affordable", "sources": [4]}',
+              '{"figure": "$40M", "label": "state grant", "sources": [7]}',
+              '{"figure": "900", "label": "permanent jobs", "sources": [8]}',
+            ],
+            1450,
+          ),
+          delay,
+        );
+      }
       const invented = user.includes("INVENTED");
       return sse(
         res,
@@ -58,6 +85,7 @@ http
           ],
           1200,
         ),
+        delay,
       );
     });
   })

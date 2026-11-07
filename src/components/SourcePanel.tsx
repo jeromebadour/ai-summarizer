@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardPaste, Eraser, FileText } from "lucide-react";
+import { ClipboardPaste, Eraser, FileText, Sparkle } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import { pointForSentence, type Focus, type SourceSentence, type SummaryPoint } from "@/lib/summary";
 
@@ -15,6 +15,12 @@ type SourcePanelProps = {
   /** Coverage only means something once the summary is finished. */
   finished?: boolean;
   onFocus?: (focus: Focus) => void;
+  /** Editing: the source is a text area (before Distill, or after Clear / Paste). */
+  edit?: { text: string; onChange: (text: string) => void };
+  onPaste?: () => void;
+  onClear?: () => void;
+  /** Shown only while the text area is empty: loads the invented sample text. */
+  onSample?: () => void;
 };
 
 function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<SourcePanelProps, "sentences" | "points" | "litSentenceIds" | "onFocus">) {
@@ -55,7 +61,9 @@ function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<SourcePan
   );
 }
 
-export function SourcePanel({ sentences, points, litSentenceIds, charCount, charLimit, locked, readOnly = false, finished = true, onFocus }: SourcePanelProps) {
+export function SourcePanel({ sentences, points, litSentenceIds, charCount, charLimit, locked, readOnly = false, finished = true, onFocus, edit, onPaste, onClear, onSample }: SourcePanelProps) {
+  const empty = edit !== undefined && edit.text.trim() === "";
+  const over = charCount > charLimit;
   const paragraphs = Array.from(new Set(sentences.map((s) => s.paragraph)));
 
   return (
@@ -64,32 +72,57 @@ export function SourcePanel({ sentences, points, litSentenceIds, charCount, char
         <FileText size={15} strokeWidth={1.9} className="text-muted" />
         <h2 className="text-[12px] font-semibold uppercase tracking-[0.1em] text-muted">Source</h2>
         {!readOnly && (
-          <span className="font-mono text-[11px] text-faint">
+          <span className={`font-mono text-[11px] ${over ? "font-semibold text-flag" : "text-faint"}`}>
             {charCount.toLocaleString("en-US")} / {charLimit.toLocaleString("en-US")}
           </span>
         )}
         {!readOnly && (
         <div className="ml-auto flex gap-1.5">
+          {empty && onSample && (
+            <button
+              type="button"
+              onClick={onSample}
+              className="flex items-center gap-1.5 rounded-lg border border-brand-line px-2.5 py-1 text-[12px] font-semibold text-brand-strong hover:bg-brand-soft"
+            >
+              <Sparkle size={14} strokeWidth={2} />
+              Sample
+            </button>
+          )}
           <button
             type="button"
             disabled={locked}
+            onClick={onPaste}
             className="flex items-center gap-1.5 rounded-lg border border-input/30 bg-input-soft px-2.5 py-1 text-[12px] font-semibold text-input hover:border-input/60 disabled:opacity-40"
           >
             <ClipboardPaste size={14} strokeWidth={2} />
             Paste
           </button>
-          <button
-            type="button"
-            disabled={locked}
-            className="flex items-center gap-1.5 rounded-lg border border-clear/30 bg-clear-soft px-2.5 py-1 text-[12px] font-semibold text-clear hover:border-clear/60 disabled:opacity-40"
-          >
-            <Eraser size={14} strokeWidth={2} />
-            Clear
-          </button>
+          {!empty && (
+            <button
+              type="button"
+              disabled={locked}
+              onClick={onClear}
+              className="flex items-center gap-1.5 rounded-lg border border-clear/30 bg-clear-soft px-2.5 py-1 text-[12px] font-semibold text-clear hover:border-clear/60 disabled:opacity-40"
+            >
+              <Eraser size={14} strokeWidth={2} />
+              Clear
+            </button>
+          )}
         </div>
         )}
       </header>
 
+      {edit ? (
+        <textarea
+          aria-label="Source text"
+          value={edit.text}
+          onChange={(event) => edit.onChange(event.target.value)}
+          placeholder="Paste or type the text to summarize: an article, a report, notes. Up to 20,000 characters."
+          spellCheck={false}
+          className="min-h-0 flex-1 resize-none border-t border-border/60 bg-transparent pb-5 pl-5 pr-7 pt-4 text-[14.5px] font-[450] leading-[1.75] text-text outline-none placeholder:text-faint"
+        />
+      ) : (
+      <>
       {finished && points.length > 0 && <Coverage sentences={sentences} points={points} litSentenceIds={litSentenceIds} onFocus={onFocus} />}
 
       <ScrollArea marker="source-scroll" fade="paper" className="min-h-0 flex-1 space-y-3.5 overflow-y-auto border-t border-border/60 pb-5 pl-5 pr-7 pt-4 text-[14.5px] font-[450] leading-[1.75]">
@@ -120,6 +153,8 @@ export function SourcePanel({ sentences, points, litSentenceIds, charCount, char
           </p>
         ))}
       </ScrollArea>
+      </>
+      )}
     </section>
   );
 }

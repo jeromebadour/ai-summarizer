@@ -13,9 +13,14 @@ type ResultViewProps = {
   initialFocus: Focus;
   variant: "result" | "saved";
   savedAt?: string;
+  onCopy?: () => void;
+  copied?: boolean;
+  openHref?: string;
+  onPaste?: () => void;
+  onClear?: () => void;
 };
 
-export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt }: ResultViewProps) {
+export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, onCopy, copied, openHref, onPaste, onClear }: ResultViewProps) {
   const [focus, setFocus] = useState<Focus>(initialFocus);
 
   const source = sentences.map((s) => s.text).join(" ");
@@ -36,6 +41,8 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
         locked={false}
         readOnly={variant === "saved"}
         onFocus={setFocus}
+        onPaste={onPaste}
+        onClear={onClear}
       />
       <SummaryPanel
         state="done"
@@ -48,6 +55,9 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
         wordsIn={wordsIn}
         wordsOut={wordsOut}
         onFocus={setFocus}
+        onCopy={onCopy}
+        copied={copied}
+        openHref={openHref}
       />
       <ThreadLayer origin={origin} sentenceIds={litSentenceIds} />
     </div>
