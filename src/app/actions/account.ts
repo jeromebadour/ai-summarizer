@@ -135,3 +135,27 @@ export async function deleteAccount(_: FormState, form: FormData): Promise<FormS
   await clearSessionCookie();
   redirect("/login");
 }
+
+const preferenceValues = {
+  theme: ["system", "light", "dark"],
+  motion: ["system", "full", "reduced"],
+  default_length: ["short", "medium", "bullets"],
+  avatar_colour: avatarColours as readonly string[],
+} as const;
+export type PreferenceField = keyof typeof preferenceValues;
+
+/**
+ * One preference, saved as it is picked (no Save button). The field and value are checked against fixed lists, so
+ * nothing but these four columns, with their known values, can ever be written this way.
+ */
+export async function savePreference(field: PreferenceField, value: string): Promise<{ ok: boolean }> {
+  const user = await currentUser();
+  if (!user) return { ok: false };
+  const allowed = preferenceValues[field] as readonly string[] | undefined;
+  if (!allowed || !allowed.includes(value)) return { ok: false };
+  // Guests have no avatar (they show the guest glyph).
+  if (field === "avatar_colour" && user.isGuest) return { ok: false };
+  await actingAs(user.id, (db) => db.query(`update users set ${field} = $1`, [value]));
+  refresh();
+  return { ok: true };
+}

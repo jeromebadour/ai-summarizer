@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { bare, typingIn } from "@/lib/keys";
 import { SourcePanel } from "@/components/SourcePanel";
 import { SummaryPanel } from "@/components/SummaryPanel";
 import { ThreadLayer } from "@/components/ThreadLayer";
@@ -30,6 +31,23 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Shortcuts (listed on Preferences): C copies, 1 to 9 focus that point. Never while typing in a field.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (typingIn(event) || !bare(event)) return;
+      if (event.key === "c" || event.key === "C") {
+        event.preventDefault();
+        void copy();
+      } else if (/^[1-9]$/.test(event.key) && summary.points.some((p) => p.id === Number(event.key))) {
+        event.preventDefault();
+        setFocus({ kind: "point", id: Number(event.key) });
+        document.querySelector(`[data-point="${event.key}"]`)?.scrollIntoView({ block: "nearest" });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   const source = sentences.map((s) => s.text).join(" ");
   const wordsIn = countWords(source);

@@ -11,6 +11,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { savePreference, type PreferenceField } from "@/app/actions/account";
+import { report } from "@/components/LiveStatus";
+import { applyMotion, applyTheme } from "@/lib/appearance";
 import { Avatar, avatarHue } from "@/components/Avatar";
 import { lengthStyles } from "@/components/LengthPicker";
 import { avatarColours, type Account, type AvatarColour } from "@/lib/profile";
@@ -82,6 +85,24 @@ function Segmented<T extends string>({
 }
 
 
+/** "18:40" on this device's clock, for "Preference saved 18:40". */
+const clock = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+/**
+ * Each preference saves the moment it is picked (no Save button) and the header pill says so: "Saving", then
+ * "Preference saved 18:40", or a calm error if the save failed (the choice on screen goes back with it).
+ */
+async function persist(field: PreferenceField, value: string, undo: () => void) {
+  report({ kind: "working", label: "Saving", elapsedMs: 0 });
+  const result = await savePreference(field, value).catch(() => ({ ok: false }));
+  if (result.ok) {
+    report({ kind: "saved", label: "Preference saved", at: clock() });
+  } else {
+    undo();
+    report({ kind: "error", label: "Couldn't save · try again" });
+  }
+}
+
 export function ProfilePreferences({
   account,
   defaultLength,
@@ -89,10 +110,40 @@ export function ProfilePreferences({
   account: Account;
   defaultLength: SummaryLength;
 }) {
-  const [theme, setTheme] = useState<Theme>("system");
-  const [length, setLength] = useState<SummaryLength>(defaultLength);
-  const [colour, setColour] = useState<AvatarColour>(account.avatarColour);
-  const [motion, setMotion] = useState<Motion>("system");
+  const [theme, setThemeState] = useState<Theme>(account.theme ?? "system");
+  const [length, setLengthState] = useState<SummaryLength>(defaultLength);
+  const [colour, setColourState] = useState<AvatarColour>(account.avatarColour);
+  const [motion, setMotionState] = useState<Motion>(account.motion ?? "system");
+
+  // Theme and Motion apply on this device at once; all four save to the account.
+  const setTheme = (next: Theme) => {
+    const before = theme;
+    setThemeState(next);
+    applyTheme(next);
+    void persist("theme", next, () => {
+      setThemeState(before);
+      applyTheme(before);
+    });
+  };
+  const setMotion = (next: Motion) => {
+    const before = motion;
+    setMotionState(next);
+    applyMotion(next);
+    void persist("motion", next, () => {
+      setMotionState(before);
+      applyMotion(before);
+    });
+  };
+  const setLength = (next: SummaryLength) => {
+    const before = length;
+    setLengthState(next);
+    void persist("default_length", next, () => setLengthState(before));
+  };
+  const setColour = (next: AvatarColour) => {
+    const before = colour;
+    setColourState(next);
+    void persist("avatar_colour", next, () => setColourState(before));
+  };
 
   return (
     <div className="space-y-5">
@@ -201,7 +252,7 @@ export function ProfilePreferences({
 
 const shortcuts: { keys: string[]; action: string }[] = [
   { keys: ["Ctrl", "↵"], action: "Distill" },
-  { keys: ["Ctrl", "Shift", "C"], action: "Copy the summary" },
+  { keys: ["C"], action: "Copy the summary" },
   { keys: ["1 … 9"], action: "Focus a point" },
   { keys: ["/"], action: "Search Saved" },
 ];

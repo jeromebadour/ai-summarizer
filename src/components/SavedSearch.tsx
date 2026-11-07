@@ -3,6 +3,7 @@
 import { LoaderCircle, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
+import { bare, typingIn } from "@/lib/keys";
 import { savedHref, type LibraryFilterParams } from "@/lib/library-url";
 
 /**
@@ -14,6 +15,19 @@ export function SavedSearch({ filter }: { filter: LibraryFilterParams }) {
   const [value, setValue] = useState(filter.q);
   const [pending, start] = useTransition();
   const first = useRef(true);
+  const input = useRef<HTMLInputElement>(null);
+
+  // "/" jumps to the search box (listed on Preferences), unless you're already typing somewhere.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "/" && bare(event) && !typingIn(event)) {
+        event.preventDefault();
+        input.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     if (first.current) {
@@ -30,6 +44,7 @@ export function SavedSearch({ filter }: { filter: LibraryFilterParams }) {
     <label className="flex w-[420px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2.5 focus-within:border-brand-line">
       {pending ? <LoaderCircle size={17} strokeWidth={2} className="animate-spin text-brand-strong" /> : <Search size={17} strokeWidth={2} className="text-brand-strong" />}
       <input
+        ref={input}
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Search titles, summaries and sources"

@@ -12,6 +12,9 @@ export type Account = {
   memberSince: string;
   isGuest: boolean;
   role: Role;
+  /** The account's Theme and Motion (signed-in pages only; the rail keeps the device in step). */
+  theme?: "system" | "light" | "dark";
+  motion?: "system" | "full" | "reduced";
 };
 
 export type ProfileStats = {

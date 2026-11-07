@@ -11,7 +11,7 @@ import { ProfilePreferences } from "@/components/ProfilePreferences";
 import { ProfileSecurity } from "@/components/ProfileSecurity";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
-import { StatusPill } from "@/components/StatusPill";
+import { LiveStatus } from "@/components/LiveStatus";
 import { loadProfile, requireUser } from "@/lib/server/account";
 
 const tabs = [
@@ -47,7 +47,7 @@ async function Profile({ searchParams }: Pick<PageProps<"/profile">, "searchPara
           <UserRound size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Profile</h1>
           <PageTabs current={tab} tabs={shownTabs.map((t) => ({ ...t, href: tabHref(t.key) }))} />
-          <StatusPill status={{ kind: "ready" }} />
+          <LiveStatus initial={{ kind: "ready" }} />
           <div className="ml-auto">
             <QuotaRing {...quota} />
           </div>

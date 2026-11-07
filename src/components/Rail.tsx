@@ -1,6 +1,8 @@
 import { FlaskConical, Library, LogOut, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { savePreference } from "@/app/actions/account";
 import { signOut } from "@/app/actions/auth";
+import { AppearanceSync } from "@/components/AppearanceSync";
 import { Avatar } from "@/components/Avatar";
 import { RailLogo } from "@/components/DemoRail";
 import { PendingButton } from "@/components/PendingButton";
@@ -42,13 +44,14 @@ export function Rail({ page, account }: { page: RailPage; account: Account }) {
   return (
     <aside className="flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5">
       <RailLogo />
+      <AppearanceSync theme={account.theme ?? "system"} motion={account.motion ?? "system"} />
       <nav className="flex flex-col gap-2">
         <RailItem icon={FlaskConical} label="Distill" href="/" active={page === "distill"} />
         <RailItem icon={Library} label="Saved" href="/saved" active={page === "saved"} />
         {isStaff(account.role) && <RailItem icon={ShieldUser} label="Admin" href="/admin" active={page === "admin"} />}
       </nav>
       <div className="mt-auto flex flex-col items-center gap-2">
-        <ThemeToggle className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text" />
+        <ThemeToggle save={savePreference} className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text" />
         <form action={signOut}>
           <PendingButton
             icon={<LogOut size={20} strokeWidth={1.75} />}

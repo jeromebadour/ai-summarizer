@@ -36,6 +36,8 @@ export function toAccount(user: CurrentUser, zone: string): Account {
     memberSince: user.isGuest ? `today ${p.time}` : monthYear(user.createdAt, zone),
     isGuest: user.isGuest,
     role: user.role,
+    theme: user.theme,
+    motion: user.motion,
   };
 }
 

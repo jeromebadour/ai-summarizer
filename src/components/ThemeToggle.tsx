@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { applyTheme } from "@/lib/appearance";
 
 type Theme = "light" | "dark";
 
@@ -15,8 +16,11 @@ function subscribe(onChange: () => void) {
   return () => observer.disconnect();
 }
 
-/** Quick switch in the rail: the glyph shows the theme you will switch to. */
-export function ThemeToggle({ className }: { className: string }) {
+/**
+ * Quick switch in the rail: the glyph shows the theme you will switch to. Signed in, the choice is also saved to the
+ * account (`save` is a server action passed in by the rail); the public demo passes none, so it saves nothing.
+ */
+export function ThemeToggle({ className, save }: { className: string; save?: (field: "theme", value: string) => Promise<unknown> }) {
   const theme = useSyncExternalStore(subscribe, current, () => "dark" as Theme);
   const next: Theme = theme === "dark" ? "light" : "dark";
   const Icon = next === "light" ? Sun : Moon;
@@ -26,10 +30,8 @@ export function ThemeToggle({ className }: { className: string }) {
       type="button"
       aria-label={`Switch to ${next} theme`}
       onClick={() => {
-        document.documentElement.dataset.theme = next;
-        try {
-          localStorage.setItem("theme", next);
-        } catch {}
+        applyTheme(next);
+        void save?.("theme", next);
       }}
       className={className}
     >

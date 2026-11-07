@@ -183,8 +183,27 @@ body {
 .show-pop { animation: show-pop 7s infinite; }
 .show-check { animation: show-check 7s infinite; }
 .show-scan { animation: show-scan 7s infinite; }
+/*
+ * Motion (Preferences): "Reduced", or "System" on a device that asks for less motion, keeps every state and drops
+ * the movement: animations and transitions end at once (a spinner stays, still). "Full" moves even on such a device.
+ */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
 @media (prefers-reduced-motion: reduce) {
-  .show-line, .show-thread, .show-pop, .show-check, .show-scan { animation: none; }
+  html:not([data-motion="full"]) *,
+  html:not([data-motion="full"]) *::before,
+  html:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @keyframes caret {
