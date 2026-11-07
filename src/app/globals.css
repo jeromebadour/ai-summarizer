@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0f12;
+  --glow: rgba(92, 111, 168, 0.08);
+  --panel: #14171c;
+  --panel-raised: #1a1e24;
+  --border: #252a32;
+  --border-strong: #343b46;
+  --text: #e6e8eb;
+  --muted: #9198a2;
+  /* Faint is still text people read (labels, dates, axis notes): kept at 4:1 or more on every surface. */
+  --faint: #737b86;
+
+  --brand: #4f629c;
+  --brand-strong: #9aa8d2;
+  --brand-soft: rgba(79, 98, 156, 0.18);
+  --brand-line: rgba(122, 140, 196, 0.42);
+  --brand-mark: rgba(79, 98, 156, 0.32);
+  --on-brand: #f1f3f9;
+
+  --input: #8fb0cc;
+  --input-soft: rgba(143, 176, 204, 0.12);
+  --clear: #c48791;
+  --clear-soft: rgba(196, 135, 145, 0.12);
+  --clear-strong: #8f4a57;
+  --verify: #74b4ab;
+  --verify-soft: rgba(116, 180, 171, 0.12);
+  --flag: #db9458;
+  --flag-soft: rgba(219, 148, 88, 0.14);
+  --figure: #c9b98f;
+  --figure-soft: rgba(201, 185, 143, 0.1);
+  --paper: #0b0d10;
+
+  --short: #d2a867;
+  --short-soft: rgba(210, 168, 103, 0.13);
+  --medium: #8dbb8f;
+  --medium-soft: rgba(141, 187, 143, 0.13);
+  --bullets: #c29ac6;
+  --bullets-soft: rgba(194, 154, 198, 0.13);
+
+  --overlay: rgba(0, 0, 0, 0.55);
+  --shadow-dialog: 0 30px 90px -20px rgba(0, 0, 0, 0.8);
+  --shadow-paper: inset 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* Light: the same meanings, re-weighted so every hue stays readable on white. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f4f1;
+  --glow: rgba(79, 98, 156, 0.07);
+  --panel: #ffffff;
+  --panel-raised: #f5f5f2;
+  --border: #e2e2dc;
+  --border-strong: #cdcec6;
+  --text: #1b1f25;
+  --muted: #50565f;
+  /* Faint is still text people read (labels, dates, axis notes): kept at 3.7:1 or more, 4:1 on white. */
+  --faint: #767c85;
+
+  --brand: #4f629c;
+  --brand-strong: #3d4d84;
+  --brand-soft: rgba(79, 98, 156, 0.1);
+  --brand-line: rgba(79, 98, 156, 0.35);
+  --brand-mark: rgba(79, 98, 156, 0.15);
+  --on-brand: #ffffff;
+
+  --input: #3b6a92;
+  --input-soft: rgba(59, 106, 146, 0.09);
+  --clear: #a24f5d;
+  --clear-soft: rgba(162, 79, 93, 0.08);
+  --clear-strong: #8f4a57;
+  --verify: #2f7d72;
+  --verify-soft: rgba(47, 125, 114, 0.09);
+  --flag: #b0601f;
+  --flag-soft: rgba(176, 96, 31, 0.1);
+  --figure: #7b6630;
+  --figure-soft: rgba(123, 102, 48, 0.08);
+  /* The source panel: off-white, not grey, so long text stays crisp. */
+  --paper: #f6f6f2;
+
+  --short: #94661f;
+  --short-soft: rgba(148, 102, 31, 0.1);
+  --medium: #457548;
+  --medium-soft: rgba(69, 117, 72, 0.1);
+  --bullets: #77507b;
+  --bullets-soft: rgba(119, 80, 123, 0.1);
+
+  --overlay: rgba(27, 31, 37, 0.32);
+  --shadow-dialog: 0 30px 80px -24px rgba(27, 31, 37, 0.35);
+  --shadow-paper: inset 0 1px 6px rgba(27, 31, 37, 0.06);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
+  --color-brand-mark: var(--brand-mark);
+  --color-on-brand: var(--on-brand);
+  --color-input: var(--input);
+  --color-input-soft: var(--input-soft);
+  --color-clear: var(--clear);
+  --color-clear-soft: var(--clear-soft);
+  --color-clear-strong: var(--clear-strong);
+  --color-verify: var(--verify);
+  --color-verify-soft: var(--verify-soft);
+  --color-flag: var(--flag);
+  --color-flag-soft: var(--flag-soft);
+  --color-figure: var(--figure);
+  --color-figure-soft: var(--figure-soft);
+  --color-paper: var(--paper);
+  --color-short: var(--short);
+  --color-short-soft: var(--short-soft);
+  --color-medium: var(--medium);
+  --color-medium-soft: var(--medium-soft);
+  --color-bullets: var(--bullets);
+  --color-bullets-soft: var(--bullets-soft);
+
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 70% -10%, var(--glow), transparent 70%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+/* The empty library's faded rows: in light they need firmer lines to be seen at all. */
+:root[data-theme="light"] .ghost-rows {
+  opacity: 1;
+  --border: #cdcec6;
+  --border-strong: #b9bab1;
+}
+
+.hatch {
+  background: repeating-linear-gradient(135deg, var(--border-strong) 0 2px, transparent 2px 5px);
+}
+
+/* Login showcase: read, link, check, hold; loops every 7 s. */
+@keyframes show-line {
+  0%, 12% { background: color-mix(in srgb, var(--border-strong) 70%, transparent); }
+  20%, 88% { background: color-mix(in srgb, var(--brand-strong) 75%, transparent); }
+  100% { background: color-mix(in srgb, var(--border-strong) 70%, transparent); }
+}
+@keyframes show-thread {
+  0%, 22% { stroke-dashoffset: 120; opacity: 0; }
+  24% { opacity: 0.6; }
+  38%, 88% { stroke-dashoffset: 0; opacity: 0.6; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes show-pop {
+  0%, 36% { opacity: 0; transform: translateY(6px) scale(0.97); }
+  44%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+@keyframes show-check {
+  0%, 52% { opacity: 0; transform: scale(0.8); }
+  58%, 90% { opacity: 1; transform: none; }
+  100% { opacity: 0; }
+}
+@keyframes show-scan {
+  0% { transform: translateY(0); opacity: 0; }
+  4% { opacity: 1; }
+  20% { transform: translateY(150px); opacity: 1; }
+  24%, 100% { transform: translateY(150px); opacity: 0; }
+}
+.show-line { animation: show-line 7s infinite; }
+.show-thread { stroke-dasharray: 120; animation: show-thread 7s infinite; }
+.show-pop { animation: show-pop 7s infinite; }
+.show-check { animation: show-check 7s infinite; }
+.show-scan { animation: show-scan 7s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .show-line, .show-thread, .show-pop, .show-check, .show-scan { animation: none; }
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--brand);
+  animation: caret 1s steps(1) infinite;
+}
+
+button,
+a,
+[role="button"],
+label[for] {
+  cursor: pointer;
+}
+

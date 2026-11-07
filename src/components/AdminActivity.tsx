@@ -1,0 +1,86 @@
+import { MapPin, Search } from "lucide-react";
+import { ActivityChip, activityLook } from "@/components/ActivityLook";
+import { Pager } from "@/components/Pager";
+import { PersonLine } from "@/components/PersonLine";
+import { RowNumber, RowNumberHead } from "@/components/RowNumber";
+import { whenLabel, type ActivityEntry, type ActivityKind } from "@/lib/admin";
+import type { Page } from "@/lib/paging";
+
+const columns = "grid-cols-[32px_118px_minmax(0,1.15fr)_190px_minmax(0,1.5fr)_130px]";
+
+export const activityKinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
+
+/** Who did what, newest first, 15 a page. Metadata only: never what anyone pasted or got back. */
+export function AdminActivity({
+  rows,
+  page,
+  counts,
+  selected,
+  today,
+  base,
+}: {
+  rows: ActivityEntry[];
+  page: Page;
+  counts: Record<ActivityKind, number>;
+  selected: ActivityKind[];
+  today: string;
+  base: string;
+}) {
+  return (
+    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-5">
+      <div className="flex items-center gap-3">
+        <label className="flex w-[260px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2 focus-within:border-brand-line">
+          <Search size={16} strokeWidth={2} className="text-brand-strong" />
+          <input placeholder="Search @username" className="min-w-0 flex-1 bg-transparent text-[13px] text-text outline-none placeholder:text-faint" />
+        </label>
+        <div className="flex flex-wrap gap-1.5">
+          {activityKinds.map((kind) => {
+            const { icon: Icon, tone, label } = activityLook[kind];
+            const on = selected.includes(kind);
+            return (
+              <button
+                key={kind}
+                type="button"
+                aria-pressed={on}
+                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] font-semibold ${on ? tone : `border-border ${tone.split(" ").find((c) => c.startsWith("text-"))} hover:bg-panel-raised`}`}
+              >
+                <Icon size={13.5} strokeWidth={2.1} />
+                {label}
+                <span className="font-mono text-[10.5px] font-medium opacity-75">{counts[kind]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={`grid ${columns} gap-4 border-b border-border px-3 pb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint`}>
+        <RowNumberHead />
+        <span>When</span>
+        <span>Who</span>
+        <span>What</span>
+        <span>Details</span>
+        <span>From</span>
+      </div>
+
+      <ul className="-mt-1 flex min-h-0 flex-1 flex-col">
+        {rows.map((entry, index) => (
+          <li key={entry.id} className={`grid ${columns} items-center gap-4 rounded-lg px-3 py-[3px] hover:bg-brand-soft`}>
+            <RowNumber n={page.offset + index + 1} />
+            <span className={`font-mono text-[11.5px] ${entry.when.startsWith(today) ? "text-brand-strong" : "text-input"}`}>{whenLabel(entry.when, today)}</span>
+            <PersonLine person={entry.person} size={28} nobody={entry.kind === "delete" ? "Deleted account" : "Not signed in"} />
+            <span>
+              <ActivityChip kind={entry.kind} />
+            </span>
+            <span className="truncate font-mono text-[11.5px] text-muted">{entry.detail}</span>
+            <span className="flex items-center gap-1.5 truncate text-[12px] text-muted">
+              {entry.place && <MapPin size={13} strokeWidth={2} className="shrink-0 text-input" />}
+              {entry.place}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <Pager page={page} noun="events" href={(n) => (n === 1 ? `${base}?tab=activity` : `${base}?tab=activity&page=${n}`)} />
+    </section>
+  );
+}
