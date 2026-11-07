@@ -89,4 +89,5 @@ http
       );
     });
   })
-  .listen(port, "127.0.0.1", () => console.log(`fake Claude on ${port}`));
+  // Local runs stay on 127.0.0.1; CI passes 0.0.0.0 so the app container can reach it.
+  .listen(port, process.argv[3] || "127.0.0.1", () => console.log(`fake Claude on ${port}`));

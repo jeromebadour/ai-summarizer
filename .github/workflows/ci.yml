@@ -1,15 +1,16 @@
 name: CI
 
-# Every push and pull request: types, lint, unit tests, every database suite, then the built app in a real browser
-# against a fake Claude (no key, no cost). Nothing broken reaches the server.
+# Every push and pull request. First the code: types, lint, unit tests, every database suite. Then what ships: the
+# real image and compose.yaml (Postgres, the migration step, the app), with every browser suite run against that
+# container and a fake Claude (no key, no cost). Nothing broken reaches the server.
 on:
   push:
   pull_request:
 
 jobs:
-  test:
+  checks:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -27,10 +28,6 @@ jobs:
       PGPORT: 5432
       PGUSER: postgres
       PGPASSWORD: postgres
-      # Test-only values: this database lives for one CI run.
-      DATABASE_URL: postgres://distill_app:ci-only@localhost:5432/distill
-      ANTHROPIC_BASE_URL: http://127.0.0.1:4010
-      ANTHROPIC_API_KEY: test-key
     steps:
       - uses: actions/checkout@v4
 
@@ -52,14 +49,43 @@ jobs:
       - name: Database suites
         run: scripts/test-db.sh
 
-      - name: App database
-        run: |
-          createdb distill
-          for m in db/migrations/*.sql; do psql -X -q -v ON_ERROR_STOP=1 -d distill -f "$m"; done
-          psql -X -q -d distill -c "alter role distill_app password 'ci-only'"
+  container:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      # Test-only values for a stack that lives for one CI run.
+      POSTGRES_PASSWORD: ci-owner-only
+      DISTILL_APP_PASSWORD: 0123456789abcdef0123456789abcdef
+      ANTHROPIC_API_KEY: test-key
+      APP_COMMIT: ${{ github.sha }}
+      COMPOSE: docker compose -f compose.yaml -f compose.ci.yaml
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ci-owner-only
+      PGDATABASE: distill
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Build
-        run: npm run build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fake Claude
+        run: nohup node tests/e2e/fake_claude.mjs 4010 0.0.0.0 > /tmp/fake-claude.log 2>&1 &
+
+      - name: Build and start the stack
+        run: |
+          $COMPOSE up -d --build
+          for i in $(seq 1 90); do curl -sf -o /dev/null http://127.0.0.1:3101/login && exit 0; sleep 2; done
+          echo "the app did not start"; $COMPOSE ps -a; $COMPOSE logs; exit 1
+
+      - name: A second deploy applies nothing twice
+        run: |
+          out=$($COMPOSE run --rm migrate)
+          echo "$out"
+          if echo "$out" | grep -q applying; then echo "a migration ran twice"; exit 1; fi
 
       - uses: actions/setup-python@v5
         with:
@@ -70,20 +96,13 @@ jobs:
           pip install playwright==1.63.0
           python -m playwright install --with-deps chromium
 
-      - name: Start the fake Claude and the app
-        run: |
-          nohup node tests/e2e/fake_claude.mjs > /tmp/fake-claude.log 2>&1 &
-          nohup npx next start -p 3101 > /tmp/app.log 2>&1 &
-          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3101/login && exit 0; sleep 1; done
-          echo "the app did not start"; cat /tmp/app.log; exit 1
-
-      - name: Browser suites
-        env:
-          PGDATABASE: distill
+      - name: Browser suites against the container
         run: scripts/test-e2e.sh
 
       - name: Logs on failure
         if: failure()
         run: |
-          tail -n 200 /tmp/app.log /tmp/fake-claude.log || true
+          $COMPOSE ps -a || true
+          $COMPOSE logs --tail 200 || true
+          tail -n 100 /tmp/fake-claude.log || true
           for f in /tmp/e2e-*.log; do echo "== $f"; tail -n 60 "$f"; done

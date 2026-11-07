@@ -1,0 +1,68 @@
+# Distill on one box: Postgres 16, a migration step, and the app. Secrets come from an env file outside git
+# (on the box: /srv/distill/.env, owner distill, mode 600): POSTGRES_PASSWORD, DISTILL_APP_PASSWORD, ANTHROPIC_API_KEY.
+# Run: docker compose --env-file /srv/distill/.env up -d --build
+name: distill
+
+x-logs: &logs
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "5"
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: distill
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d distill"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    <<: *logs
+
+  # Runs once per deploy and exits: new migrations, then the app role's password.
+  migrate:
+    image: postgres:16
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: distill
+      DISTILL_APP_PASSWORD: ${DISTILL_APP_PASSWORD:?set DISTILL_APP_PASSWORD}
+    volumes:
+      - ./db:/db:ro
+    entrypoint: ["sh", "/db/migrate.sh"]
+    <<: *logs
+
+  app:
+    build:
+      context: .
+      args:
+        APP_COMMIT: ${APP_COMMIT:-dev}
+    image: distill-app:${APP_COMMIT:-dev}
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      # Hex passwords only (made with openssl rand -hex), so they sit in a URL as they are.
+      DATABASE_URL: postgres://distill_app:${DISTILL_APP_PASSWORD}@db:5432/distill
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY}
+    # Only Nginx on the same box reaches it.
+    ports:
+      - "127.0.0.1:3101:3000"
+    <<: *logs
+
+volumes:
+  pgdata:

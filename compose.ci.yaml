@@ -1,0 +1,11 @@
+# CI only, on top of compose.yaml: the tests reach the database as its owner, and the app talks to the fake Claude
+# running on the CI machine instead of Anthropic.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
+  app:
+    environment:
+      ANTHROPIC_BASE_URL: http://host.docker.internal:4010
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
