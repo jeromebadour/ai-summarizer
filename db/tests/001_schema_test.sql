@@ -106,7 +106,8 @@ end $$;
 reset role;
 
 -- 9. The app cap: once the month's spend reaches it, uses are refused calmly.
-update summaries set cost_usd = 0.01;
+-- (Spend is read from the usage ledger since migration 002.)
+update usage_events set cost_usd = 0.01, recorded = true;
 update settings set monthly_cap_usd = 0.02;
 set role distill_app;
 select set_config('app.user_id', '00000000-0000-0000-0000-000000000003', false);
