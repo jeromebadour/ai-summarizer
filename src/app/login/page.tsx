@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
 import { CodeXml, Library, Link2, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";

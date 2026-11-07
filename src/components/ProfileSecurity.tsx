@@ -1,5 +1,5 @@
 import { CircleCheck, Download, KeyRound, Laptop, LogOut, MapPin, Monitor, Smartphone, UserX, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { signOutDevice, signOutOthers } from "@/app/actions/account";
 import { PendingButton } from "@/components/PendingButton";
 import type { DeviceKind, SignedInDevice } from "@/lib/profile";

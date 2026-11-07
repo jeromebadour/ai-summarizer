@@ -1,5 +1,5 @@
 import { ArrowUpRight, Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";
 import { RowNumber } from "@/components/RowNumber";
 import type { RoleChange, RoleHolder } from "@/lib/admin";

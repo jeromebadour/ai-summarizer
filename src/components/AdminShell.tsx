@@ -1,5 +1,5 @@
 import { Coins, Eye, KeyRound, LayoutDashboard, OctagonPause, ScrollText, Server, ShieldUser, UsersRound } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { notFound } from "next/navigation";
 import { AdminActivity } from "@/components/AdminActivity";
 import { AdminOverview } from "@/components/AdminOverview";

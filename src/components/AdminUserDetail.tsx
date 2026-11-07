@@ -19,7 +19,7 @@ import {
   TriangleExclamationPoint,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { Avatar } from "@/components/Avatar";
 import { DayBars } from "@/components/DayBars";
 import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";

@@ -1,5 +1,5 @@
 import { CodeXml, Eye, FlaskConical, Info, Library, Scale, ShieldCheck, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
 
 const columns: { title: string; links: { href: string; label: string; icon: LucideIcon; external?: boolean }[] }[] = [

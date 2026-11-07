@@ -1,7 +1,7 @@
 "use client";
 
 import { Trash2, X } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { useActionState } from "react";
 import { deleteSummary } from "@/app/actions/library";
 import { Dialog, keepButton } from "@/components/Dialog";

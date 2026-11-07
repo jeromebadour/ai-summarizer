@@ -1,6 +1,6 @@
 import { ArrowDownWideNarrow, ChevronRight, SearchX, ShieldCheck, TriangleExclamationPoint, X } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { lengthStyles } from "@/components/LengthPicker";
 import { Pager } from "@/components/Pager";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";

@@ -229,6 +229,27 @@ with sync_playwright() as p:
     check("the demo pages its users too", dpg.locator("main ul li").count() == 15)
     shot(dpg, "09-demo-users")
 
+    # 10a. A press shows at once: hold the server's answer back a second, and the tab still lights up before it arrives.
+    import time as _t
+    def slow(route):
+        _t.sleep(1.0)
+        route.continue_()
+    dpg.route("**/demo/admin?tab=roles*", slow)
+    indigo = dpg.evaluate("getComputedStyle(document.querySelector('main nav a[aria-current=page]')).backgroundColor")
+    dpg.locator("main nav a", has_text="Roles").click(no_wait_after=True)
+    dpg.mouse.move(5, 5)  # off the tab, so its hover colour can't pass for the pressed one
+    try:
+        dpg.wait_for_function("""(indigo) => { const a=[...document.querySelectorAll('main nav a')].find(e=>e.textContent.trim()=='Roles');
+          return a && a.getAttribute('aria-current')!=='page' && getComputedStyle(a).backgroundColor===indigo }""", arg=indigo, timeout=600)
+        lit = True
+    except Exception:
+        lit = False
+    check("a pressed tab turns indigo before the server answers", lit)
+    check("the page below dims while it waits", dpg.evaluate("getComputedStyle(document.querySelector('main > :nth-child(2)')).opacity") != "1")
+    dpg.wait_for_selector("main nav a[aria-current=page]:has-text('Roles')")
+    check("then the server's answer confirms it", dpg.evaluate("getComputedStyle(document.querySelector('main > :nth-child(2)')).opacity") == "1")
+    dpg.unroute("**/demo/admin?tab=roles*")
+
     # 10. The demo's way out is in plain sight, and fits who is looking.
     exit_btn = dpg.locator("main a", has_text="Sign in to Distill")
     check("a visitor sees Sign in to Distill at the top right", exit_btn.count() == 1 and exit_btn.get_attribute("href") == "/login")

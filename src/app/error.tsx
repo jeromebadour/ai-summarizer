@@ -1,7 +1,7 @@
 "use client";
 
 import { FlaskConical, RotateCcw } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
 export default function AppError({ error, retry }: { error: unknown; retry: () => void }) {

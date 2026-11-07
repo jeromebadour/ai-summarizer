@@ -1,5 +1,5 @@
 import { CalendarDays, FileText, Scale, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { DocShell, type DocPage } from "@/components/DocShell";
 import { OnThisPage } from "@/components/OnThisPage";
 import { RichText } from "@/components/RichText";

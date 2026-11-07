@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { pageWindow, type Page } from "@/lib/paging";
 
 /**

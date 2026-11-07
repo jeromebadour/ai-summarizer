@@ -1,19 +1,22 @@
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 
 export type PageTab = { key: string; label: string; icon: LucideIcon; href: string };
 
 /** The one tab row: filled indigo for the open tab. Used by the profile and the admin console. */
 export function PageTabs({ tabs, current }: { tabs: PageTab[]; current: string }) {
   return (
-    <nav className="ml-2 flex gap-1 rounded-xl border border-border bg-paper p-1">
+    <nav className="group/tabs ml-2 flex gap-1 rounded-xl border border-border bg-paper p-1">
       {tabs.map(({ key, label, icon: Icon, href }) => (
         <Link
           key={key}
           href={href}
           aria-current={key === current ? "page" : undefined}
-          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
-            key === current ? "bg-brand text-on-brand" : "text-muted hover:bg-panel-raised hover:text-text"
+          // The pressed tab takes the indigo at once and the open one lets go; the server's answer then confirms it.
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-[13px] font-semibold ${
+            key === current
+              ? "bg-brand text-on-brand group-has-[[data-pending]]/tabs:bg-transparent group-has-[[data-pending]]/tabs:text-muted"
+              : "text-muted hover:bg-panel-raised hover:text-text has-[[data-pending]]:bg-brand has-[[data-pending]]:text-on-brand"
           }`}
         >
           <Icon size={15} strokeWidth={2} />

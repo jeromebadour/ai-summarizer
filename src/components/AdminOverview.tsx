@@ -20,7 +20,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { Fact, healthLook } from "@/components/AdminFacts";
 import { activityLook } from "@/components/ActivityLook";
 import { DayBars } from "@/components/DayBars";

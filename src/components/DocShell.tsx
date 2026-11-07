@@ -1,5 +1,5 @@
 import { FlaskConical, Info, LogIn, Scale, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { Suspense, type ReactNode } from "react";
 import { BrandMark } from "@/components/BrandMark";
 import { SiteFooter } from "@/components/SiteFooter";

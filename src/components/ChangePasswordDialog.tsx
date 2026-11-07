@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, KeyRound, LockKeyhole, LogOut, X } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { useActionState, useState } from "react";
 import { changePassword } from "@/app/actions/account";
 import { Dialog, keepButton } from "@/components/Dialog";

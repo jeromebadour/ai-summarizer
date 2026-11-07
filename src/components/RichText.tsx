@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import type { ReactNode } from "react";
 
 /** Renders the two marks the legal text uses: **bold** and [label](href). Internal links stay in the app. */

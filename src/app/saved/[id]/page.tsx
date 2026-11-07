@@ -1,5 +1,5 @@
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { DeleteDialog } from "@/components/DeleteDialog";

@@ -25,7 +25,7 @@ import {
   TriangleExclamationPoint,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { Fact, healthLook } from "@/components/AdminFacts";
 import { Sparkline } from "@/components/Sparkline";
 import { overviewFigures, type AdminOverview } from "@/lib/admin";

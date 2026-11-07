@@ -14,7 +14,7 @@ import {
   UserRound,
   UserRoundPlus,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { signIn, signUp, startGuest, type AuthState } from "@/app/actions/auth";

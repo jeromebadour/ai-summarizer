@@ -1,7 +1,7 @@
 "use client";
 
 import { AtSign, Check, IdCard, LockKeyhole, Mail, UserPen, X } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { useActionState, useState } from "react";
 import { updateProfile } from "@/app/actions/account";
 import { Avatar } from "@/components/Avatar";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, MessageSquareText, X, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { useActionState, useState, type ReactNode } from "react";
 import { Dialog, keepButton } from "@/components/Dialog";
 import { Field } from "@/components/Field";

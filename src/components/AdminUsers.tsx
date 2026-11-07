@@ -1,5 +1,5 @@
 import { Ban, CalendarDays, ChevronRight, CircleCheck, Coins, FileText, Mail, UserRound, type LucideIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/NavLink";
 import { AdminSearch } from "@/components/AdminSearch";
 import { Pager } from "@/components/Pager";
 import { usersHref, type UserFilters } from "@/lib/admin-source";

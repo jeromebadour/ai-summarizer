@@ -235,3 +235,13 @@ label[for] {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
 }
+
+/* A link was pressed and the next page is on its way: everything below the page's header row dims a little, after a
+   short delay so an instant switch never flickers. The pressed tab or rail item has already lit up (PageTabs, Rail). */
+main > :not(:first-child) {
+  transition: opacity 120ms ease;
+}
+body:has([data-pending]) main > :not(:first-child) {
+  opacity: 0.55;
+  transition-delay: 80ms;
+}
