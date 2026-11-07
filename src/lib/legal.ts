@@ -77,7 +77,7 @@ export const privacy: LegalDoc = {
         "**Summaries** stay until you delete them, or until you delete your account.",
         "**Devices** sign out by themselves after 30 days without use.",
         "**Usage records, sign-in events and staff actions** are kept to keep limits, spend and the security record correct. When your account is deleted, they stay without any link to you.",
-        "The web server's own logs, which include IP addresses, are kept for a short time for security and then rotated away.",
+        "The web server's own logs, which include IP addresses, are kept for **14 days** for security, then deleted. The app itself does not store IP addresses.",
       ],
     },
     {
