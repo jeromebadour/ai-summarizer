@@ -15,9 +15,9 @@ const item =
 const idle = "text-muted has-[[data-pending]]:bg-brand-soft has-[[data-pending]]:text-brand-strong";
 const on = "bg-brand-soft text-brand-strong group-has-[[data-pending]]/bar:bg-transparent group-has-[[data-pending]]/bar:text-muted";
 
-function BarLink({ href, icon: Icon, label, active, children }: { href: string; icon?: LucideIcon; label: string; active: boolean; children?: ReactNode }) {
+function BarLink({ href, icon: Icon, label, active, children, tour }: { href: string; icon?: LucideIcon; label: string; active: boolean; children?: ReactNode; tour?: string }) {
   return (
-    <Link href={href} aria-current={active ? "page" : undefined} className={`${item} ${active ? on : idle}`}>
+    <Link href={href} data-tour={tour} aria-current={active ? "page" : undefined} className={`${item} ${active ? on : idle}`}>
       {children ?? (Icon && <Icon size={21} strokeWidth={1.8} />)}
       {label}
     </Link>
@@ -46,9 +46,9 @@ export function PhoneBar({ page, account, staff }: { page: RailPage; account: Ac
         className="group/bar fixed inset-x-0 bottom-0 z-40 flex gap-1 border-t border-border bg-panel/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur md:hidden"
       >
         <BarLink href="/" icon={FlaskConical} label="Distill" active={page === "distill"} />
-        <BarLink href="/saved" icon={Library} label="Saved" active={page === "saved"} />
+        <BarLink href="/saved" icon={Library} label="Saved" active={page === "saved"} tour="saved" />
         {staff && <BarLink href="/admin" icon={ShieldUser} label="Admin" active={page === "admin"} />}
-        <BarLink href="/profile" label="Profile" active={page === "profile"}>
+        <BarLink href="/profile" label="Profile" active={page === "profile"} tour="profile">
           {account.isGuest ? (
             <span className="grid size-[22px] place-items-center rounded-full border border-input/40 bg-input-soft text-input">
               <UserRound size={13} strokeWidth={2} />
@@ -57,7 +57,7 @@ export function PhoneBar({ page, account, staff }: { page: RailPage; account: Ac
             <Avatar name={account.name} colour={account.avatarColour} size={22} />
           )}
         </BarLink>
-        <button type="button" onClick={() => setMore(true)} aria-expanded={more} className={`${item} ${idle}`}>
+        <button type="button" data-tour="more" onClick={() => setMore(true)} aria-expanded={more} className={`${item} ${idle}`}>
           <Ellipsis size={21} strokeWidth={1.8} />
           More
         </button>

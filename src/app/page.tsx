@@ -17,22 +17,22 @@ const sampleText = Array.from(new Set(sampleSentences.map((s) => s.paragraph)))
   )
   .join("\n\n");
 
-export default function Home() {
+export default function Home({ searchParams }: PageProps<"/">) {
   return (
     <Suspense fallback={<LoadingScreen label="Loading your workspace" />}>
-      <Workspace />
+      <Workspace searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Workspace() {
+async function Workspace({ searchParams }: Pick<PageProps<"/">, "searchParams">) {
   const { user, account } = await requireAccount();
   const initial = await loadWorkspace(user);
   return (
     <div className="flex h-screen max-md:h-auto max-md:min-h-dvh">
       <Rail page="distill" account={account} />
       <main className="flex min-w-0 flex-1 flex-col gap-4 p-5 max-md:gap-3 max-md:px-3 max-md:pb-24 max-md:pt-3">
-        <DistillWorkspace initial={initial} defaultLength={user.defaultLength} guest={user.isGuest} sampleText={sampleText} links={user.links} view={user.resultView} phone={await viewerOnPhone()} />
+        <DistillWorkspace initial={initial} defaultLength={user.defaultLength} guest={user.isGuest} sampleText={sampleText} links={user.links} view={user.resultView} phone={await viewerOnPhone()} tour={(await searchParams).tour === "1" || !user.tourDone} />
       </main>
     </div>
   );

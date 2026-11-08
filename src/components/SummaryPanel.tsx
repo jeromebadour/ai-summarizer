@@ -362,7 +362,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
       ) : (
         <>
           <div className="space-y-2 px-5">
-            <ul className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2 max-md:grid-cols-2">
+            <ul data-tour="figures" className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2 max-md:grid-cols-2">
               {props.summary.figures.map((figure) => (
                 <FigureChip key={figure.id} figure={figure} sentences={props.sentences} active={figure.id === props.focusFigureId} onFocus={props.onFocus} />
               ))}

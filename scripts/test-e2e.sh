@@ -4,7 +4,7 @@
 # tables. Optional: CHROME (a Chrome binary; Playwright's own Chromium otherwise), SHOTS (a folder for pictures).
 set -uo pipefail
 cd "$(dirname "$0")/.."
-suites=${*:-auth account email summarize distill saved prefs links phone admin admin_actions}
+suites=${*:-auth account email summarize distill saved prefs links phone tour admin admin_actions}
 failed=0
 for suite in $suites; do
   psql -X -q -v ON_ERROR_STOP=1 -f tests/e2e/reset.sql >/dev/null || exit 1

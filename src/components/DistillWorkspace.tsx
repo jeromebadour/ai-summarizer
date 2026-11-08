@@ -12,6 +12,10 @@ import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { StopStrip, type AppStop } from "@/components/StopStrip";
 import { SummaryPanel } from "@/components/SummaryPanel";
 import { Composer } from "@/components/Composer";
+import { Tour, type TourStep } from "@/components/Tour";
+import { finishTour } from "@/app/actions/account";
+import { sampleSentences, sampleSummary } from "@/lib/sample";
+import { usePhone } from "@/lib/use-phone";
 import { MAX_SOURCE_CHARS, MIN_SOURCE_WORDS } from "@/lib/distill";
 import { splitSentences } from "@/lib/sentences";
 import { stopFor } from "@/lib/stops";
@@ -54,7 +58,8 @@ export function DistillWorkspace({
   sampleText,
   links,
   view,
-  phone = false,
+  phone: phoneGuess = false,
+  tour = false,
 }: {
   initial: WorkspaceState;
   defaultLength: SummaryLength;
@@ -63,8 +68,43 @@ export function DistillWorkspace({
   links: "always" | "hover";
   view: "split" | "column";
   phone?: boolean;
+  /** Open the first-time tour (`/?tour=1`). */
+  tour?: boolean;
 }) {
   const router = useRouter();
+  const phone = usePhone(phoneGuess);
+  // The tour runs on the ready-made sample (nothing is sent, no use is spent): the composer for steps 1 and 2, the
+  // sample's result for the rest. The user's own text and state are untouched underneath and come back after.
+  const [tourStep, setTourStep] = useState<number | null>(tour ? 0 : null);
+  const tourSteps: TourStep[] = [
+    { target: "[data-composer]", title: "Start with any text", body: "Paste an article, a report or notes, or try the sample. Anything from 50 words up to 20,000 characters." },
+    { target: "[data-tour=distill]", title: "Distill it", body: "Claude writes the summary point by point while you watch. Each one uses one of your summaries for the hour." },
+    phone || view === "column"
+      ? { target: '[data-point="1"]', title: "Every point shows its source", body: "Under each point are the sentences it came from, quoted from your text, so you can check it in a glance." }
+      : { target: '[data-point="1"]', title: "Every point shows its source", body: "Lines run from each point to the sentences it came from. Hover a point to light them up in your text." },
+    { target: "[data-tour=figures]", title: "Every number is checked", body: "Each figure is matched against your text by code, not by the model. Teal means it is there; amber means it isn't." },
+    phone
+      ? { target: "nav[aria-label=Places] [data-tour=saved]", title: "Everything is kept", body: "Every summary is saved with its source and its checks. Find any of them again in Saved." }
+      : { target: '[aria-label="Result view"]', title: "Your layout, kept for you", body: "Split puts your text beside the summary; Column quotes the sources under each point. Every summary is kept in Saved." },
+    phone
+      ? { target: "nav[aria-label=Places] [data-tour=profile]", title: "Your profile and preferences", body: "Your numbers, devices and settings: default length, theme, motion and how links show." }
+      : { target: 'aside a[aria-label="Profile"]', title: "Your profile and preferences", body: "Your numbers, devices and settings: default length, theme, motion, how links show and the result layout." },
+    phone
+      ? { target: "nav[aria-label=Places] [data-tour=more]", title: "About and the theme", body: "More holds the story behind Distill, the light and dark switch, and Sign out." }
+      : { target: "aside [data-tour=quiet]", title: "About and the theme", body: "The story behind Distill, and a one-click switch between light and dark." },
+    {
+      title: "See the owner's side",
+      body: "Distill comes with a full admin console: users, activity, spend, roles and the server. Have a look at the demo, with invented data.",
+      action: { href: "/demo/admin", label: "Open the admin demo" },
+    },
+  ];
+  const closeTour = () => {
+    setTourStep(null);
+    void finishTour();
+    const url = new URL(window.location.href);
+    url.searchParams.delete("tour");
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
+  };
   const [text, setText] = useState("");
   const [length, setLength] = useState<SummaryLength>(defaultLength);
   const [quota, setQuota] = useState(initial.quota);
@@ -290,7 +330,33 @@ export function DistillWorkspace({
       {stop && <StopStrip stop={stop} />}
       {hour && !stop && <LimitStrip limit={quota.limit} usedAt={hour.usedAt} now={hour.now} nextFree={hour.nextFree} minutesToNext={hour.minutesToNext} />}
 
-      {phase === "done" && result ? (
+      {tourStep !== null && tourStep >= 2 ? (
+        <ResultView
+          key="tour"
+          links={links}
+          view={view}
+          phone={phoneGuess}
+          sentences={sampleSentences}
+          summary={sampleSummary}
+          charLimit={MAX_SOURCE_CHARS}
+          initialFocus={{ kind: "point", id: 1 }}
+          variant="result"
+        />
+      ) : tourStep !== null ? (
+        <Composer
+          text={tourStep === 1 ? sampleText : ""}
+          words={tourStep === 1 ? countWords(sampleText) : 0}
+          charLimit={MAX_SOURCE_CHARS}
+          canRun={tourStep === 1}
+          short={false}
+          blocked={false}
+          onChange={() => undefined}
+          onPaste={() => undefined}
+          onClear={() => undefined}
+          onSample={() => undefined}
+          onDistill={() => setTourStep(2)}
+        />
+      ) : phase === "done" && result ? (
         <ResultView
           links={links}
           view={view}
@@ -336,6 +402,7 @@ export function DistillWorkspace({
           onDistill={() => void distill()}
         />
       )}
+      {tourStep !== null && <Tour steps={tourSteps} step={tourStep} onStep={setTourStep} onClose={closeTour} />}
     </>
   );
 }

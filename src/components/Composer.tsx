@@ -121,6 +121,7 @@ export function Composer({
             {!blocked && (
               <button
                 type="button"
+                data-tour="distill"
                 onClick={onDistill}
                 disabled={!canRun}
                 className="flex items-center gap-2 rounded-xl bg-brand py-2 pl-3.5 pr-2 text-[13.5px] font-semibold text-on-brand max-md:order-2 max-md:w-full max-md:justify-center max-md:py-2.5 max-md:text-[14.5px] shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none"

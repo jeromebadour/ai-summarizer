@@ -144,6 +144,13 @@ export async function deleteAccount(_: FormState, form: FormData): Promise<FormS
   redirect("/login?done=account-deleted");
 }
 
+/** The first-time tour was finished or skipped: it doesn't open by itself again (Preferences can replay it). */
+export async function finishTour(): Promise<void> {
+  const user = await currentUser();
+  if (!user || user.tourDone) return;
+  await actingAs(user.id, (db) => db.query("update users set tour_done_at = now()"));
+}
+
 const preferenceValues = {
   theme: ["system", "light", "dark"],
   motion: ["system", "full", "reduced"],

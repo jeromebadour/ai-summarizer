@@ -3,6 +3,7 @@
 import {
   Check,
   Columns2,
+  Compass,
   Keyboard,
   Monitor,
   Moon,
@@ -15,6 +16,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import Link from "@/components/NavLink";
 import { savePreference, type PreferenceField } from "@/app/actions/account";
 import { report } from "@/components/LiveStatus";
 import { applyMotion, applyTheme } from "@/lib/appearance";
@@ -48,7 +50,7 @@ function Row({
       >
         <Icon size={19} strokeWidth={1.9} />
       </span>
-      <div className="w-[360px] shrink-0 max-md:w-auto max-md:min-w-0 max-md:flex-1">
+      <div className="min-w-0 flex-1">
         <h3 className="text-[15px] font-semibold">{title}</h3>
         <p className="mt-0.5 text-[13px] leading-relaxed text-muted">
           {detail}
@@ -267,7 +269,7 @@ export function ProfilePreferences({
           icon={Waypoints}
           tone="text-brand-strong"
           title="Links to the source"
-          detail="The lines from each point to the sentences it came from. Always draws them all; On hover, only for the point under the mouse."
+          detail="Lines from each point to its sentences: all of them at once, or only for the point under the mouse."
         >
           <Segmented
             value={links}
@@ -283,7 +285,7 @@ export function ProfilePreferences({
           icon={Columns2}
           tone="text-brand-strong"
           title="Result view"
-          detail="How a finished summary is laid out. Split puts your text beside the summary; Column shows one column with each point's sentences quoted under it. The switch is also next to Copy."
+          detail="Split puts your text beside the summary; Column quotes the sources under each point."
         >
           <Segmented
             value={view}
@@ -294,6 +296,7 @@ export function ProfilePreferences({
             ]}
           />
         </Row>
+
       </section>
       <Shortcuts />
     </div>
@@ -307,25 +310,20 @@ const shortcuts: { keys: string[]; action: string }[] = [
   { keys: ["/"], action: "Search Saved" },
 ];
 
+/** The keyboard shortcuts on one line (laptops and up), and the tour to replay (everywhere). */
 function Shortcuts() {
   return (
-    <section className="rounded-2xl border border-border bg-panel px-6 py-4 max-md:hidden">
-      <h3 className="flex items-center gap-2 text-[13px] font-semibold text-input">
+    <section className="flex items-center gap-5 rounded-2xl border border-border bg-panel px-6 py-3 max-md:px-4">
+      <h3 className="flex shrink-0 items-center gap-2 text-[13px] font-semibold text-input max-md:hidden">
         <Keyboard size={16} strokeWidth={2} />
-        Keyboard shortcuts
+        Shortcuts
       </h3>
-      <ul className="mt-3 grid grid-cols-4 gap-3">
+      <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 max-md:hidden">
         {shortcuts.map(({ keys, action }) => (
-          <li
-            key={action}
-            className="flex items-center gap-3 rounded-xl border border-border bg-panel-raised/40 px-4 py-3"
-          >
+          <li key={action} className="flex items-center gap-2">
             <span className="flex gap-1">
               {keys.map((key) => (
-                <kbd
-                  key={key}
-                  className="rounded-md border border-border-strong bg-paper px-1.5 py-0.5 font-mono text-[11.5px] font-semibold text-text"
-                >
+                <kbd key={key} className="rounded-md border border-border-strong bg-paper px-1.5 py-0.5 font-mono text-[11.5px] font-semibold text-text">
                   {key}
                 </kbd>
               ))}
@@ -334,6 +332,13 @@ function Shortcuts() {
           </li>
         ))}
       </ul>
+      <Link
+        href="/?tour=1"
+        className="ml-auto flex shrink-0 items-center justify-center gap-2 rounded-xl border border-brand-line px-3.5 py-2 text-[13px] font-semibold text-text hover:bg-brand-soft max-md:ml-0 max-md:w-full"
+      >
+        <Compass size={15} strokeWidth={2} className="text-brand-strong" />
+        Take the tour
+      </Link>
     </section>
   );
 }

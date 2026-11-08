@@ -42,6 +42,7 @@
   --bullets-soft: rgba(194, 154, 198, 0.13);
 
   --overlay: rgba(0, 0, 0, 0.55);
+  --tour-dim: rgba(4, 6, 9, 0.66);
   --shadow-dialog: 0 30px 90px -20px rgba(0, 0, 0, 0.8);
   --shadow-paper: inset 0 1px 12px rgba(0, 0, 0, 0.45);
 }
@@ -89,6 +90,7 @@
   --bullets-soft: rgba(119, 80, 123, 0.1);
 
   --overlay: rgba(27, 31, 37, 0.32);
+  --tour-dim: rgba(27, 31, 37, 0.5);
   --shadow-dialog: 0 30px 80px -24px rgba(27, 31, 37, 0.35);
   --shadow-paper: inset 0 1px 6px rgba(27, 31, 37, 0.06);
 }

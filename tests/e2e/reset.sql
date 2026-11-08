@@ -15,4 +15,6 @@ delete from server_facts;
 
 -- Accounts a test inserts directly count as confirmed (see db/test-support/fixtures.sql); app sign-ups still start unconfirmed.
 alter table users alter column email_verified_at set default now();
+-- And they have seen the tour (migration 015), so it doesn't cover the screens other suites test; tour_e2e clears it.
+alter table users alter column tour_done_at set default now();
 delete from email_tokens;
