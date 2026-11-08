@@ -21,6 +21,7 @@ export const privacy: LegalDoc = {
       title: "Scope",
       clauses: [
         "This policy covers Distill at distill.jeromebadour.com: the app, your account, guest sessions and the public admin demo.",
+        "Distill is run by **Jerome Badour, an individual**, who decides what is collected and why. Contact: [privacy@jeromebadour.com](mailto:privacy@jeromebadour.com).",
         "It sits alongside the [Terms of Use](/terms). Where this policy describes your data and the terms describe the agreement, both apply.",
       ],
     },
@@ -41,8 +42,9 @@ export const privacy: LegalDoc = {
       id: "text",
       title: "The text you paste",
       clauses: [
-        "To write a summary, your text is sent to **Anthropic's Claude API**. Anthropic processes it under its commercial terms: it does not train its models on it, and it deletes it on its side within 30 days, except where it must keep it longer to enforce its usage policy or the law.",
-        "Your text is saved only in your own account. **Nobody at Distill, the owner included, can read it**: the admin console shows counts, lengths, times and costs, never what anyone pasted or got back.",
+        "To write a summary, your text is sent to **Anthropic's Claude API**, which processes it for Distill. How long Anthropic keeps API inputs and outputs, and when it keeps them longer, is set out in its own [data retention policy for the API](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-commercial-api-data).",
+        "Your text is saved only in your own account. **Distill gives no one, its owner included, a way to view it**: the admin console shows counts, lengths, times and costs, never what anyone pasted or got back, and no screen or tool shows another person's text.",
+        "To be exact about what that means: your text is stored in the app's database on our server, protected by the database's access rules but not separately encrypted. Someone with full control of that server could therefore reach it. We don't, except where the law requires it, and you can delete a summary, or your whole account, at any time.",
         "Do not paste anything you are not allowed to share with a service like this, such as another person's private data or confidential documents you have no right to process.",
       ],
     },
@@ -82,7 +84,7 @@ export const privacy: LegalDoc = {
         "**Summaries** stay until you delete them, or until you delete your account.",
         "**Devices** sign out by themselves after 30 days without use.",
         "**Usage records, sign-in events and staff actions** are kept to keep limits, spend and the security record correct. When your account is deleted, they stay without any link to you.",
-        "The web server's own logs, which include IP addresses, are kept for **14 days** for security, then deleted. The app itself does not store IP addresses.",
+        "The web server's own logs, which include IP addresses, are kept for **14 days** for security, then deleted. The app itself does not store IP addresses, and it does not look up where you are. (The places in the public admin demo are invented, like everything else there.)",
       ],
     },
     {

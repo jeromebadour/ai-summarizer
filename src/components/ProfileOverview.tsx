@@ -18,7 +18,7 @@ import { DayBars } from "@/components/DayBars";
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { StatTile } from "@/components/StatTile";
 import { lengthStyles } from "@/components/LengthPicker";
-import { formatDuration, minutesSaved, mostUsedLength, type Account, type ProfileStats } from "@/lib/profile";
+import { formatDuration, mostUsedLength, secondsSaved, type Account, type ProfileStats } from "@/lib/profile";
 import type { SummaryLength } from "@/lib/summary";
 
 /** Only the days the account has existed: a new account never shows a row of empty days. */
@@ -181,7 +181,7 @@ export function ProfileOverview({ account, stats }: { account: Account; stats: P
             </>
           }
         />
-        <StatTile icon={Clock3} tone="text-input" label="Reading time saved" value={formatDuration(minutesSaved(stats))} note="at 230 words a minute" />
+        <StatTile icon={Clock3} tone="text-input" label="Reading time saved" value={formatDuration(secondsSaved(stats))} note="at 230 words a minute" />
         <StatTile
           icon={ShieldCheck}
           tone="text-verify"

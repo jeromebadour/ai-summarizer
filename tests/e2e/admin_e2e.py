@@ -220,7 +220,7 @@ with sync_playwright() as p:
     seen = []
     dpg.on("request", lambda r: seen.append(r.url))
     dpg.goto(BASE + "/demo/admin")
-    dpg.wait_for_selector("text=Demo · invented data · read-only")
+    dpg.wait_for_selector("text=Demo · invented data as of Sat 7 Nov, 12:31 · read-only")
     got = [t.strip() for t in tabs(dpg)]
     check("the demo shows all six tabs", got == ["Overview", "Server", "Users", "Activity", "Spend", "Roles"], str(got))
     check("the demo shows none of the real people", "tester_01" not in dpg.content() and "Tester 18" not in dpg.content())

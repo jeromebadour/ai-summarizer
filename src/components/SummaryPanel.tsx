@@ -1,25 +1,7 @@
 "use client";
 
-import {
-  ArrowUpRight,
-  Check,
-  ClipboardCheck,
-  ClipboardCopy,
-  Link2,
-  Coins,
-  Cpu,
-  FlaskConical,
-  LoaderCircle,
-  MousePointer2,
-  RotateCcw,
-  ServerCrash,
-  ShieldCheck,
-  Sparkles,
-  Timer,
-  Trash2,
-  TriangleExclamationPoint,
-  Waypoints,
-} from "lucide-react";
+import { MIN_SOURCE_WORDS } from "@/lib/distill";
+import { ArrowUpRight, Check, ClipboardCheck, ClipboardCopy, Coins, Cpu, FlaskConical, Link2, LoaderCircle, MousePointer2, RotateCcw, Ruler, ServerCrash, ShieldCheck, Sparkles, Timer, Trash2, TriangleExclamationPoint, Waypoints } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import { DistillProgress } from "@/components/DistillProgress";
 import { lengthStyles } from "@/components/LengthPicker";
@@ -68,6 +50,8 @@ type IdleProps = {
   hint: boolean;
   /** Set once there is text to distill: the card offers the Distill button right where the hint was. */
   onDistill?: () => void;
+  /** Words so far, when there is some text but less than the minimum: the card says how far off it is. */
+  wordsShort?: number;
 };
 
 function sentenceTexts(sentences: SourceSentence[], ids: number[]): string[] {
@@ -234,7 +218,7 @@ function Telemetry({ summary }: { summary: Summary }) {
 }
 
 export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
-  if (props.state === "idle") return <IdlePanel length={props.length} hint={props.hint} onDistill={props.onDistill} />;
+  if (props.state === "idle") return <IdlePanel length={props.length} hint={props.hint} onDistill={props.onDistill} wordsShort={props.wordsShort} />;
   const lengthKey = props.state === "done" ? props.summary.length : props.length;
   const length = lengthStyles[lengthKey];
   const LengthIcon = length.icon;
@@ -378,7 +362,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
   );
 }
 
-function IdlePanel({ length, hint, onDistill }: { length: SummaryLength; hint: boolean; onDistill?: () => void }) {
+function IdlePanel({ length, hint, onDistill, wordsShort }: { length: SummaryLength; hint: boolean; onDistill?: () => void; wordsShort?: number }) {
   const look = lengthStyles[length];
   const LengthIcon = look.icon;
   const promises = [
@@ -418,7 +402,21 @@ function IdlePanel({ length, hint, onDistill }: { length: SummaryLength; hint: b
                 {text}
               </li>
             ))}
-            {hint &&
+            {hint && wordsShort !== undefined ? (
+              // Too short: a calm, normal state (not a warning), with how far off it is. Nothing is counted.
+              <li className="space-y-2 border-t border-border pt-3" role="status">
+                <span className="flex items-center gap-2 text-[14px] font-semibold text-brand-strong">
+                  <Ruler size={16} strokeWidth={2.1} />
+                  Too short to distill
+                </span>
+                <span className="block h-1.5 w-full overflow-hidden rounded-full bg-border/70" aria-hidden>
+                  <span className="block h-full rounded-full bg-brand-strong" style={{ width: `${Math.round((wordsShort / MIN_SOURCE_WORDS) * 100)}%` }} />
+                </span>
+                <span className="block font-mono text-[11.5px] text-muted">
+                  {wordsShort} of {MIN_SOURCE_WORDS} words · add a paragraph or two
+                </span>
+              </li>
+            ) : hint &&
               (onDistill ? (
                 // Text is in: the button sits where the eye already is, the same Distill as the one above.
                 <li className="flex items-center gap-3 border-t border-border pt-3">

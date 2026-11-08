@@ -2,6 +2,8 @@ import { checkFigures } from "@/lib/figures";
 import type { FigureStatus, KeyFigure, SourceSentence, SummaryLength, SummaryPoint } from "@/lib/summary";
 
 export const MAX_SOURCE_CHARS = 20_000;
+/** Below this there is nothing to leave out: refused before the limit is counted, so it never costs a use. */
+export const MIN_SOURCE_WORDS = 50;
 export const MAX_OUTPUT_TOKENS = 1_500;
 
 const lengthRules: Record<SummaryLength, string> = {

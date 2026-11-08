@@ -85,7 +85,8 @@ export async function AdminShell({
           {mode.kind === "demo" ? (
             <div role="note" className="flex items-center gap-2 rounded-full border border-figure/40 bg-figure-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-figure">
               <Eye size={14} strokeWidth={2.2} />
-              Demo · invented data · read-only
+              {/* The demo is one frozen moment: its "Now" and "Today" are that moment, whatever the visitor's clock says. */}
+              Demo · invented data as of {clock} · read-only
             </div>
           ) : (
             <StatusPill status={doneStatus(params, clock)} />

@@ -161,7 +161,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
           ))}
         </div>
         <p className="mt-auto pt-3 text-[12px] leading-relaxed text-muted">
-          Nobody, the owner included, can read what users paste or get back. Every staff action lands in Activity with its reason.
+          The console gives no one, the owner included, a way to view what users paste or get back. Every staff action lands in Activity with its reason.
         </p>
       </Panel>
     </div>

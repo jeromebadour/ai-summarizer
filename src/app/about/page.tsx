@@ -23,7 +23,7 @@ const features: { icon: LucideIcon; tone: string; title: string; text: string }[
   { icon: FileCheck, tone: "text-verify border-verify/35 bg-verify-soft", title: "Figures checked", text: "Every number in a summary is checked against its sentences by code, not by the model." },
   { icon: ScanSearch, tone: "text-input border-input/35 bg-input-soft", title: "What was left out", text: "The coverage strip shows which sentences made it into the summary and which did not." },
   { icon: Library, tone: "text-figure border-figure/35 bg-figure-soft", title: "Saved and searchable", text: "Every summary is kept with its source and checks, found again by title, text or a figure." },
-  { icon: ShieldCheck, tone: "text-verify border-verify/35 bg-verify-soft", title: "Your text stays yours", text: "Nobody running Distill can read what you paste or get back. Export or delete it any time." },
+  { icon: ShieldCheck, tone: "text-verify border-verify/35 bg-verify-soft", title: "Your text stays yours", text: "Distill gives no one, its owner included, a way to view what you paste or get back. Export it, or delete one summary or your whole account, any time." },
   { icon: Gauge, tone: "text-brand-strong border-brand-line bg-brand-soft", title: "Fair limits", text: "Hourly and daily limits, and spend caps that pause calmly instead of failing." },
 ];
 
@@ -40,12 +40,12 @@ const stack: { icon: LucideIcon; label: string; text: string }[] = [
 async function Numbers() {
   const [s, zone] = await Promise.all([publicStats(), viewerZone()]);
   const n = (v: number) => v.toLocaleString("en-US");
-  const items = [
+  const items: { lead?: string; value: string; label: string }[] = [
     { value: n(s.summaries), label: "summaries distilled" },
     { value: n(s.words), label: "words read" },
     { value: n(s.figures), label: "figures checked" },
     { value: n(s.accounts), label: s.accounts === 1 ? "account" : "accounts" },
-    ...(s.since ? [{ value: monthYear(s.since, zone), label: "running since" }] : []),
+    ...(s.since ? [{ lead: "Live since", value: monthYear(s.since, zone), label: "" }] : []),
   ];
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-border bg-panel px-5 py-3.5">
@@ -54,9 +54,10 @@ async function Numbers() {
         LIVE
       </span>
       {items.map((i) => (
-        <span key={i.label} className="flex items-baseline gap-1.5">
+        <span key={i.lead ?? i.label} className="flex items-baseline gap-1.5">
+          {i.lead && <span className="text-[12px] text-brand-strong">{i.lead}</span>}
           <span className="font-mono text-[15px] font-semibold text-text">{i.value}</span>
-          <span className="text-[12px] text-brand-strong">{i.label}</span>
+          {i.label && <span className="text-[12px] text-brand-strong">{i.label}</span>}
         </span>
       ))}
     </div>

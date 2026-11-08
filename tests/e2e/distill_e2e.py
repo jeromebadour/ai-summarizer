@@ -14,6 +14,11 @@ BASE = os.environ.get("BASE_URL", "http://localhost:3101")
 COOKIE = os.environ.get("SESSION_COOKIE", "__Host-distill_session")
 SHOTS = os.environ.get("SHOTS")
 results = []
+# Enough words to pass the minimum (50); no numbers, so the figure checks stay on the sentences before it.
+PAD = (" The plan was discussed at length in the public meeting, where residents asked about schools, parks, shops and"
+       " quiet streets near the river. Several speakers welcomed the plan, while others asked the council to share more"
+       " detail about the timeline, the builders it will choose and the way the new homes will be given out to families"
+       " on the waiting list.")
 
 
 def check(name, ok, detail=""):
@@ -70,6 +75,15 @@ with sync_playwright() as p:
     check("no shortcut hint while Distill can't run", pg.locator("main kbd:has-text('Ctrl')").count() == 1)  # only the idle panel's line
     shot(pg, "01-empty")
 
+    # 1b. Too short: the card says so, calmly, with how far off it is; Distill waits; nothing is counted.
+    pg.fill("textarea", "This is a short text that should not be distilled at all.")
+    pg.wait_for_selector("text=Too short to distill")
+    check("too short: the card says so", pg.locator("text=12 of 50 words").count() == 1)
+    check("too short: Distill can't run", distill_button(pg).is_disabled())
+    check("too short: it is not a warning", pg.locator("[role=status]:has-text('Too short to distill') .text-flag").count() == 0)
+    shot(pg, "01b-too-short")
+    pg.fill("textarea", "")
+
     # 2. Sample, then a slow Distill: real stages, points appearing one by one.
     pg.click("button:has-text('Sample')")
     check("Sample fills the text and shows Clear", pg.input_value("textarea").startswith("The city council") and pg.locator("button:has-text('Clear')").count() == 1)
@@ -101,7 +115,7 @@ with sync_playwright() as p:
     # 4. Claude overloaded: a clear failure, not counted, Try again works.
     pg.click("button:has-text('Clear')")
     check("Clear goes back to an empty text", pg.input_value("textarea") == "")
-    pg.fill("textarea", "The council approved a plan. It costs $40M. OVERLOADED SLOW")
+    pg.fill("textarea", "The council approved a plan. It costs $40M." + PAD + " OVERLOADED SLOW")
     pg.click("main button:has-text('Distill')")
     pg.wait_for_selector("text=Claude is overloaded right now", timeout=20000)
     check("an overloaded Claude shows the failure", pg.locator("text=Not counted against your limit").count() == 1)
@@ -109,7 +123,7 @@ with sync_playwright() as p:
     shot(pg, "06-failed")
     pg.fill("textarea", "x") if pg.locator("textarea").count() else None
     pg.click("button:has-text('Clear')")
-    pg.fill("textarea", "The city approved a $40M housing plan on Tuesday. Dr. Ana Weber said 30% of the homes will be affordable.")
+    pg.fill("textarea", "The city approved a $40M housing plan on Tuesday. Dr. Ana Weber said 30% of the homes will be affordable." + PAD)
     pg.click("main button:has-text('Distill')")
     pg.wait_for_selector("text=Copy", timeout=20000)
     check("after a failure, the next one works", pg.locator("text=8 of 10 left this hour").count() == 1)
@@ -119,7 +133,7 @@ with sync_playwright() as p:
     t2, u2 = make_user("kevin_n")
     sql(f"insert into usage_events (user_id, is_guest, created_at) select '{u2}', false, now() - (g || ' minutes')::interval from generate_series(5, 50, 5) g")
     pg = page_for(b, t2)
-    pg.fill("textarea", "Some text to summarize.")
+    pg.fill("textarea", "Some text to summarize." + PAD)
     check("the hour strip shows before anyone presses Distill", pg.locator("text=You've used all 10 for this hour").count() == 1)
     check("Distill says when the next one frees up", "Next at" in distill_button(pg).inner_text() and distill_button(pg).is_disabled())
     check("no shortcut hint while the hour is full", pg.locator("main kbd").count() == 0)
@@ -134,7 +148,7 @@ with sync_playwright() as p:
     t3, u3 = make_user("oliver_h")
     sql("update settings set all_paused_at = now()")
     pg = page_for(b, t3)
-    pg.fill("textarea", "Some text to summarize.")
+    pg.fill("textarea", "Some text to summarize." + PAD)
     check("paused: the stop strip shows", pg.locator("text=Summaries are paused right now").count() == 1)
     check("paused: Distill can't run", distill_button(pg).is_disabled())
     shot(pg, "08-paused")
@@ -144,11 +158,11 @@ with sync_playwright() as p:
     # 7. A refusal mid-way (paused after the page loaded) keeps the text and shows the strip.
     t4, u4 = make_user("maya_k")
     pg = page_for(b, t4)
-    pg.fill("textarea", "Some text to summarize.")
+    pg.fill("textarea", "Some text to summarize." + PAD)
     sql("update settings set all_paused_at = now()")
     pg.click("main button:has-text('Distill')")
     pg.wait_for_selector("text=Summaries are paused right now", timeout=10000)
-    check("a refusal keeps the text", pg.input_value("textarea") == "Some text to summarize.")
+    check("a refusal keeps the text", pg.input_value("textarea") == "Some text to summarize." + PAD)
     sql("update settings set all_paused_at = null")
     pg.context.close()
 

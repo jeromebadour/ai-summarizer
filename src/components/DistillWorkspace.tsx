@@ -11,7 +11,7 @@ import { SourcePanel } from "@/components/SourcePanel";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { StopStrip, type AppStop } from "@/components/StopStrip";
 import { SummaryPanel } from "@/components/SummaryPanel";
-import { MAX_SOURCE_CHARS } from "@/lib/distill";
+import { MAX_SOURCE_CHARS, MIN_SOURCE_WORDS } from "@/lib/distill";
 import { splitSentences } from "@/lib/sentences";
 import { stopFor } from "@/lib/stops";
 import { countWords, type DistillFailure, type DistillRun, type DistillStep, type SourceSentence, type Summary, type SummaryLength, type SummaryPoint } from "@/lib/summary";
@@ -93,9 +93,12 @@ export function DistillWorkspace({
   useEffect(() => () => abort.current?.abort(), []);
 
   const over = text.length > MAX_SOURCE_CHARS;
+  const words = countWords(text);
+  // Some text, but not enough to have anything to leave out: the card says so, and nothing is counted.
+  const short = words > 0 && words < MIN_SOURCE_WORDS;
   const blocked = stop !== null || hour !== null;
   // A failed run can be tried again; a live one can't be started twice.
-  const canRun = (phase !== "running" || run.failed !== undefined) && text.trim() !== "" && !over && !blocked;
+  const canRun = (phase !== "running" || run.failed !== undefined) && text.trim() !== "" && !over && !short && !blocked;
 
   const fail = useCallback((failure: DistillFailure) => {
     setRun((r) => ({ ...r, failed: failure, elapsedMs: Date.now() - started.current }));
@@ -324,7 +327,7 @@ export function DistillWorkspace({
             onClear={clear}
             onSample={() => edit(sampleText)}
           />
-          <SummaryPanel state="idle" length={length} hint={!blocked} onDistill={canRun ? () => void distill() : undefined} />
+          <SummaryPanel state="idle" length={length} hint={!blocked} onDistill={canRun ? () => void distill() : undefined} wordsShort={short ? words : undefined} />
         </div>
       )}
     </>

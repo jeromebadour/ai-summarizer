@@ -43,15 +43,18 @@ export function initials(name: string): string {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
-/** Reading time saved = time to read the sources minus time to read the summaries. */
-export function minutesSaved(stats: Pick<ProfileStats, "wordsIn" | "wordsOut">): number {
-  return Math.max(0, Math.round((stats.wordsIn - stats.wordsOut) / wordsPerMinute));
+/** Reading time saved, in seconds = time to read the sources minus time to read the summaries. */
+export function secondsSaved(stats: Pick<ProfileStats, "wordsIn" | "wordsOut">): number {
+  return Math.max(0, Math.round(((stats.wordsIn - stats.wordsOut) / wordsPerMinute) * 60));
 }
 
-export function formatDuration(minutes: number): string {
+/** "20 s" under a minute (never "0 min"), "12 min" under an hour, "1 h 05 min" after. */
+export function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds} s`;
+  const minutes = Math.round(seconds / 60);
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  return h > 0 ? `${h} h ${m} min` : `${m} min`;
+  return h > 0 ? `${h} h ${String(m).padStart(2, "0")} min` : `${m} min`;
 }
 
 export function mostUsedLength(mix: Record<SummaryLength, number>): SummaryLength {

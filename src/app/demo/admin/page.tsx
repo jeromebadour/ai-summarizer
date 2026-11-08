@@ -24,6 +24,8 @@ async function DemoAdmin({ searchParams }: Pick<PageProps<"/demo/admin">, "searc
   const params = await searchParams;
   // Only whether a session cookie exists, to pick the way out; the demo never looks anyone up.
   const signedIn = (await cookies()).has(SESSION_COOKIE);
-  // The demo's clock is frozen with its data: Saturday 7 November 2026, 12:31.
-  return <AdminShell mode={{ kind: "demo", signedIn }} params={params} source={demoSource(pageSizeFor("adminTable", await viewerHeight()))} rail={<DemoRail signedIn={signedIn} />} clock="12:31" today="2026-11-07" />;
+  // The demo is one moment, frozen with its data so every sum agrees: Saturday 7 November 2026, 12:31. The header says
+  // so ("Demo snapshot · Sat 7 Nov, 12:31"), so its "Now" and "Today 12:09" read against that moment, not the
+  // visitor's clock.
+  return <AdminShell mode={{ kind: "demo", signedIn }} params={params} source={demoSource(pageSizeFor("adminTable", await viewerHeight()))} rail={<DemoRail signedIn={signedIn} />} clock="Sat 7 Nov, 12:31" today="2026-11-07" />;
 }

@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { claudeModel, costOf } from "@/lib/admin";
-import { checkSummary, LineReader, MAX_OUTPUT_TOKENS, MAX_SOURCE_CHARS, readLine, systemPrompt, userMessage, type DistillLine } from "@/lib/distill";
+import { checkSummary, LineReader, MAX_OUTPUT_TOKENS, MAX_SOURCE_CHARS, MIN_SOURCE_WORDS, readLine, systemPrompt, userMessage, type DistillLine } from "@/lib/distill";
 import { splitSentences } from "@/lib/sentences";
 import { countWords, type DistillFailure, type DistillStep, type SummaryLength, type SummaryPoint } from "@/lib/summary";
 import { actingAs } from "@/lib/server/db";
@@ -71,6 +71,11 @@ export async function POST(request: Request) {
   if (!text) return Response.json({ error: "Paste some text first" }, { status: 400 });
   if (text.length > MAX_SOURCE_CHARS) {
     return Response.json({ error: `Up to ${MAX_SOURCE_CHARS.toLocaleString("en-US")} characters` }, { status: 413 });
+  }
+  // Too short is refused here, before claim_use: it never counts against the hour or the day.
+  const wordsIn = countWords(text);
+  if (wordsIn < MIN_SOURCE_WORDS) {
+    return Response.json({ error: `Too short to distill: ${wordsIn} of ${MIN_SOURCE_WORDS} words`, code: "too_short" }, { status: 422 });
   }
   const sentences = splitSentences(text);
 

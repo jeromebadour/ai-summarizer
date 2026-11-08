@@ -18,7 +18,12 @@ results = []
 
 SOURCE = (
     "The city approved a $40M housing plan on Tuesday. Dr. Ana Weber said 30% of the homes will be affordable.\n\n"
-    "Construction starts in 2027. It adds two access roads, e.g. along the river."
+    "Construction starts in 2027. It adds two access roads, e.g. along the river.\n\n"
+    # Enough words to pass the minimum (50); no numbers, so the figure checks stay on the sentences above.
+    "The plan was discussed at length in the public meeting, where residents asked about schools, parks, shops and "
+    "quiet streets near the river. Several speakers welcomed the plan, while others asked the council to share more "
+    "detail about the timeline, the builders it will choose and the way the new homes will be given out to families "
+    "on the waiting list."
 )
 
 
@@ -54,7 +59,11 @@ def post(token, payload, content_type="application/json"):
         with urllib.request.urlopen(req, timeout=90) as r:
             return r.status, [json.loads(line) for line in r.read().decode().splitlines() if line.strip()]
     except urllib.error.HTTPError as e:
-        return e.code, []
+        raw = e.read().decode()
+        try:
+            return e.code, [json.loads(raw)] if raw.strip() else []
+        except ValueError:
+            return e.code, []
 
 
 def kinds(events):
@@ -80,7 +89,7 @@ check(
 check("the quota comes after the limit check", k.index("quota") == 1, str(k))
 src = next((e for e in ev if e["type"] == "source"), None)
 check("the numbered source comes before Claude is asked", src is not None and k.index("source") < k.index("step:sending")
-      and [x["id"] for x in src["sentences"]] == [1, 2, 3, 4] and src["sentences"][1]["text"].startswith("Dr. Ana Weber"), str(src)[:200])
+      and [x["id"] for x in src["sentences"]] == [1, 2, 3, 4, 5, 6] and src["sentences"][1]["text"].startswith("Dr. Ana Weber"), str(src)[:200])
 check("points stream before the summary is done", k.count("point") == 3 and k.index("point") < k.index("done"), str(k))
 check("the live point text streams", "partial" in k)
 done = ev[-1]
@@ -91,7 +100,7 @@ check("figures checked", s.get("figureStatus") == "checked" and s.get("figures",
 cost = 1200 * 0.10 / 1e6 + 180 * 0.50 / 1e6
 check("priced at Haiku 5.5's rates", abs(s.get("usage", {}).get("costUsd", 0) - cost) < 1e-9, str(s.get("usage")))
 row = sql(f"select title, model, figure_status, input_tokens, output_tokens, cost_usd, words_in, jsonb_array_length(sentences), jsonb_array_length(points) from summaries where user_id='{uid}'")
-check("saved as the user's row", row == f"City housing plan|claude-haiku-5-5|checked|1200|180|0.000210|{len(SOURCE.split())}|4|3", row)
+check("saved as the user's row", row == f"City housing plan|claude-haiku-5-5|checked|1200|180|0.000210|{len(SOURCE.split())}|6|3", row)
 check("the ledger holds the cost", sql(f"select recorded, cost_usd, refunded from usage_events where user_id='{uid}'") == "t|0.000210|f")
 
 # 2. What reached Claude: the right model, the key from the environment, the source as numbered data.
@@ -153,6 +162,11 @@ check("guests get 5 an hour", outs == ["done"] * 5 + ["refused"], str(outs))
 check("no session: 401", post(None, {"text": SOURCE})[0] == 401)
 check("a form post (not JSON): 415", post(t2, b"text=hi", "application/x-www-form-urlencoded")[0] == 415)
 check("empty text: 400", post(t2, {"text": "   "})[0] == 400)
+# Too short (the 12-word troll test): refused before the limit is counted.
+before = sql(f"select count(*) from usage_events where user_id='{u2}'")
+code, body = post(t2, {"text": "This is a short text that should not be distilled at all."})
+check("12 words: 422, too short", code == 422 and "Too short to distill: 12 of 50 words" in str(body), f"{code} {body}")
+check("a too-short text is not counted", sql(f"select count(*) from usage_events where user_id='{u2}'") == before)
 check("over 20,000 characters: 413", post(t2, {"text": "a" * 20001})[0] == 413)
 check("an unknown length falls back to the user's default", post(t2, {"text": SOURCE, "length": "huge"})[1][-1].get("summary", {}).get("length") == "medium")
 
