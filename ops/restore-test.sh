@@ -35,7 +35,10 @@ done
 live_schema=$(psql_in distill "select max(name) from schema_migrations")
 back_schema=$(psql_in "$scratch" "select max(name) from schema_migrations" 2>/dev/null) || back_schema=missing
 [ "$live_schema" = "$back_schema" ] || ok=false
-[ "$(psql_in "$scratch" "select count(*) from users" 2>/dev/null || echo 0)" -ge 1 ] || ok=false
+# A database with accounts must not come back empty (an empty one, as in CI, restores to empty).
+if [ "$(psql_in distill "select count(*) from users")" -ge 1 ]; then
+  [ "$(psql_in "$scratch" "select count(*) from users" 2>/dev/null || echo 0)" -ge 1 ] || ok=false
+fi
 echo "  schema: live $live_schema, restored $back_schema"
 
 printf '{"at": "%s", "seconds": %s, "ok": %s, "dump": "%s"}\n' "$(date -u +%FT%TZ)" "$seconds" "$ok" "$(basename "$dump")" > "$dir/restore-test.json"
