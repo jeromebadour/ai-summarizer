@@ -13,8 +13,8 @@ export const privacy: LegalDoc = {
   title: "Privacy Policy",
   eyebrow: "Legal",
   intro: "What Distill keeps about you, why, who else sees it, how long it stays and how to have it removed.",
-  version: "1.0",
-  effective: "7 November 2026",
+  version: "1.1",
+  effective: "8 November 2026",
   sections: [
     {
       id: "scope",
@@ -29,6 +29,7 @@ export const privacy: LegalDoc = {
       title: "What we keep",
       clauses: [
         "**Your account:** your name, username, email address and a password hash (Argon2id). We never store your password itself, and we cannot read it.",
+        "**Email confirmation and password resets:** the codes and links we email you are stored only as a one-way hash, work once, and run out after 24 hours (confirming an email) or 30 minutes (a new password). A new email address waits, unused, until you confirm it.",
         "**Guests:** a guest session has a generated name such as Guest 31, and no email or password.",
         "**Your summaries:** the text you paste, the summary Claude writes for it, the sentences each point links to and the figure checks. They are saved to your account so you can find them in Saved.",
         "**Usage records:** for every summary, when it ran, its length, the number of words and tokens and what it cost. Never the text itself. They power your hourly and daily limits and the app's spend caps.",
@@ -60,6 +61,7 @@ export const privacy: LegalDoc = {
       title: "Who else sees it",
       clauses: [
         "**Anthropic**, as described above, for the text you send to be summarised.",
+        "**Resend**, which delivers our account emails (confirming your email address, setting a new password). It receives your email address, your name and the message itself, and nothing else: no summaries, no text. We turned its open and click tracking off.",
         "**The hosting provider** (Contabo), whose server stores the database. It provides the machine; it does not use the data.",
         "**Staff** of Distill (the owner, admins and moderators) see account details and usage metadata in the admin console to run the service. Every staff action is recorded with its reason.",
         "Nobody else, unless the law requires it.",
@@ -68,7 +70,10 @@ export const privacy: LegalDoc = {
     {
       id: "where",
       title: "Where it is held",
-      clauses: ["The database runs on one server in **Singapore**. Connections to it are encrypted (HTTPS)."],
+      clauses: [
+        "The database runs on one server in **Singapore**. Connections to it are encrypted (HTTPS).",
+        "Account emails are sent through Resend's servers in **Tokyo**.",
+      ],
     },
     {
       id: "how-long",
