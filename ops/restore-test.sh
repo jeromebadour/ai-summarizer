@@ -28,11 +28,13 @@ else
 fi
 
 psql_in() { docker exec -i "$db" psql -X -At -U postgres -v ON_ERROR_STOP=1 -d "$1" -c "$2"; }
-cleanup() { docker exec "$db" dropdb -U postgres --if-exists "$scratch" >/dev/null 2>&1 || true; [ -z "$fetched" ] || rm -f "$fetched" "$fetched.age"; }
+drop_scratch() { docker exec "$db" dropdb -U postgres --if-exists "$scratch" >/dev/null 2>&1 || true; }
+# On the way out: the scratch database goes, and so does the downloaded copy (never before the restore has read it).
+cleanup() { drop_scratch; [ -z "$fetched" ] || rm -f "$fetched" "$fetched.age"; }
 trap cleanup EXIT
 
 start=$(date +%s%N)
-cleanup
+drop_scratch
 docker exec "$db" createdb -U postgres "$scratch"
 ok=true
 # A restore that fails is still recorded (the console flags it), so it doesn't stop the script here.
