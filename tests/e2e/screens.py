@@ -1,7 +1,7 @@
 """Pictures of every signed-in screen at the sizes in BUILD-RULES 2.17, from one realistic seeded world, plus a report
 of any screen whose page scrolls or whose content is cut off. Not a pass/fail suite: it is how screens are judged.
 
-Usage: SHOTS=<folder> [SIZES=1536x730,1366x650,1440x900] [SCHEME=dark|light] [ONLY=saved,users] python3 tests/e2e/screens.py
+Usage: SHOTS=<folder> [SIZES=1536x730,1366x650,1440x900] [SCHEME=dark|light] [ONLY=saved,users] [FULL=1] python3 tests/e2e/screens.py
 Env as in the other suites (PG* for the owner connection, BASE_URL, CHROME). Empties the app's tables first.
 """
 import hashlib
@@ -15,6 +15,7 @@ COOKIE = os.environ.get("SESSION_COOKIE", "__Host-distill_session")
 SHOTS = os.environ.get("SHOTS", "/tmp/screens")
 SIZES = [tuple(int(n) for n in s.split("x")) for s in os.environ.get("SIZES", "1536x730,1366x650,1440x900").split(",")]
 SCHEME = os.environ.get("SCHEME", "dark")
+FULL = os.environ.get("FULL") == "1"  # whole page (phone sizes scroll as one column)
 ONLY = set(filter(None, os.environ.get("ONLY", "").split(",")))
 os.makedirs(SHOTS, exist_ok=True)
 
@@ -118,7 +119,7 @@ with sync_playwright() as p:
                 print(f"{w}x{h} {name:10s} 404: the seed is wrong")
                 continue
             problems = pg.evaluate(MEASURE)
-            pg.screenshot(path=os.path.join(SHOTS, f"{name}-{w}x{h}-{SCHEME}.png"))
+            pg.screenshot(path=os.path.join(SHOTS, f"{name}-{w}x{h}-{SCHEME}.png"), full_page=FULL)
             print(f"{w}x{h} {name:10s} {'ok' if not problems else '; '.join(problems[:3])}")
         ctx.close()
         # Signed out: sign-in, and the public admin demo (invented data, every tab including Server).
@@ -132,7 +133,7 @@ with sync_playwright() as p:
             pg.goto(BASE + path)
             pg.wait_for_timeout(900)
             problems = pg.evaluate(MEASURE.replace("'main *'", "'body *'"))
-            pg.screenshot(path=os.path.join(SHOTS, f"{name}-{w}x{h}-{SCHEME}.png"))
+            pg.screenshot(path=os.path.join(SHOTS, f"{name}-{w}x{h}-{SCHEME}.png"), full_page=FULL)
             print(f"{w}x{h} {name:10s} {'ok' if not problems else '; '.join(problems[:3])}")
         anon.close()
     b.close()

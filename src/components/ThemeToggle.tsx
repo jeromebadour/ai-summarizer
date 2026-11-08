@@ -20,7 +20,7 @@ function subscribe(onChange: () => void) {
  * Quick switch in the rail: the glyph shows the theme you will switch to. Signed in, the choice is also saved to the
  * account (`save` is a server action passed in by the rail); the public demo passes none, so it saves nothing.
  */
-export function ThemeToggle({ className, save }: { className: string; save?: (field: "theme", value: string) => Promise<unknown> }) {
+export function ThemeToggle({ className, save, row = false }: { className: string; save?: (field: "theme", value: string) => Promise<unknown>; row?: boolean }) {
   const theme = useSyncExternalStore(subscribe, current, () => "dark" as Theme);
   const next: Theme = theme === "dark" ? "light" : "dark";
   const Icon = next === "light" ? Sun : Moon;
@@ -37,6 +37,7 @@ export function ThemeToggle({ className, save }: { className: string; save?: (fi
     >
       <Icon size={20} strokeWidth={1.75} />
       {next === "light" ? "Light" : "Dark"}
+      {row && " theme"}
     </button>
   );
 }

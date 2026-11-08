@@ -11,7 +11,7 @@ import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { requireAccount } from "@/lib/server/account";
 import { getSaved } from "@/lib/server/library";
 import { loadWorkspace } from "@/lib/server/workspace";
-import { partsIn, viewerZone } from "@/lib/server/zone";
+import { partsIn, viewerOnPhone, viewerZone } from "@/lib/server/zone";
 
 export default function SavedSummaryPage({ params, searchParams }: PageProps<"/saved/[id]">) {
   return (
@@ -45,10 +45,10 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
   const here = `/saved/${saved.id}`;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen max-md:h-auto max-md:min-h-dvh">
       <Rail page="saved" account={account} />
-      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
-        <div className="flex items-center gap-3">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5 max-md:gap-3 max-md:px-3 max-md:pb-24 max-md:pt-3">
+        <div className="flex items-center gap-3 max-md:flex-wrap max-md:gap-2">
           <Link
             href="/saved"
             className="flex items-center gap-2 rounded-xl border border-brand-line px-3.5 py-2 text-[13.5px] font-semibold text-text hover:bg-brand-soft"
@@ -62,7 +62,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
           <StepLink href={saved.newerId ? `/saved/${saved.newerId}` : null} label="Newer" icon={ChevronLeft} />
           <StepLink href={saved.olderId ? `/saved/${saved.olderId}` : null} label="Older" icon={ChevronRight} />
           <StatusPill status={status} />
-          <div className="ml-auto">
+          <div className="ml-auto max-md:hidden">
             <QuotaRing {...quota} />
           </div>
         </div>
@@ -76,6 +76,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
           deleteHref={`${here}?dialog=delete`}
           links={user.links}
           view={user.resultView}
+          phone={await viewerOnPhone()}
         />
       </main>
       {dialog === "delete" && (

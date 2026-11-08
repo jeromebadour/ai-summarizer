@@ -78,7 +78,7 @@ export default function AboutPage() {
     <DocShell page="about" aside={<OnThisPage sections={sections} />}>
       <section id="why" className="scroll-mt-24">
         <Eyebrow>Why it exists</Eyebrow>
-        <h1 className="mt-3 text-[46px] font-semibold leading-[1.08] tracking-[-0.025em]">
+        <h1 className="mt-3 text-[46px] font-semibold leading-[1.08] tracking-[-0.025em] max-md:text-[30px]">
           A summary you can&apos;t check
           <br />
           <span className="text-brand-strong">is just another opinion.</span>
@@ -105,10 +105,10 @@ export default function AboutPage() {
 
       <section id="what" className="mt-16 scroll-mt-24">
         <Eyebrow>What it does</Eyebrow>
-        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em]">
+        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em] max-md:text-[24px]">
           Short, <span className="text-brand-strong">and traceable.</span>
         </h2>
-        <ul className="mt-6 grid grid-cols-2 gap-x-6">
+        <ul className="mt-6 grid grid-cols-2 gap-x-6 max-md:grid-cols-1">
           {features.map(({ icon: Icon, tone, title, text }) => (
             <li key={title} className="flex gap-3.5 border-b border-border py-4">
               <span className={`grid size-9 shrink-0 place-items-center rounded-xl border ${tone}`}>
@@ -125,10 +125,10 @@ export default function AboutPage() {
 
       <section id="how" className="mt-16 scroll-mt-24">
         <Eyebrow>How it is built</Eyebrow>
-        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em]">Built like a real product.</h2>
+        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em] max-md:text-[24px]">Built like a real product.</h2>
         <ul className="mt-6 divide-y divide-border rounded-2xl border border-border bg-panel">
           {stack.map(({ icon: Icon, label, text }) => (
-            <li key={label} className="grid grid-cols-[28px_140px_minmax(0,1fr)] items-center gap-3 px-5 py-3">
+            <li key={label} className="grid grid-cols-[28px_140px_minmax(0,1fr)] items-center gap-3 px-5 py-3 max-md:grid-cols-[28px_minmax(0,1fr)] max-md:gap-y-1 max-md:px-4 max-md:[&>*:last-child]:col-start-2">
               <Icon size={16} strokeWidth={2} className="text-brand-strong" />
               <span className="text-[13px] font-semibold text-text">{label}</span>
               <span className="text-[13px] text-muted">{text}</span>
@@ -139,7 +139,7 @@ export default function AboutPage() {
 
       <section id="who" className="mt-16 scroll-mt-24">
         <Eyebrow>Who made it</Eyebrow>
-        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em]">Jerome Badour</h2>
+        <h2 className="mt-3 text-[32px] font-semibold tracking-[-0.02em] max-md:text-[24px]">Jerome Badour</h2>
         <p className="mt-4 max-w-[640px] text-[15px] leading-[1.75] text-muted">
           A freelance full-stack developer: web apps, APIs, servers and AI features, built to the same standard as this one. Distill is a
           portfolio project, run for real on its own server. The code is on{" "}

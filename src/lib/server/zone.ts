@@ -19,6 +19,12 @@ export async function viewerHeight(): Promise<number | null> {
   return Number.isInteger(n) && n >= 300 && n <= 4000 ? n : null;
 }
 
+/** A phone-sized window (under 768px wide, from the `vw` cookie), so the first paint already has the phone layout. */
+export async function viewerOnPhone(): Promise<boolean> {
+  const n = Number((await cookies()).get("vw")?.value);
+  return Number.isInteger(n) && n > 0 && n < 768;
+}
+
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** Parts of a moment as seen in `zone`. */

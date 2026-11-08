@@ -29,7 +29,7 @@ const columns: { title: string; links: { href: string; label: string; icon: Luci
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-panel/40">
-      <div className="mx-auto grid max-w-[1120px] grid-cols-[1.4fr_repeat(3,1fr)] gap-10 px-8 py-10">
+      <div className="mx-auto grid max-w-[1120px] grid-cols-[1.4fr_repeat(3,1fr)] gap-10 px-8 py-10 max-md:grid-cols-2 max-md:gap-6 max-md:px-4 max-md:py-8 max-md:[&>*:first-child]:col-span-2">
         <div>
           <div className="flex items-center gap-2.5">
             <BrandMark size={32} />
@@ -61,9 +61,9 @@ export function SiteFooter() {
         ))}
       </div>
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-8 py-4 font-mono text-[11.5px] text-muted">
+        <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-8 py-4 font-mono text-[11.5px] text-muted max-md:flex-wrap max-md:gap-2 max-md:px-4">
           <span>© 2026 Jerome Badour. All rights reserved.</span>
-          <span className="ml-auto">Built by Jerome Badour</span>
+          <span className="ml-auto max-md:ml-0">Built by Jerome Badour</span>
         </div>
       </div>
     </footer>

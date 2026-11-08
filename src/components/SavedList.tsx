@@ -39,9 +39,9 @@ function StatusMark({ status }: { status: FigureStatus }) {
 function Toolbar({ filter }: { filter: LibraryFilterParams }) {
   const lengths = filter.lengths;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 max-md:flex-wrap max-md:gap-2">
       <SavedSearch filter={filter} />
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 max-md:w-full max-md:flex-wrap">
         {(Object.keys(lengthStyles) as SummaryLength[]).map((key) => {
           const { icon: Icon, label, on, off } = lengthStyles[key];
           const selected = lengths.includes(key);
@@ -51,7 +51,7 @@ function Toolbar({ filter }: { filter: LibraryFilterParams }) {
               key={key}
               href={savedHref({ ...filter, lengths: next })}
               aria-pressed={selected}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold ${selected ? on : `border-border ${off}`}`}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold max-md:gap-1 max-md:px-2 ${selected ? on : `border-border ${off}`}`}
             >
               <Icon size={15} strokeWidth={2.1} />
               {label}
@@ -61,7 +61,7 @@ function Toolbar({ filter }: { filter: LibraryFilterParams }) {
         <Link
           href={savedHref({ ...filter, flagged: !filter.flagged })}
           aria-pressed={filter.flagged}
-          className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold ${
+          className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-semibold max-md:gap-1 max-md:px-2 ${
             filter.flagged ? "border-flag bg-flag-soft text-flag" : "border-border text-flag/80 hover:bg-flag-soft"
           }`}
         >
@@ -69,7 +69,7 @@ function Toolbar({ filter }: { filter: LibraryFilterParams }) {
           Flagged
         </Link>
       </div>
-      <span className="ml-auto flex items-center gap-1.5 font-mono text-[11.5px] text-muted">
+      <span className="ml-auto flex items-center gap-1.5 font-mono text-[11.5px] text-muted max-md:hidden">
         <ArrowDownWideNarrow size={14} strokeWidth={2} className="text-brand-strong" />
         Newest first
       </span>
@@ -86,7 +86,7 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
     <li>
       <Link
         href={`/saved/${item.id}`}
-        className="group grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] items-center gap-4 rounded-xl border border-transparent px-4 py-3.5 transition-colors hover:border-brand-line hover:bg-brand-soft"
+        className="group grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] items-center gap-4 rounded-xl border border-transparent px-4 py-3.5 max-md:grid-cols-[18px_40px_minmax(0,1fr)] max-md:items-start max-md:gap-x-3 max-md:gap-y-2 max-md:px-2 max-md:py-3 transition-colors hover:border-brand-line hover:bg-brand-soft"
       >
         <RowNumber n={n} />
         <span className={`grid size-11 place-items-center rounded-xl border ${length.on}`}>
@@ -96,9 +96,13 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
         <span className="min-w-0">
           <span className="block truncate text-[15px] font-semibold text-text">{item.title}</span>
           <span className="mt-1 block truncate text-[13px] text-muted">{item.preview}</span>
+          {/* Phone: the date and compression ride under the preview (their columns are gone). */}
+          <span className="mt-1.5 hidden font-mono text-[11px] text-muted max-md:block">
+            {item.createdAt} · <span className="text-brand-strong">{Math.round((1 - ratio) * 100)}% shorter</span>
+          </span>
         </span>
 
-        <span className="flex gap-1.5">
+        <span className="flex gap-1.5 max-md:col-start-3 max-md:flex-wrap max-md:empty:hidden">
           {item.keyFigures.map((figure) => (
             <span key={figure} className="rounded-md border border-border bg-panel-raised/60 px-2 py-1 font-mono text-[12px] font-semibold text-figure">
               {figure}
@@ -106,19 +110,19 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
           ))}
         </span>
 
-        <span>
+        <span className="max-md:hidden">
           <span className="block h-1 rounded-full bg-border-strong" />
           <span className="mt-1 block h-1 rounded-full bg-brand" style={{ width: `${Math.max(ratio * 100, 3)}%` }} />
           <span className="mt-1.5 block font-mono text-[11px] text-brand-strong">{Math.round((1 - ratio) * 100)}% shorter</span>
         </span>
 
-        <span>
+        <span className="max-md:col-start-3 max-md:empty:hidden">
           <StatusMark status={item.figureStatus} />
         </span>
 
-        <span className="text-right font-mono text-[11.5px] text-muted">{item.createdAt}</span>
+        <span className="text-right font-mono text-[11.5px] text-muted max-md:hidden">{item.createdAt}</span>
 
-        <ChevronRight size={18} strokeWidth={2} className="text-faint transition-colors group-hover:text-brand-strong" />
+        <ChevronRight size={18} strokeWidth={2} className="max-md:hidden text-faint transition-colors group-hover:text-brand-strong" />
       </Link>
     </li>
   );
@@ -126,7 +130,7 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
 
 export function SavedList({ items, page, filter }: SavedListProps) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-panel p-4">
+    <section className="flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-panel p-4 max-md:gap-3 max-md:p-3">
       <Toolbar filter={filter} />
       {items.length === 0 ? (
         // A filter that matches nothing: say so, and offer the way back (the library itself isn't empty).
@@ -153,7 +157,7 @@ export function SavedList({ items, page, filter }: SavedListProps) {
         </div>
       ) : (
       <>
-      <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] gap-4 border-b border-border px-4 pb-2.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">
+      <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_230px_150px_96px_110px_20px] gap-4 border-b border-border px-4 pb-2.5 max-md:hidden font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint">
         <RowNumberHead />
         <span />
         <span>Summary</span>
@@ -163,7 +167,7 @@ export function SavedList({ items, page, filter }: SavedListProps) {
         <span className="text-right">Saved</span>
         <span />
       </div>
-      <ScrollArea as="ul" fade="panel" className="-mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto">
+      <ScrollArea as="ul" fade="panel" className="-mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto max-md:mt-0 max-md:overflow-visible">
         {items.map((item, index) => (
           <Row key={item.id} item={item} n={page.offset + index + 1} />
         ))}

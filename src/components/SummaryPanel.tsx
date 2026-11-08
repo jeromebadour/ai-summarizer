@@ -39,7 +39,7 @@ type DoneProps = {
   /** Links to the source: drawn for every point ("always") or only on hover. The switch sits next to Copy. */
   links?: { mode: "always" | "hover"; onToggle: () => void };
   /** Split (beside the source) or Column (one column, each point's sentences quoted under it). Also next to Copy. */
-  view?: { mode: "split" | "column"; onChange: (mode: "split" | "column") => void };
+  view?: { mode: "split" | "column"; onChange: (mode: "split" | "column") => void; fixed?: boolean };
 };
 
 type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number; onRetry?: () => void };
@@ -152,7 +152,7 @@ function FigureChip({ figure, sentences, active, onFocus }: { figure: KeyFigure;
             : "border-border bg-panel-raised/50 hover:border-figure/40"
       }`}
     >
-      <span className={`flex items-center gap-1.5 font-mono text-[15px] font-semibold tracking-tight ${flagged ? "text-flag" : "text-figure"}`}>
+      <span className={`flex items-center gap-1.5 font-mono font-semibold tracking-tight ${figure.value.length > 12 ? "text-[13px]" : "text-[15px]"} ${flagged ? "text-flag" : "text-figure"}`}>
         {figure.value}
         {flagged ? <TriangleExclamationPoint size={13} strokeWidth={2.2} /> : <ShieldCheck size={13} strokeWidth={2.2} className="text-verify" />}
       </span>
@@ -218,7 +218,7 @@ function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number 
 
 function Telemetry({ summary }: { summary: Summary }) {
   return (
-    <footer className="flex items-center gap-4 border-t border-border px-5 py-2.5 font-mono text-[11.5px] text-muted">
+    <footer className="flex items-center gap-4 border-t border-border px-5 py-2.5 font-mono text-[11.5px] text-muted max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-1 max-md:px-4">
       <span className="flex items-center gap-1.5 text-brand-strong">
         <Check size={13} strokeWidth={2.4} />
         Saved
@@ -251,7 +251,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
     <section className="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-brand-line/60 bg-panel shadow-[0_24px_80px_-30px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/70 to-transparent" aria-hidden />
 
-      <header className="flex items-center gap-3 px-5 pb-3 pt-4">
+      <header className="flex items-center gap-3 px-5 pb-3 pt-4 max-md:flex-wrap max-md:gap-x-2.5 max-md:gap-y-3 max-md:px-4">
         <Sparkles size={18} strokeWidth={1.9} className="mt-0.5 shrink-0 self-start text-brand-strong" />
         {props.state === "done" && props.variant === "saved" ? (
           <div className="min-w-0">
@@ -268,7 +268,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
           <h2 className="text-[18px] font-semibold tracking-[-0.01em]">Summary</h2>
         )}
         {!(props.state === "done" && props.variant === "saved") && (
-          <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold ${length.on}`}>
+          <span className={`flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-0.5 text-[12px] font-semibold max-md:hidden ${length.on}`}>
             <LengthIcon size={13} strokeWidth={2.2} />
             {length.label}
           </span>
@@ -289,7 +289,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
                 {props.links.mode === "always" ? "Links on" : "Links on hover"}
               </button>
             )}
-            {props.view && <ViewSwitch mode={props.view.mode} onChange={props.view.onChange} />}
+            {props.view && !props.view.fixed && <ViewSwitch mode={props.view.mode} onChange={props.view.onChange} />}
             <button
               type="button"
               onClick={props.onCopy}
@@ -362,7 +362,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
       ) : (
         <>
           <div className="space-y-2 px-5">
-            <ul className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2">
+            <ul className="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2 max-md:grid-cols-2">
               {props.summary.figures.map((figure) => (
                 <FigureChip key={figure.id} figure={figure} sentences={props.sentences} active={figure.id === props.focusFigureId} onFocus={props.onFocus} />
               ))}

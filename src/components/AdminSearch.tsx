@@ -27,7 +27,7 @@ export function AdminSearch({ name, value: initial, hrefBase, placeholder, width
   }, [value]);
 
   return (
-    <label className={`flex ${width} items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2 focus-within:border-brand-line`}>
+    <label className={`flex ${width} items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2 focus-within:border-brand-line max-md:w-full`}>
       {pending ? <LoaderCircle size={16} strokeWidth={2} className="animate-spin text-brand-strong" /> : <Search size={16} strokeWidth={2} className="text-brand-strong" />}
       <input
         value={value}

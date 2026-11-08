@@ -4,6 +4,7 @@ import { savePreference } from "@/app/actions/account";
 import { AppearanceSync } from "@/components/AppearanceSync";
 import { Avatar } from "@/components/Avatar";
 import { RailLogo } from "@/components/DemoRail";
+import { PhoneBar } from "@/components/PhoneBar";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isStaff } from "@/lib/permissions";
@@ -44,7 +45,9 @@ function RailItem({ icon: Icon, label, href, active = false }: RailItemProps) {
 
 export function Rail({ page, account }: { page: RailPage; account: Account }) {
   return (
-    <aside className="group/rail flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5">
+    <>
+    <PhoneBar page={page} account={account} staff={isStaff(account.role)} />
+    <aside className="group/rail flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5 max-md:hidden">
       <RailLogo />
       <AppearanceSync theme={account.theme ?? "system"} motion={account.motion ?? "system"} />
       <nav className="flex flex-col gap-2">
@@ -76,5 +79,6 @@ export function Rail({ page, account }: { page: RailPage; account: Account }) {
         </Link>
       </div>
     </aside>
+    </>
   );
 }

@@ -70,7 +70,7 @@ export function SourcePanel({ sentences, points, litSentenceIds, charCount, char
 
   return (
     <section data-source-panel className="flex min-h-0 flex-col rounded-2xl border border-border/70 bg-paper shadow-[var(--shadow-paper)]">
-      <header className="flex items-center gap-2.5 px-5 pb-3 pt-4">
+      <header className="flex items-center gap-2.5 px-5 pb-3 pt-4 max-md:flex-wrap max-md:px-4">
         <FileText size={15} strokeWidth={1.9} className="text-muted" />
         <h2 className="text-[12px] font-semibold uppercase tracking-[0.1em] text-muted">Source</h2>
         {!readOnly && (

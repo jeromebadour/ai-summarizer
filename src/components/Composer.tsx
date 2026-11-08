@@ -46,10 +46,10 @@ export function Composer({
       <div className="flex max-h-full w-full max-w-[780px] flex-col">
         {empty && (
           <div className="mb-6 text-center">
-            <h1 className="text-[32px] font-semibold tracking-[-0.025em]">
+            <h1 className="text-[32px] font-semibold tracking-[-0.025em] max-md:text-[26px]">
               What should we <span className="text-brand-strong">distill</span>?
             </h1>
-            <p className="mt-2 text-[15px] text-muted">A short summary you can check: every point traced to its sentences, every number verified.</p>
+            <p className="mt-2 text-[15px] text-muted max-md:text-[14px]">A short summary you can check: every point traced to its sentences, every number verified.</p>
           </div>
         )}
 
@@ -68,9 +68,9 @@ export function Composer({
             placeholder="Paste an article, a report or notes. Every point will link back to its sentences."
             spellCheck={false}
             // Grows with the text, from a few lines up to about half the window; then it scrolls.
-            className="max-h-[min(46vh,440px)] min-h-[132px] resize-none bg-transparent px-6 pt-5 pb-3 text-[15px] font-[450] leading-[1.7] text-text outline-none [field-sizing:content] placeholder:text-faint"
+            className="max-h-[min(46vh,440px)] min-h-[132px] resize-none bg-transparent px-6 pt-5 pb-3 max-md:px-4 max-md:pt-4 text-[15px] font-[450] leading-[1.7] text-text outline-none [field-sizing:content] placeholder:text-faint"
           />
-          <div className="flex items-center gap-2 border-t border-border/70 px-3 py-2.5">
+          <div className="flex items-center gap-2 border-t border-border/70 px-3 py-2.5 max-md:flex-wrap">
             <button
               type="button"
               onClick={onPaste}
@@ -102,7 +102,7 @@ export function Composer({
             {/* Under the minimum: a calm normal state, how far off, nothing counted. */}
             {/* Over the limit wins over too short (the server checks in the same order). */}
             {short && !over ? (
-              <span role="status" className="ml-auto flex items-center gap-2 text-[12.5px] font-semibold text-brand-strong">
+              <span role="status" className="ml-auto flex items-center gap-2 text-[12.5px] font-semibold text-brand-strong max-md:order-1 max-md:w-full max-md:flex-wrap max-md:pl-1">
                 <Ruler size={14} strokeWidth={2.1} />
                 Too short to distill
                 <span className="h-1.5 w-20 overflow-hidden rounded-full bg-border/70" aria-hidden>
@@ -123,18 +123,18 @@ export function Composer({
                 type="button"
                 onClick={onDistill}
                 disabled={!canRun}
-                className="flex items-center gap-2 rounded-xl bg-brand py-2 pl-3.5 pr-2 text-[13.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none"
+                className="flex items-center gap-2 rounded-xl bg-brand py-2 pl-3.5 pr-2 text-[13.5px] font-semibold text-on-brand max-md:order-2 max-md:w-full max-md:justify-center max-md:py-2.5 max-md:text-[14.5px] shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none"
               >
                 <FlaskConical size={15} strokeWidth={2.2} />
                 Distill
-                <kbd className="rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10px] font-medium opacity-80">Ctrl ↵</kbd>
+                <kbd className="rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10px] font-medium opacity-80 max-md:hidden">Ctrl ↵</kbd>
               </button>
             )}
           </div>
         </div>
 
         {empty && (
-          <div className="mt-5 flex justify-center gap-6 text-[12.5px] text-muted">
+          <div className="mt-5 flex justify-center gap-6 text-[12.5px] text-muted max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2">
             <span className="flex items-center gap-2">
               <Link2 size={14} strokeWidth={2} className="text-brand-strong" />
               Linked to the source

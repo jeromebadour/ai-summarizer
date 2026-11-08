@@ -16,8 +16,8 @@ export function QuotaRing({ used, limit, resetsAt, dayUsed, dayLimit }: QuotaRin
   const filled = circumference * (left / limit);
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-panel/80 py-2 pl-2 pr-4">
-      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden>
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-panel/80 py-2 pl-2 pr-4 max-md:gap-2 max-md:py-1 max-md:pl-1 max-md:pr-3">
+      <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden className="max-md:size-9">
         <circle cx="22" cy="22" r={radius} fill="none" stroke="var(--brand-soft)" strokeWidth="4" />
         <circle
           cx="22"
@@ -36,7 +36,7 @@ export function QuotaRing({ used, limit, resetsAt, dayUsed, dayLimit }: QuotaRin
       </svg>
       <div className="leading-tight">
         <div className="text-[13px] font-semibold">
-          {left} of {limit} left this hour
+          {left} of {limit} left<span className="max-md:hidden"> this hour</span>
         </div>
         {/* No use this hour means nothing to reset: the reset time shows only once there is one. */}
         {(used > 0 || dayLimit !== undefined) && (
@@ -47,8 +47,8 @@ export function QuotaRing({ used, limit, resetsAt, dayUsed, dayLimit }: QuotaRin
                 resets {resetsAt}
               </>
             )}
-            {used > 0 && dayLimit !== undefined && " · "}
-            {dayLimit !== undefined && `today ${dayUsed ?? 0}/${dayLimit}`}
+            {used > 0 && dayLimit !== undefined && <span className={used > 0 ? "max-md:hidden" : undefined}> · </span>}
+            {dayLimit !== undefined && <span className={used > 0 ? "max-md:hidden" : undefined}>today {dayUsed ?? 0}/{dayLimit}</span>}
           </div>
         )}
       </div>

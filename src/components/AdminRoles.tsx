@@ -11,7 +11,7 @@ const groups = ["See", "Act on users", "Brakes", "Owner only"] as const;
 function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode; grow?: boolean }) {
   return (
     <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
-      <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+      <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
         {aside && <span className="ml-auto">{aside}</span>}
@@ -31,7 +31,7 @@ const changeLook: Record<RoleChange["action"], { label: string; joiner: string; 
 /** Owner only: who holds Admin and Moderator, the fixed permission matrix, and every grant and revoke with its reason. */
 export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; changes: RoleChange[]; base: string }) {
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-4">
+    <div className="grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-4 max-md:grid-cols-1 max-md:gap-3">
       <div className="flex min-h-0 flex-col gap-4">
         <Panel
           icon={KeyRound}
@@ -53,7 +53,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
               holders
                 .filter((h) => h.person.role === role)
                 .map((h) => (
-                  <li key={h.person.id} className="grid grid-cols-[minmax(0,1fr)_170px_96px] items-center gap-4 border-b border-border py-1.5 last:border-b-0">
+                  <li key={h.person.id} className="grid grid-cols-[minmax(0,1fr)_170px_96px] items-center gap-4 border-b border-border py-1.5 last:border-b-0 max-md:grid-cols-[minmax(0,1fr)_auto] max-md:gap-x-3 max-md:gap-y-1 max-md:py-2 max-md:[&>*:nth-child(2)]:col-start-1 max-md:[&>*:nth-child(2)]:row-start-2">
                     <PersonLine person={h.person} size={32} />
                     <span className="font-mono text-[11.5px] text-muted">
                       {role === "owner" ? (
@@ -127,7 +127,7 @@ export function AdminRoles({ holders, changes, base }: { holders: RoleHolder[]; 
       </div>
 
       <Panel icon={ShieldCheck} tone="text-verify" title="What each role can do" aside={<span className="font-mono text-[11.5px] text-muted">fixed in code · checked on the server</span>}>
-        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_repeat(3,92px)]">
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_repeat(3,92px)] max-md:grid-cols-[minmax(0,1fr)_repeat(3,64px)]">
           <span />
           {staffRoles.map((role) => (
             <span key={role} className="flex justify-center pb-2">

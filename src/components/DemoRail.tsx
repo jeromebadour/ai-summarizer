@@ -20,8 +20,22 @@ export function demoExit(signedIn: boolean) {
 export function DemoRail({ signedIn }: { signedIn: boolean }) {
   const item = "flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium transition-colors";
   const exit = demoExit(signedIn);
+  const bar = "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl py-1.5 text-[11px] font-medium transition-colors";
   return (
-    <aside className="flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5">
+    <>
+    {/* Phone: the same three things in a bar at the bottom. */}
+    <nav aria-label="Places" className="fixed inset-x-0 bottom-0 z-40 flex gap-1 border-t border-border bg-panel/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur md:hidden">
+      <Link href={exit.href} className={`${bar} text-muted`}>
+        <exit.Icon size={21} strokeWidth={1.8} />
+        {exit.short}
+      </Link>
+      <Link href="/demo/admin" aria-current="page" className={`${bar} bg-brand-soft text-brand-strong`}>
+        <ShieldUser size={21} strokeWidth={1.8} />
+        Admin
+      </Link>
+      <ThemeToggle className={`${bar} text-muted`} />
+    </nav>
+    <aside className="flex w-24 shrink-0 flex-col items-center border-r border-border bg-panel/60 py-5 max-md:hidden">
       <RailLogo href={exit.href} />
       <nav className="flex flex-col gap-2">
         <Link href={exit.href} className={`${item} text-muted hover:bg-panel-raised hover:text-text`}>
@@ -37,6 +51,7 @@ export function DemoRail({ signedIn }: { signedIn: boolean }) {
         <ThemeToggle className={`${item} text-muted hover:bg-panel-raised hover:text-text`} />
       </div>
     </aside>
+    </>
   );
 }
 

@@ -3,6 +3,7 @@ import Link from "@/components/NavLink";
 import { ActivityChip, activityLook } from "@/components/ActivityLook";
 import { AdminSearch } from "@/components/AdminSearch";
 import { Pager } from "@/components/Pager";
+import { PhoneScroll } from "@/components/PhoneScroll";
 import { activityHref, type ActivityFilters } from "@/lib/admin-source";
 import { PersonLine } from "@/components/PersonLine";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
@@ -31,8 +32,8 @@ export function AdminActivity({
   base: string;
 }) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
-      <div className="flex items-center gap-3">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4 max-md:p-3">
+      <div className="flex items-center gap-3 max-md:flex-wrap max-md:gap-2">
         <AdminSearch name="who" value={filters.who} hrefBase={activityHref(base, { ...filters, who: "" })} placeholder="Search @username" width="w-[260px]" />
         <div className="flex flex-wrap gap-1.5">
           {activityKinds.map((kind) => {
@@ -55,6 +56,7 @@ export function AdminActivity({
         </div>
       </div>
 
+      <PhoneScroll minWidth="max-md:min-w-[980px]">
       <div className={`grid ${columns} gap-4 border-b border-border px-3 pb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint`}>
         <RowNumberHead />
         <span>When</span>
@@ -81,6 +83,7 @@ export function AdminActivity({
           </li>
         ))}
       </ul>
+      </PhoneScroll>
 
       <Pager page={page} noun="events" href={(n) => activityHref(base, filters, n)} />
     </section>

@@ -54,6 +54,7 @@ export function DistillWorkspace({
   sampleText,
   links,
   view,
+  phone = false,
 }: {
   initial: WorkspaceState;
   defaultLength: SummaryLength;
@@ -61,6 +62,7 @@ export function DistillWorkspace({
   sampleText: string;
   links: "always" | "hover";
   view: "split" | "column";
+  phone?: boolean;
 }) {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -266,7 +268,7 @@ export function DistillWorkspace({
 
   return (
     <>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 max-md:flex-wrap max-md:gap-2">
         <LengthPicker value={length} onChange={setLength} disabled={running} />
         <StatusPill status={status} />
         {/* The primary action sits at the end of the row, top right, after the quota it spends. */}
@@ -277,11 +279,11 @@ export function DistillWorkspace({
           type="button"
           onClick={() => void distill()}
           disabled={!canRun}
-          className="flex items-center gap-2 rounded-xl bg-brand py-2.5 pl-4 pr-2.5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none"
+          className={`flex items-center gap-2 rounded-xl bg-brand py-2.5 pl-4 pr-2.5 text-[14px] font-semibold text-on-brand max-md:hidden shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110 disabled:bg-brand-soft disabled:text-brand-strong disabled:shadow-none`}
         >
           <ButtonIcon size={17} strokeWidth={2.2} className={running ? "animate-spin" : undefined} />
           {buttonLabel}
-          {canRun && <kbd className="ml-1.5 rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>}
+          {canRun && <kbd className="ml-1.5 max-md:hidden rounded-md border border-white/15 bg-black/15 px-1.5 py-0.5 font-mono text-[10.5px] font-medium opacity-80">Ctrl ↵</kbd>}
         </button>
       </div>
 
@@ -292,6 +294,7 @@ export function DistillWorkspace({
         <ResultView
           links={links}
           view={view}
+          phone={phone}
           sentences={sentences}
           summary={result.summary}
           charLimit={MAX_SOURCE_CHARS}
@@ -303,7 +306,7 @@ export function DistillWorkspace({
         />
       ) : phase === "running" ? (
         // Opening out of the composer: the text slides left into the source pane, the summary rises in on the right.
-        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5 [&>*:first-child]:animate-[open-left_420ms_cubic-bezier(.2,.8,.2,1)] [&>*:nth-child(2)]:animate-[open-right_520ms_cubic-bezier(.2,.8,.2,1)]">
+        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5 max-md:grid-cols-1 max-md:[&>*:first-child]:hidden [&>*:first-child]:animate-[open-left_420ms_cubic-bezier(.2,.8,.2,1)] [&>*:nth-child(2)]:animate-[open-right_520ms_cubic-bezier(.2,.8,.2,1)]">
           <SourcePanel
             sentences={sentences}
             points={run.points}

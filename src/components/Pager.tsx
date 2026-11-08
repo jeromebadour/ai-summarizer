@@ -10,11 +10,11 @@ export function Pager({ page, noun, href }: { page: Page; noun: string; href: (p
   if (page.pages <= 1) return null;
   const step = "flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[12.5px] font-semibold text-text hover:border-brand-line hover:bg-brand-soft";
   return (
-    <nav aria-label={`${noun} pages`} className="flex items-center gap-3 border-t border-border pt-4">
+    <nav aria-label={`${noun} pages`} className="flex items-center gap-3 border-t border-border pt-4 max-md:flex-wrap max-md:justify-center max-md:gap-2 max-md:pt-3">
       <span className="font-mono text-[11.5px] text-muted">
         Showing <span className="text-text">{page.from}–{page.to}</span> of <span className="text-text">{page.total.toLocaleString("en-US")}</span> {noun}
       </span>
-      <div className="ml-auto flex items-center gap-1.5">
+      <div className="ml-auto flex items-center gap-1.5 max-md:ml-0">
         {page.page > 1 && (
           <Link href={href(page.page - 1) as never} className={step}>
             <ChevronLeft size={15} strokeWidth={2.2} className="text-brand-strong" />

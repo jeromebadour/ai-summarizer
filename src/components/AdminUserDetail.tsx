@@ -43,7 +43,7 @@ function Action({ href, icon: Icon, label, tone }: { href: string; icon: LucideI
 function Panel({ icon: Icon, tone, title, aside, grow = false, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; grow?: boolean; children: React.ReactNode }) {
   return (
     <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
-      <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+      <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
         {aside && <span className="ml-auto font-mono text-[11.5px] font-medium text-muted">{aside}</span>}
@@ -68,7 +68,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <section className="relative flex items-center gap-6 overflow-hidden rounded-2xl border border-border bg-panel px-6 py-5">
+      <section className="relative flex items-center gap-6 overflow-hidden rounded-2xl border border-border bg-panel px-6 py-5 max-md:flex-wrap max-md:gap-4 max-md:px-4 max-md:py-4">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-strong/50 to-transparent" aria-hidden />
         <Link href={`${base}?tab=users` as never} className="flex items-center gap-1.5 self-start rounded-lg border border-border px-2.5 py-1.5 text-[12.5px] font-semibold text-muted hover:border-brand-line hover:text-text">
           <ArrowLeft size={15} strokeWidth={2.1} className="text-brand-strong" />
@@ -77,10 +77,10 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         {guest ? (
           <PersonLine person={person} size={64} />
         ) : (
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 max-md:w-full max-md:items-start max-md:gap-3">
             <Avatar name={person.name} colour={person.avatarColour} size={64} />
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="max-md:min-w-0 max-md:flex-1">
+              <div className="flex items-center gap-3 max-md:flex-wrap max-md:gap-2">
                 <h2 className={`text-[22px] font-semibold tracking-[-0.01em] ${roleTone[person.role].text}`}>{person.name}</h2>
                 <RoleBadge role={person.role} />
                 {suspended && (
@@ -91,7 +91,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
                 )}
               </div>
               <div className="mt-0.5 font-mono text-[12.5px] text-brand-strong">@{person.username}</div>
-              <div className="mt-2 flex items-center gap-5 text-[12.5px] text-muted">
+              <div className="mt-2 flex items-center gap-5 text-[12.5px] text-muted max-md:flex-col max-md:items-start max-md:gap-1">
                 {d.row.email && (
                   <span className="flex items-center gap-1.5">
                     <Mail size={14} strokeWidth={2} className="text-input" />
@@ -112,7 +112,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         )}
         {/* Only the actions the viewer's role holds, and only those that would change something. */}
         {actable && (
-          <div className="ml-auto flex items-center gap-2 self-start">
+          <div className="ml-auto flex items-center gap-2 self-start max-md:ml-0 max-md:w-full max-md:flex-wrap">
             {can(viewer, "users.resetLimit") && d.hour.used > 0 && (
               <Action href={open("reset")} icon={TimerReset} label="Reset limit" tone="border-brand-line text-brand-strong hover:bg-brand-soft" />
             )}
@@ -132,7 +132,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         )}
       </section>
 
-      <div className={`grid ${d.row.costUsd === null ? "grid-cols-3" : "grid-cols-4"} gap-5`}>
+      <div className={`grid ${d.row.costUsd === null ? "grid-cols-3" : "grid-cols-4"} gap-5 max-md:!grid-cols-2 max-md:gap-3`}>
         <StatTile icon={FileText} tone="text-brand-strong" label="Summaries" value={String(d.row.summaries)} note={`${daily.at(-1) ?? 0} today`} />
         {d.row.costUsd !== null && <StatTile icon={Coins} tone="text-figure" label="Spend" value={formatCost(d.row.costUsd)} note="all time" />}
         <StatTile
@@ -172,7 +172,7 @@ export function AdminUserDetail({ detail: d, viewer, base }: { detail: UserDetai
         />
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-4">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] gap-4 max-md:grid-cols-1 max-md:gap-3">
         <Panel icon={ChartColumn} tone="text-brand-strong" title={days === 1 ? "Today" : `Last ${days} days`} aside={`${daily.reduce((s, n) => s + n, 0)} summaries`}>
           <DayBars values={daily} label="Summaries per day" bar="bg-brand" today="bg-brand-strong" />
         </Panel>

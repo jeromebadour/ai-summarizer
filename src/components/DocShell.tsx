@@ -37,10 +37,10 @@ export function DocShell({ page, aside, children }: { page: DocPage; aside?: Rea
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-border bg-bg/85 backdrop-blur">
-        <div className="mx-auto flex max-w-[1120px] items-center gap-6 px-8 py-3">
+        <div className="mx-auto flex max-w-[1120px] items-center gap-6 px-8 py-3 max-md:gap-2 max-md:px-3">
           <Link href="/" className="flex items-center gap-2.5" aria-label="Distill">
             <BrandMark size={32} />
-            <span className="text-[16px] font-semibold tracking-[-0.01em]">Distill</span>
+            <span className="text-[16px] font-semibold tracking-[-0.01em] max-md:hidden">Distill</span>
           </Link>
           <nav className="flex gap-1 rounded-xl border border-border bg-paper p-1">
             {tabs.map(({ key, href, label, icon: Icon }) => (
@@ -48,7 +48,7 @@ export function DocShell({ page, aside, children }: { page: DocPage; aside?: Rea
                 key={key}
                 href={href}
                 aria-current={page === key ? "page" : undefined}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold max-md:px-2 max-md:[&>svg]:hidden ${
                   page === key ? "bg-brand text-on-brand" : "text-muted hover:bg-panel-raised hover:text-text"
                 }`}
               >
@@ -64,9 +64,9 @@ export function DocShell({ page, aside, children }: { page: DocPage; aside?: Rea
           </div>
         </div>
       </header>
-      <main className={`mx-auto grid max-w-[1120px] gap-14 px-8 pb-20 pt-12 ${aside ? "grid-cols-[minmax(0,1fr)_240px]" : ""}`}>
+      <main className={`mx-auto grid max-w-[1120px] gap-14 px-8 pb-20 pt-12 max-md:grid-cols-1 max-md:px-4 max-md:pb-12 max-md:pt-6 ${aside ? "grid-cols-[minmax(0,1fr)_240px]" : ""}`}>
         <article className="min-w-0">{children}</article>
-        {aside && <div className="sticky top-24 self-start">{aside}</div>}
+        {aside && <div className="sticky top-24 self-start max-md:hidden">{aside}</div>}
       </main>
       <SiteFooter />
     </div>

@@ -41,7 +41,7 @@ export function SavedSearch({ filter }: { filter: LibraryFilterParams }) {
   }, [value]);
 
   return (
-    <label className="flex w-[420px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2.5 focus-within:border-brand-line">
+    <label className="flex w-[420px] items-center gap-2.5 rounded-xl border border-border-strong bg-paper px-3.5 py-2.5 focus-within:border-brand-line max-md:w-full">
       {pending ? <LoaderCircle size={17} strokeWidth={2} className="animate-spin text-brand-strong" /> : <Search size={17} strokeWidth={2} className="text-brand-strong" />}
       <input
         ref={input}

@@ -32,7 +32,7 @@ export function AuthStep({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="w-[400px]">
+    <div className="w-[400px] max-md:w-full">
       <span className={`grid size-12 place-items-center rounded-2xl border ${tones[tone]}`}>
         <Icon size={22} strokeWidth={2} />
       </span>

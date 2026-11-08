@@ -2,6 +2,7 @@ import { Ban, CalendarDays, ChevronRight, CircleCheck, Coins, FileText, Mail, Us
 import Link from "@/components/NavLink";
 import { AdminSearch } from "@/components/AdminSearch";
 import { Pager } from "@/components/Pager";
+import { PhoneScroll } from "@/components/PhoneScroll";
 import { usersHref, type UserFilters } from "@/lib/admin-source";
 import { PersonLine, roleTone } from "@/components/PersonLine";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
@@ -61,10 +62,10 @@ export function AdminUsers({
   const roles: Role[] = ["owner", "admin", "moderator", "user", "guest"];
   const grid = showSpend ? columns : columnsNoSpend;
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
-      <div className="flex items-center gap-3">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-border bg-panel p-4 max-md:p-3">
+      <div className="flex items-center gap-3 max-md:flex-wrap max-md:gap-2">
         <AdminSearch name="q" value={filters.query} hrefBase={usersHref(base, { ...filters, query: "" })} placeholder="Search name, @username or email" width="w-[360px]" />
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 max-md:flex-wrap">
           {roles.map((role) => (
             <Chip
               key={role}
@@ -84,9 +85,10 @@ export function AdminUsers({
             count={counts.suspended}
           />
         </div>
-        <span className="ml-auto font-mono text-[11.5px] text-muted">Newest first</span>
+        <span className="ml-auto font-mono text-[11.5px] text-muted max-md:hidden">Newest first</span>
       </div>
 
+      <PhoneScroll minWidth="max-md:min-w-[1080px]">
       <div className={`grid ${grid} gap-4 border-b border-border px-3 pb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint`}>
         <RowNumberHead />
         <span>User</span>
@@ -145,6 +147,7 @@ export function AdminUsers({
           );
         })}
       </ul>
+      </PhoneScroll>
 
       <Pager page={page} noun="users" href={(n) => usersHref(base, filters, n)} />
     </section>

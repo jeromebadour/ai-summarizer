@@ -3,6 +3,7 @@ import Link from "@/components/NavLink";
 import type { SpendRow } from "@/lib/admin-source";
 import { DayBars } from "@/components/DayBars";
 import { Pager } from "@/components/Pager";
+import { PhoneScroll } from "@/components/PhoneScroll";
 import { PersonLine } from "@/components/PersonLine";
 import { RowNumber, RowNumberHead } from "@/components/RowNumber";
 import { StatTile } from "@/components/StatTile";
@@ -40,9 +41,9 @@ export function AdminSpend({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className={`grid gap-4 ${canPause ? "grid-cols-[2.6fr_1fr_1.75fr]" : "grid-cols-[2fr_1fr_1fr]"}`}>
+      <div className={`grid gap-4 max-md:!grid-cols-1 max-md:gap-3 ${canPause ? "grid-cols-[2.6fr_1fr_1.75fr]" : "grid-cols-[2fr_1fr_1fr]"}`}>
         <section className="rounded-2xl border border-border bg-panel p-4">
-          <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
+          <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-figure">
             <Gauge size={16} strokeWidth={2} />
             Spend this month
             <span className="font-mono text-[11.5px] font-medium text-muted">
@@ -135,9 +136,9 @@ export function AdminSpend({
         )}
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.7fr] gap-4">
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1.7fr] gap-4 max-md:grid-cols-1 max-md:gap-3">
         <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
-          <div className="flex items-center gap-2 text-[12.5px] font-semibold text-figure">
+          <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-figure">
             <ChartColumn size={16} strokeWidth={2} />
             Per day
             <span className="ml-auto font-mono text-[11.5px] font-medium text-muted">
@@ -149,11 +150,12 @@ export function AdminSpend({
         </section>
 
         <section className="flex min-h-0 flex-col gap-3 rounded-2xl border border-border bg-panel p-4">
-          <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+          <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
             <UsersRound size={16} strokeWidth={2} className="text-brand-strong" />
             Per person this month
             <span className="ml-auto font-mono text-[11.5px] font-medium text-muted">most first</span>
           </div>
+          <PhoneScroll minWidth="max-md:min-w-[760px]">
           <div className={`grid ${columns} gap-3 border-b border-border px-2 pb-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-faint`}>
             <RowNumberHead />
             <span>Who</span>
@@ -187,6 +189,7 @@ export function AdminSpend({
               );
             })}
           </ul>
+          </PhoneScroll>
           <Pager page={page} noun="people" href={(n) => (n === 1 ? `${base}?tab=spend` : `${base}?tab=spend&page=${n}`)} />
         </section>
       </div>

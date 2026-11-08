@@ -33,7 +33,7 @@ import { overviewFigures, type AdminOverview } from "@/lib/admin";
 function Card({ icon: Icon, tone, title, aside, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
-      <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+      <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
         <Icon size={16} strokeWidth={2} className={tone} />
         {title}
         {aside && <span className="ml-auto">{aside}</span>}
@@ -85,7 +85,7 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <section className="flex items-center gap-6 rounded-2xl border border-border bg-panel px-6 py-4">
+      <section className="flex items-center gap-6 rounded-2xl border border-border bg-panel px-6 py-4 max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2 max-md:px-4">
         <span className={`flex items-center gap-2 text-[15px] font-semibold ${look.tone}`}>
           <CircleCheck size={19} strokeWidth={2.1} />
           {look.label}
@@ -102,21 +102,21 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
           <MapPin size={14} strokeWidth={2} className="text-input" />
           {s.host.region}
         </span>
-        <span className="ml-auto flex items-center gap-1.5 font-mono text-[12px] text-muted">
+        <span className="ml-auto flex items-center gap-1.5 font-mono text-[12px] text-muted max-md:ml-0">
           <Clock3 size={14} strokeWidth={2} className="text-verify" />
           up {s.host.uptime}
         </span>
       </section>
 
       {/* The four lines take the height that is left (never under 7.5 rem); the rows below keep what they need. */}
-      <div className="grid min-h-30 flex-1 grid-cols-4 gap-4">
+      <div className="grid min-h-30 flex-1 grid-cols-4 gap-4 max-md:grid-cols-2 max-md:gap-3">
         <Metric icon={Cpu} tone="text-verify" label="CPU" value={`${s.cpu}%`} note={`of ${s.host.cpus} vCPU`} values={s.series.cpu} span={s.seriesSpan} />
         <Metric icon={Gauge} tone="text-verify" label="Load" value={s.load.toFixed(2)} note={`${s.host.cpus} cores = full`} values={s.series.load} span={s.seriesSpan} unit="" digits={2} />
         <Metric icon={MemoryStick} tone="text-input" label="Memory" value={`${s.memory}%`} note={`${memoryUsed.toFixed(1)} of ${s.host.memoryGb} GB`} values={s.series.memory} span={s.seriesSpan} />
         <Metric icon={HardDrive} tone="text-figure" label="Disk" value={`${s.disk}%`} note={`${diskUsed} of ${s.host.diskGb} GB`} values={s.series.disk} span={s.seriesSpan} digits={1} />
       </div>
 
-      <div className={`grid shrink-0 gap-4 ${!s.backup && security ? "grid-cols-4" : "grid-cols-3"}`}>
+      <div className={`grid shrink-0 gap-4 max-md:!grid-cols-1 max-md:gap-3 ${!s.backup && security ? "grid-cols-4" : "grid-cols-3"}`}>
         <Card icon={Database} tone="text-verify" title="Database" aside={<span className="font-mono text-[11.5px] font-medium text-verify">PostgreSQL · up</span>}>
           <Fact icon={Database} tone="text-verify" label="Size" value={`${s.database.sizeMb} MB`} />
           <Fact icon={Layers} tone="text-brand-strong" label="Largest table" value={`${s.database.largestTable.name} · ${s.database.largestTable.sizeMb} MB`} />
@@ -147,7 +147,7 @@ export function AdminServer({ overview, base }: { overview: AdminOverview; base:
 
       {/* Backups appear once they run on the box; until then Security joins the row above. */}
       {s.backup ? (
-        <div className="grid shrink-0 grid-cols-[1.25fr_1fr] gap-4">
+        <div className="grid shrink-0 grid-cols-[1.25fr_1fr] gap-4 max-md:grid-cols-1 max-md:gap-3">
           <BackupsCard backup={s.backup} />
           {security && <SecurityCard security={s.security} />}
         </div>
@@ -161,7 +161,7 @@ type ServerFacts = AdminOverview["server"];
 function BackupsCard({ backup }: { backup: NonNullable<ServerFacts["backup"]> }) {
   return (
     <Card icon={DatabaseBackup} tone="text-figure" title="Backups" aside={<span className="font-mono text-[11.5px] font-medium text-muted">{backup.target}</span>}>
-      <div className="grid flex-1 grid-cols-[1fr_1fr] gap-8">
+      <div className="grid flex-1 grid-cols-[1fr_1fr] gap-8 max-md:grid-cols-1 max-md:gap-4">
         <div className="flex flex-col justify-around gap-2">
           <Fact icon={DatabaseBackup} tone="text-figure" label="Last backup" value={backup.last} />
           {backup.next && <Fact icon={CalendarClock} tone="text-figure" label="Next" value={backup.next} />}

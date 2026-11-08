@@ -32,10 +32,10 @@ async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">
   const emptyLibrary = page.total === 0 && !isFiltered(filter);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen max-md:h-auto max-md:min-h-dvh">
       <Rail page="saved" account={account} />
-      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
-        <div className="flex items-center gap-4">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 p-5 max-md:gap-3 max-md:px-3 max-md:pb-24 max-md:pt-3">
+        <div className="flex items-center gap-4 max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-2">
           <Library size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Saved</h1>
           {page.total > 0 && (
@@ -44,7 +44,7 @@ async function Saved({ searchParams }: Pick<PageProps<"/saved">, "searchParams">
             </span>
           )}
           <StatusPill status={status} />
-          <div className="ml-auto">
+          <div className="ml-auto max-md:hidden">
             <QuotaRing {...quota} />
           </div>
         </div>

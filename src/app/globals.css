@@ -248,6 +248,12 @@ body:has([data-pending]) main > :not(:first-child) {
 
 /* Pressing Distill opens the composer into the split: the text moves left into the source pane, the summary rises in
    from the right. Off with reduced motion (the rules above). */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
 @keyframes notice-in {
   from {
     opacity: 0;

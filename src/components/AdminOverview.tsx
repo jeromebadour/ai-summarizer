@@ -80,7 +80,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
   const look = healthLook[server.health];
   return (
     <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
-      <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+      <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
         <Server size={16} strokeWidth={2} className="text-input" />
         Server
         <span className={`ml-3 flex items-center gap-1.5 ${look.tone}`}>
@@ -122,7 +122,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
 function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: string }) {
   return (
     <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
-      <div className="flex items-center gap-2 text-[12.5px] font-semibold text-text">
+      <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
         <Activity size={16} strokeWidth={2} className="text-brand-strong" />
         Latest account activity
         <Link href={`${base}?tab=activity` as never} className="ml-auto flex items-center gap-1 text-[12px] font-semibold text-brand-strong hover:underline">
@@ -134,7 +134,7 @@ function LatestActivity({ entries, base }: { entries: ActivityEntry[]; base: str
         {entries.slice(0, 5).map((entry) => {
           const { icon: Icon, tone, label } = activityLook[entry.kind];
           return (
-            <li key={entry.id} className="grid grid-cols-[44px_230px_minmax(0,1fr)] items-center gap-3 border-b border-border py-1 last:border-b-0">
+            <li key={entry.id} className="grid grid-cols-[44px_230px_minmax(0,1fr)] items-center gap-3 border-b border-border py-1 last:border-b-0 max-md:grid-cols-[38px_minmax(0,1fr)] max-md:gap-x-2 max-md:gap-y-0.5 max-md:py-2 max-md:[&>*:last-child]:col-start-2">
               <span className="font-mono text-[12px] text-muted">{entry.at}</span>
               <PersonLine person={entry.person} />
               <span className="flex min-w-0 items-center gap-2.5">
@@ -159,7 +159,7 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
     <div className="flex min-h-fit flex-1 flex-col gap-4">
       {o.attention.length > 0 && <Attention items={o.attention} base={base} serverReady={serverReady} />}
 
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-6 gap-4 max-md:grid-cols-2 max-md:gap-3">
         <StatTile icon={UsersRound} tone="text-brand-strong" label="Accounts" value={String(o.users.registered)} note={`+${f.signups.today} today · +${f.signups.week} this week`} />
         <StatTile icon={UserRound} tone="text-input" label="Guests" value={String(o.guests.active)} note={`${o.guests.today} today · ${o.guests.upgradedWeek} kept theirs`} />
         <StatTile icon={Activity} tone="text-verify" label="Active now" value={String(o.active.now)} note={`${o.active.week} this week`} />
@@ -182,7 +182,7 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
       </div>
 
       {/* Extra height is shared between the charts (never under 96 px) and the row below (never under what its rows need). */}
-      <div className="grid min-h-40 flex-1 grid-cols-3 gap-4">
+      <div className="grid min-h-40 flex-1 grid-cols-3 gap-4 max-md:grid-cols-1 max-md:gap-3">
         <Chart icon={UserRoundPlus} tone="text-input" title="Sign-ups" total={`${f.signups.fortnight} in 14 days`}>
           <DayBars values={o.daily.signups} label="Sign-ups per day" bar="bg-input/55" today="bg-input" />
         </Chart>
@@ -194,7 +194,7 @@ export function AdminOverview({ overview: o, recent, base, serverReady }: { over
         </Chart>
       </div>
 
-      <div className="grid min-h-fit flex-1 grid-cols-[1fr_1.55fr] gap-4">
+      <div className="grid min-h-fit flex-1 grid-cols-[1fr_1.55fr] gap-4 max-md:grid-cols-1 max-md:gap-3">
         <ServerGlance server={o.server} claude={f.claude} base={base} serverReady={serverReady} />
         <LatestActivity entries={recent} base={base} />
       </div>

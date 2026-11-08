@@ -20,7 +20,7 @@ export function DayBars({
   const days = values.length;
   return (
     <>
-      <div className="mt-4 flex min-h-0 flex-1 items-end justify-center gap-2" role="img" aria-label={`${label} over the last ${days} days: ${values.map(format).join(", ")}`}>
+      <div className="mt-4 flex min-h-0 flex-1 items-end justify-center gap-2 max-md:min-h-[150px] max-md:gap-1" role="img" aria-label={`${label} over the last ${days} days: ${values.map(format).join(", ")}`}>
         {values.map((value, index) => (
           <div key={index} className="flex h-full max-w-24 flex-1 flex-col items-center justify-end gap-1.5">
             <span className="font-mono text-[10px] text-muted">{value > 0 ? format(value) : ""}</span>

@@ -15,7 +15,7 @@ export function LegalPage({ page, doc }: { page: Extract<DocPage, "privacy" | "t
         <span className="h-px w-6 bg-brand-strong" />
         {doc.eyebrow}
       </div>
-      <h1 className="mt-3 text-[38px] font-semibold leading-tight tracking-[-0.02em]">{doc.title}</h1>
+      <h1 className="mt-3 text-[38px] font-semibold leading-tight tracking-[-0.02em] max-md:text-[28px]">{doc.title}</h1>
       <p className="mt-3 max-w-[620px] text-[15px] leading-relaxed text-muted">
         {doc.intro} Version {doc.version}, in effect from {doc.effective}.
       </p>
@@ -42,7 +42,7 @@ export function LegalPage({ page, doc }: { page: Extract<DocPage, "privacy" | "t
           </h2>
           <ol className="mt-4 space-y-3.5">
             {section.clauses.map((clause, j) => (
-              <li key={j} className="grid grid-cols-[44px_minmax(0,1fr)] gap-2">
+              <li key={j} className="grid grid-cols-[44px_minmax(0,1fr)] gap-2 max-md:grid-cols-[36px_minmax(0,1fr)]">
                 <span className="pt-0.5 font-mono text-[11.5px] text-faint">
                   {i + 1}.{j + 1}
                 </span>

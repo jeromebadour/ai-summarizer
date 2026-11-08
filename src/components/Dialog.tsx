@@ -27,20 +27,20 @@ export function Dialog({ tone, icon: Icon, title, detail, children, actions, for
   const look = tones[tone];
   const body = (
     <>
-      {children && <div className="space-y-4 px-6">{children}</div>}
-      <div className="mt-6 flex justify-end gap-2 border-t border-border bg-panel-raised/40 px-6 py-4">{actions}</div>
+      {children && <div className="space-y-4 px-6 max-md:px-4">{children}</div>}
+      <div className="mt-6 flex justify-end gap-2 border-t border-border bg-panel-raised/40 px-6 py-4 max-md:flex-wrap max-md:px-4 max-md:[&>*]:justify-center max-md:[&>*:last-child]:flex-1">{actions}</div>
     </>
   );
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--overlay)] backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[var(--overlay)] backdrop-blur-[3px] max-md:px-3">
       <div
         role={tone === "clear" ? "alertdialog" : "dialog"}
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className={`w-[460px] overflow-hidden rounded-2xl border bg-panel shadow-[var(--shadow-dialog)] ${look.border}`}
+        className={`w-[460px] overflow-hidden rounded-2xl max-md:max-h-[calc(100dvh-24px)] max-md:w-full max-md:overflow-y-auto border bg-panel shadow-[var(--shadow-dialog)] ${look.border}`}
       >
         <div className={`h-px bg-gradient-to-r from-transparent to-transparent ${look.line}`} aria-hidden />
-        <div className="flex items-start gap-4 px-6 pb-5 pt-6">
+        <div className="flex items-start gap-4 px-6 pb-5 pt-6 max-md:gap-3 max-md:px-4 max-md:pt-5">
           <span className={`grid size-11 shrink-0 place-items-center rounded-xl border ${look.badge}`}>
             <Icon size={20} strokeWidth={1.9} />
           </span>

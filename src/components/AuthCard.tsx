@@ -48,7 +48,7 @@ export function AuthCard({ initialMode, guestsOpen }: { initialMode: AuthMode; g
       : usernameStatus;
 
   return (
-    <div className="w-[400px]">
+    <div className="w-[400px] max-md:w-full">
       <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-paper p-1">
         {(["signin", "signup"] as const).map((key) => {
           const Icon = key === "signin" ? LogIn : UserRoundPlus;

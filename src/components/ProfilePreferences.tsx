@@ -42,19 +42,19 @@ function Row({
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-5 border-b border-border px-6 py-3 last:border-b-0">
+    <div className="flex items-center gap-5 border-b border-border px-6 py-3 last:border-b-0 max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-3 max-md:px-4 max-md:py-4">
       <span
         className={`grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-panel-raised/60 ${tone}`}
       >
         <Icon size={19} strokeWidth={1.9} />
       </span>
-      <div className="w-[360px] shrink-0">
+      <div className="w-[360px] shrink-0 max-md:w-auto max-md:min-w-0 max-md:flex-1">
         <h3 className="text-[15px] font-semibold">{title}</h3>
         <p className="mt-0.5 text-[13px] leading-relaxed text-muted">
           {detail}
         </p>
       </div>
-      <div className="ml-auto">{children}</div>
+      <div className="ml-auto max-md:ml-0 max-md:w-full">{children}</div>
     </div>
   );
 }
@@ -69,14 +69,14 @@ function Segmented<T extends string>({
   onChange: (key: T) => void;
 }) {
   return (
-    <div className="flex gap-1 rounded-xl border border-border bg-paper p-1">
+    <div className="flex gap-1 rounded-xl border border-border bg-paper p-1 max-md:w-full">
       {options.map(({ key, label, icon: Icon }) => (
         <button
           key={key}
           type="button"
           aria-pressed={key === value}
           onClick={() => onChange(key)}
-          className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors ${
+          className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-colors max-md:flex-1 max-md:justify-center max-md:px-2 ${
             key === value
               ? "bg-brand text-on-brand"
               : "text-muted hover:bg-panel-raised hover:text-text"
@@ -309,7 +309,7 @@ const shortcuts: { keys: string[]; action: string }[] = [
 
 function Shortcuts() {
   return (
-    <section className="rounded-2xl border border-border bg-panel px-6 py-4">
+    <section className="rounded-2xl border border-border bg-panel px-6 py-4 max-md:hidden">
       <h3 className="flex items-center gap-2 text-[13px] font-semibold text-input">
         <Keyboard size={16} strokeWidth={2} />
         Keyboard shortcuts

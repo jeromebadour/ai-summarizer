@@ -6,6 +6,7 @@ import { SourcePanel } from "@/components/SourcePanel";
 import { SourceCard } from "@/components/SourceCard";
 import { SummaryPanel } from "@/components/SummaryPanel";
 import { savePreference } from "@/app/actions/account";
+import { usePhone } from "@/lib/use-phone";
 import { ThreadLayer, type ThreadSource } from "@/components/ThreadLayer";
 import { countWords, focusedPointId, focusedSentenceIds, type Focus, type SourceSentence, type Summary } from "@/lib/summary";
 
@@ -25,9 +26,13 @@ type ResultViewProps = {
   links: "always" | "hover";
   /** The viewer's saved layout: Split (source beside the summary, the default) or Column (one column with quotes). */
   view: "split" | "column";
+  /** The server's guess that this is a phone (the `vw` cookie). On a phone the result is always the column: there is
+   *  no room for two panes, so the switch is hidden there. */
+  phone?: boolean;
 };
 
-export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, openHref, deleteHref, onPaste, onClear, links: savedLinks, view: savedView }: ResultViewProps) {
+export function ResultView({ sentences, summary, charLimit, initialFocus, variant, savedAt, openHref, deleteHref, onPaste, onClear, links: savedLinks, view: savedView, phone: phoneGuess = false }: ResultViewProps) {
+  const phone = usePhone(phoneGuess);
   const [focus, setFocus] = useState<Focus>(initialFocus);
   const [links, setLinks] = useState(savedLinks);
   // Switches at once and saves to the account; if the save fails, it switches back.
@@ -105,14 +110,14 @@ export function ResultView({ sentences, summary, charLimit, initialFocus, varian
       openHref={openHref}
       deleteHref={deleteHref}
       links={{ mode: links, onToggle: toggleLinks }}
-      view={{ mode: view, onChange: changeView }}
+      view={phone ? { mode: "column", onChange: changeView, fixed: true } : { mode: view, onChange: changeView }}
     />
   );
 
-  if (view === "column") {
+  if (phone || view === "column") {
     return (
-      <div data-result-column className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable_both-edges]">
-        <div className="mx-auto max-w-[820px] space-y-4 pb-10">
+      <div data-result-column className="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable_both-edges] max-md:overflow-visible max-md:[scrollbar-gutter:auto]">
+        <div className="mx-auto max-w-[820px] space-y-4 pb-10 max-md:space-y-3 max-md:pb-2">
           {reading ? (
             <div className="flex max-h-[min(56vh,520px)] [&>section]:flex-1">
               <SourcePanel

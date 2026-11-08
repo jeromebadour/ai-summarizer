@@ -75,10 +75,10 @@ export async function AdminShell({
   const overview = can(role, "overview.view") ? await source.overview() : null;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen max-md:h-auto max-md:min-h-dvh">
       {rail}
-      <main className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
-        <div className="flex items-center gap-4">
+      <main className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto p-5 max-md:gap-3 max-md:overflow-visible max-md:px-3 max-md:pb-24 max-md:pt-3">
+        <div className="flex items-center gap-4 max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-2">
           <ShieldUser size={22} strokeWidth={1.9} className="text-brand-strong" />
           <h1 className="text-[22px] font-semibold tracking-[-0.01em]">Admin</h1>
           <PageTabs current={tab} tabs={shownTabs.map((t) => ({ ...t, href: t.key === shownTabs[0].key ? base : `${base}?tab=${t.key}` }))} />
@@ -365,7 +365,7 @@ function doneStatus(params: Params, clock: string): AppStatus {
 function DemoExitButton({ signedIn }: { signedIn: boolean }) {
   const exit = demoExit(signedIn);
   return (
-    <Link href={exit.href} className="ml-auto flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2 text-[13.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110">
+    <Link href={exit.href} className="ml-auto flex shrink-0 items-center gap-2 rounded-xl bg-brand px-4 py-2 max-md:hidden text-[13.5px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110">
       <exit.Icon size={16} strokeWidth={2.2} />
       {exit.label}
     </Link>

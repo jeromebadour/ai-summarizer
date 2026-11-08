@@ -25,7 +25,7 @@ export const lengthStyles: Record<SummaryLength, { icon: LucideIcon; label: stri
 /** Used inside the Distill workspace (a client component), so the buttons can switch the length. */
 export function LengthPicker({ value, onChange, disabled = false }: { value: SummaryLength; onChange?: (length: SummaryLength) => void; disabled?: boolean }) {
   return (
-    <div className="flex gap-1.5 rounded-xl border border-border bg-bg/60 p-1">
+    <div className="flex gap-1.5 rounded-xl border border-border bg-bg/60 p-1 max-md:w-full">
       {(Object.keys(lengthStyles) as SummaryLength[]).map((key) => {
         const { icon: Icon, label, on, off } = lengthStyles[key];
         const selected = key === value;
@@ -36,7 +36,7 @@ export function LengthPicker({ value, onChange, disabled = false }: { value: Sum
             aria-pressed={selected}
             disabled={disabled}
             onClick={() => onChange?.(key)}
-            className={`flex items-center gap-2 rounded-lg border px-3.5 py-2 text-[13px] font-semibold transition-colors disabled:cursor-not-allowed ${
+            className={`flex items-center gap-2 rounded-lg border px-3.5 py-2 text-[13px] font-semibold transition-colors max-md:flex-1 max-md:justify-center max-md:px-2 disabled:cursor-not-allowed ${
               selected ? on : `border-transparent ${off}`
             }`}
           >
