@@ -51,8 +51,16 @@ print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub
   if [ "$only_check" = --check ]; then echo "OK: $short may be deployed (nothing changed)"; exit 0; fi
 
   echo "== moving the checkout to $short"
+  local before
+  before=$(sha256sum < "$app/scripts/deploy.sh")
   as_app merge --ff-only --quiet "$sha" || stop "could not move forward to $short (local changes on the box?)"
   [ "$(as_app rev-parse HEAD)" = "$sha" ] || stop "checkout is not at $short"
+  # This file may have moved forward with the checkout. The copy running now is the old one, so it would skip any step
+  # the new one adds: hand over to the new copy, once, and let it do the whole deploy.
+  if [ -z "${DEPLOY_HANDED_OVER:-}" ] && [ "$(sha256sum < "$app/scripts/deploy.sh")" != "$before" ]; then
+    echo "   this deploy script changed in $short: continuing with the new one"
+    DEPLOY_HANDED_OVER=1 exec bash "$app/scripts/deploy.sh" "$@"
+  fi
 
   mkdir -p "$logs"
   local log
@@ -85,6 +93,7 @@ print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub
   echo "== the box's collector"
   install -d -m 755 "$tools"
   install -m 755 "$app/ops/collector.py" "$app/ops/backup.sh" "$app/ops/restore-test.sh" "$tools/"
+  install -m 644 "$app/ops/offsite.sh" "$tools/"
   install -m 644 "$app"/ops/systemd/distill-*.service "$app"/ops/systemd/distill-*.timer /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable --now --quiet distill-collector.timer || stop "the collector's timer would not start"

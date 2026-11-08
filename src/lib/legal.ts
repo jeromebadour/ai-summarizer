@@ -13,7 +13,7 @@ export const privacy: LegalDoc = {
   title: "Privacy Policy",
   eyebrow: "Legal",
   intro: "What Distill keeps about you, why, who else sees it, how long it stays and how to have it removed.",
-  version: "1.3",
+  version: "1.4",
   effective: "8 November 2026",
   sections: [
     {
@@ -65,6 +65,7 @@ export const privacy: LegalDoc = {
         "**Anthropic**, as described above, for the text you send to be summarised.",
         "**Resend**, which delivers our account emails (confirming your email address, setting a new password). It receives your email address, your name and the message itself, and nothing else: no summaries, no text. We turned its open and click tracking off.",
         "**The hosting provider** (Contabo), whose server stores the database. It provides the machine; it does not use the data.",
+        "**Cloudflare R2**, which stores the nightly backup copy. The copy is encrypted on our server before it leaves, so Cloudflare holds it without being able to read it.",
         "**Staff** of Distill (the owner, admins and moderators) see account details and usage metadata in the admin console to run the service. Every staff action is recorded with its reason.",
         "Nobody else, unless the law requires it.",
       ],
@@ -75,6 +76,7 @@ export const privacy: LegalDoc = {
       clauses: [
         "The database runs on one server in **Singapore**. Connections to it are encrypted (HTTPS).",
         "Account emails are sent through Resend's servers in **Tokyo**.",
+        "The encrypted backup copy is stored by Cloudflare R2 in **Europe**.",
       ],
     },
     {
@@ -84,6 +86,7 @@ export const privacy: LegalDoc = {
         "**Summaries** stay until you delete them, or until you delete your account.",
         "**Devices** sign out by themselves after 30 days without use.",
         "**Usage records, sign-in events and staff actions** are kept to keep limits, spend and the security record correct. When your account is deleted, they stay without any link to you.",
+        "**Backups:** the whole database is backed up every night, to restore the service if something goes wrong and for nothing else. Copies on the server are kept for **14 days** and the encrypted copy off the server for **30 days**, so something you delete can remain in a backup for up to 30 days before it is gone for good.",
         "The web server's own logs, which include IP addresses, are kept for **14 days** for security, then deleted. The app itself does not store IP addresses, and it does not look up where you are. (The places in the public admin demo are invented, like everything else there.)",
       ],
     },

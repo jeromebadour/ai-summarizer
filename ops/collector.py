@@ -128,11 +128,13 @@ def facts() -> dict:
                 {"name": os.path.basename(d), "at": utc(os.path.getmtime(d)), "bytes": os.path.getsize(d)} for d in dumps[:4]
             ],
         }
-    try:
-        with open(os.path.join(BACKUP_DIR, "restore-test.json")) as f:
-            out["restore"] = json.load(f)
-    except (OSError, ValueError):
-        pass
+    # The off-box copy (ops/offsite.sh) and the last restore test (which tests that copy once it exists).
+    for key, name in (("restore", "restore-test.json"), ("offsite", "offsite.json")):
+        try:
+            with open(os.path.join(BACKUP_DIR, name)) as f:
+                out[key] = json.load(f)
+        except (OSError, ValueError):
+            pass
     nxt = run("systemctl", "show", "distill-backup.timer", "-p", "NextElapseUSecRealtime", "--value").strip()
     if nxt and nxt != "n/a":
         try:

@@ -104,8 +104,12 @@ export type AdminOverview = {
       restoreTested: string | null;
       restoreSeconds: number | null;
       restoreOk: boolean | null;
+      /** Which copy the last restore test used: the off-box one once it exists (ops/restore-test.sh). */
+      restoreFrom: "offsite" | "box" | null;
       target: string;
       keepDays: number;
+      /** The encrypted copy in Cloudflare R2 (ops/offsite.sh); null until set up. `stale` = none in the last 26 hours. */
+      offsite: { last: string; ok: boolean; stale: boolean; count: number; keepDays: number } | null;
       next: string;
       /** Newest first, a short preview; the full list is paged. */
       recent: { id: string; at: string; sizeMb: number; ok: boolean }[];

@@ -187,8 +187,10 @@ export const sampleOverview: AdminOverview = {
       restoreTested: "Nov 7",
       restoreSeconds: 38,
       restoreOk: true,
-      target: "Off the box, encrypted",
-      keepDays: 30,
+      restoreFrom: "offsite",
+      target: "On the box and off it, encrypted",
+      keepDays: 14,
+      offsite: { last: "Today 03:01", ok: true, stale: false, count: 30, keepDays: 30 },
       next: "03:00 tomorrow",
       recent: [
         { id: "b5", at: "Today 03:00", sizeMb: 41, ok: true },

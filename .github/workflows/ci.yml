@@ -110,6 +110,27 @@ jobs:
           psql -Atc "select (facts->'backups'->>'count')::int >= 1 and (facts->'restore'->>'ok')::boolean from server_facts" | grep -qx t
           psql -qc "delete from server_samples; delete from server_facts"
 
+      - name: The backup goes off the box encrypted, and that copy restores
+        # The same scripts with the off-box copy on (ops/offsite.sh), pointed at a folder instead of R2: the dump is
+        # encrypted with age before it leaves, the restore test then downloads and decrypts the newest copy and restores
+        # it, and a failed upload fails the run and is recorded for the console.
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq rclone age > /dev/null
+          sudo sh -c 'age-keygen -o /tmp/offsite-age.key 2> /dev/null'
+          off="OFFSITE_REMOTE=:local:/tmp/offsite OFFSITE_KEY=/tmp/offsite-age.key BACKUP_DIR=/tmp/distill-backups"
+          sudo env $off ops/backup.sh | tee /tmp/offsite.txt
+          grep -q "kept off the box" /tmp/offsite.txt
+          sudo sh -c 'head -c 21 "$(ls /tmp/offsite/*.age | head -1)"' | grep -q "age-encryption.org"
+          sudo env $off ops/restore-test.sh | tee /tmp/restore-offsite.txt
+          grep -q "from off the box" /tmp/restore-offsite.txt
+          grep -q "RESTORE OK" /tmp/restore-offsite.txt
+          if sudo env OFFSITE_REMOTE=:local:/proc/nope OFFSITE_KEY=/tmp/offsite-age.key BACKUP_DIR=/tmp/distill-backups ops/backup.sh; then
+            echo "a failed upload did not fail the backup"; exit 1
+          fi
+          sudo BACKUP_DIR=/tmp/distill-backups /usr/bin/python3 ops/collector.py --facts
+          psql -Atc "select (facts->'offsite'->>'ok') = 'false' and (facts->'restore'->>'from') = 'offsite' from server_facts" | grep -qx t
+          psql -qc "delete from server_samples; delete from server_facts"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

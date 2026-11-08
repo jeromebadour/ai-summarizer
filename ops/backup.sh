@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Distill's nightly backup (ops/systemd/distill-backup.timer, as root on the box; installed by scripts/deploy.sh).
 # A custom-format pg_dump of the whole database into BACKUP_DIR (root only), checked before it counts: a dump that
-# pg_restore can't list is thrown away and the run fails. Dumps older than 14 days go. Prints one line per run.
+# pg_restore can't list is thrown away and the run fails. Dumps older than 14 days go. Then, once set up, the dump is
+# encrypted and copied off the box to Cloudflare R2 (ops/offsite.sh: 30 days kept there). Prints one line per step.
 set -euo pipefail
+here=$(dirname "$(readlink -f "$0")")
+# shellcheck source=offsite.sh
+. "$here/offsite.sh"
 dir=${BACKUP_DIR:-/srv/distill/backups}
 keep_days=14
 
@@ -23,3 +27,7 @@ trap - EXIT
 
 find "$dir" -maxdepth 1 -name 'distill-*.dump' -mmin +$((keep_days * 24 * 60)) -delete
 echo "backup: $name $(stat -c %s "$dir/$name") bytes, $(find "$dir" -maxdepth 1 -name 'distill-*.dump' | wc -l) kept"
+
+if offsite_ready; then
+  offsite_upload "$dir/$name" "$dir" || exit 1
+fi

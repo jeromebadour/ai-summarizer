@@ -294,6 +294,20 @@ with sync_playwright() as p:
     check("the Backups card shows the box's backup and restore test",
           "Last backup" in body and f"Today {started_at}" in body and "0.4 s" in body and "0.2 MB" in body and "On the box, root only" in body, body[-600:])
     shot(opg, "11-server")
+    # Once the off-box copy runs (ops/offsite.sh): it shows, the restore test names it, and a failed upload is flagged.
+    off = facts[:-1] + ', "offsite": {"at": "' + started.isoformat() + '", "ok": true, "name": "x.age", "bytes": 9, "count": 3, "keepDays": 30}}'
+    off = off.replace('"dump": "distill-20261108-024700.dump"}', '"dump": "distill-20261108-024700.dump.age", "from": "offsite"}')
+    sql(f"set role distill_collector; select record_server_facts('{off}')")
+    opg.reload()
+    opg.wait_for_selector("text=Singapore")
+    body = opg.inner_text("main")
+    check("the Backups card shows the off-box copy", "On the box and off it, encrypted" in body and f"Today {started_at} · 30 days kept" in body and "from R2" in body, body[-600:])
+    sql(f"set role distill_collector; select record_server_facts('{off.replace(chr(34) + 'ok' + chr(34) + ': true, ' + chr(34) + 'name', chr(34) + 'ok' + chr(34) + ': false, ' + chr(34) + 'name')}')")
+    opg.reload()
+    opg.wait_for_selector("text=Singapore")
+    body = opg.inner_text("main")
+    check("a failed upload is flagged", "upload failed" in body and "On the box, root only" in body, body[-600:])
+    sql(f"set role distill_collector; select record_server_facts('{facts}')")
     apg = pages["admin"]
     apg.goto(BASE + "/admin")
     apg.wait_for_selector("h1:has-text('Admin')")

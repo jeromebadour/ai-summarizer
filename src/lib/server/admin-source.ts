@@ -175,7 +175,8 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
       const started = typeof facts.appStartedAt === "string" ? stamp(facts.appStartedAt).at : "";
       type Dump = { name: string; at: string; bytes: number };
       const backups = ((facts.backups as J | undefined)?.recent as Dump[] | undefined) ?? [];
-      const restore = (facts.restore as { at: string; seconds: number; ok: boolean } | undefined) ?? null;
+      const restore = (facts.restore as { at: string; seconds: number; ok: boolean; from?: string } | undefined) ?? null;
+      const offsite = (facts.offsite as { at: string; ok: boolean; count: number; keepDays: number } | undefined) ?? null;
       const settings = o.settings as J;
       const pause = (p: J | null) => (p ? { since: stamp(String(p.since)).when, by: person(p.by as J)!, reason: String(p.reason ?? "") } : null);
       const summaries = (o.summaries as number[]).map(Number);
@@ -268,8 +269,18 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
                 restoreTested: restore ? stamp(restore.at).at : null,
                 restoreSeconds: restore ? restore.seconds : null,
                 restoreOk: restore ? restore.ok : null,
-                target: "On the box, root only",
+                restoreFrom: restore ? (restore.from === "offsite" ? "offsite" : "box") : null,
+                target: offsite?.ok ? "On the box and off it, encrypted" : "On the box, root only",
                 keepDays: 14,
+                offsite: offsite
+                  ? {
+                      last: stamp(offsite.at).at,
+                      ok: offsite.ok,
+                      stale: Date.now() - new Date(offsite.at).getTime() > 26 * 3600 * 1000,
+                      count: Number(offsite.count),
+                      keepDays: Number(offsite.keepDays),
+                    }
+                  : null,
                 next: typeof facts.nextBackup === "string" ? stamp(facts.nextBackup).at : "",
                 recent: backups.map((b) => ({ id: b.name, at: stamp(b.at).at, sizeMb: Math.max(0.1, Math.round(b.bytes / 1e5) / 10), ok: true })),
               }

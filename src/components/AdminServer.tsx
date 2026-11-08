@@ -170,11 +170,20 @@ function BackupsCard({ backup }: { backup: NonNullable<ServerFacts["backup"]> })
               icon={RefreshCw}
               tone="text-verify"
               label="Restore tested"
-              value={backup.restoreOk ? `${backup.restoreTested} · ${backup.restoreSeconds} s` : `${backup.restoreTested} · failed`}
+              value={`${backup.restoreTested} · ${backup.restoreOk ? `${backup.restoreSeconds} s` : "failed"}${backup.restoreFrom === "offsite" ? " · from R2" : ""}`}
               alert={backup.restoreOk === false}
             />
           )}
-          <Fact icon={HardDrive} tone="text-figure" label="Kept" value={`last ${backup.keepDays} days`} />
+          {backup.offsite && (
+            <Fact
+              icon={CloudUpload}
+              tone="text-verify"
+              label="Off the box"
+              value={!backup.offsite.ok ? `${backup.offsite.last} · upload failed` : backup.offsite.stale ? `last ${backup.offsite.last} · none since` : `${backup.offsite.last} · ${backup.offsite.keepDays} days kept`}
+              alert={!backup.offsite.ok || backup.offsite.stale}
+            />
+          )}
+          <Fact icon={HardDrive} tone="text-figure" label="On the box" value={`last ${backup.keepDays} days`} />
         </div>
         <ul className="flex flex-col justify-around gap-1.5 border-l border-border pl-8">
           {backup.recent.map((b) => (
