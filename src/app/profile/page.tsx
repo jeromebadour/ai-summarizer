@@ -9,6 +9,7 @@ import { PageTabs } from "@/components/PageTabs";
 import { ProfileOverview } from "@/components/ProfileOverview";
 import { ProfilePreferences } from "@/components/ProfilePreferences";
 import { ProfileSecurity } from "@/components/ProfileSecurity";
+import { SignOutOthersDialog } from "@/components/SignOutOthersDialog";
 import { QuotaRing } from "@/components/QuotaRing";
 import { Rail } from "@/components/Rail";
 import { LiveStatus } from "@/components/LiveStatus";
@@ -61,6 +62,9 @@ async function Profile({ searchParams }: Pick<PageProps<"/profile">, "searchPara
       {!guest && tab === "overview" && dialog === "edit" && <EditProfileDialog account={account} closeHref="/profile" />}
       {!guest && tab === "security" && dialog === "delete" && account.role !== "owner" && (
         <DeleteAccountDialog account={account} summaries={stats.summaries} devices={devices.length} closeHref="/profile?tab=security" />
+      )}
+      {!guest && tab === "security" && dialog === "signout-others" && devices.some((d) => !d.current) && (
+        <SignOutOthersDialog others={devices.filter((d) => !d.current).length} closeHref="/profile?tab=security" />
       )}
       {!guest && tab === "security" && dialog === "password" && (
         <ChangePasswordDialog email={account.email} otherDevices={devices.filter((d) => !d.current).length} closeHref="/profile?tab=security" />

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
+import { Suspense } from "react";
+import { Notice } from "@/components/Notice";
 
 export const metadata: Metadata = {
   title: "Distill",
@@ -23,7 +25,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        {/* What a finished step says after its redirect (?done=...), on any page. */}
+        <Suspense fallback={null}>
+          <Notice />
+        </Suspense>
+      </body>
     </html>
   );
 }

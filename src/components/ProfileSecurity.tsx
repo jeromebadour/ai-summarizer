@@ -1,6 +1,6 @@
 import { CircleCheck, Download, KeyRound, Laptop, LogOut, MapPin, Monitor, Smartphone, UserX, type LucideIcon } from "lucide-react";
 import Link from "@/components/NavLink";
-import { signOutDevice, signOutOthers } from "@/app/actions/account";
+import { signOutDevice } from "@/app/actions/account";
 import { PendingButton } from "@/components/PendingButton";
 import type { DeviceKind, SignedInDevice } from "@/lib/profile";
 
@@ -52,9 +52,10 @@ export function ProfileSecurity({ devices, passwordChanged, canDelete }: { devic
         detail={`${devices.length} ${devices.length === 1 ? "device" : "devices"}. Signing one out ends its session at once.`}
         action={
           others > 0 && (
-            <form action={signOutOthers}>
-              <PendingButton icon={<LogOut size={16} strokeWidth={2} />} iconSize={16} label="Sign out others" pendingLabel="Signing out" className={`${outline} border-clear/35 text-clear hover:bg-clear-soft`} />
-            </form>
+            <Link href="/profile?tab=security&dialog=signout-others" className={`${outline} border-clear/35 text-clear hover:bg-clear-soft`}>
+              <LogOut size={16} strokeWidth={2} />
+              Sign out others
+            </Link>
           )
         }
       >

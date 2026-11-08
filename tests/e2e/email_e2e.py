@@ -106,6 +106,8 @@ with sync_playwright() as p:
     # Clicked in another browser: it confirms, signs in there, and opens Distill.
     pg2 = other.new_page()
     pg2.goto(link)
+    pg2.wait_for_selector("[data-notice='email-confirmed']", timeout=15000)
+    check("confirming says so", True)
     pg2.wait_for_url(BASE + "/", timeout=15000)
     check("the link confirms and signs in where it was opened", pg2.url == BASE + "/")
     check("the account is confirmed", sql("select email_verified_at is not null from users where username = 'maya_k'") == "t")
@@ -163,6 +165,8 @@ with sync_playwright() as p:
     pf.fill("input[name=password]", "lantern42x")
     shot(pf, "05-set-password")
     pf.click("button:has-text('Save and sign in')")
+    pf.wait_for_selector("[data-notice='password-set']", timeout=15000)
+    check("a new password says so", True)
     pf.wait_for_url(BASE + "/", timeout=15000)
     check("saving signs in here and opens Distill", pf.url == BASE + "/")
     pe.goto(BASE + "/profile")

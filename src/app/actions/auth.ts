@@ -103,7 +103,7 @@ export async function signOut(): Promise<void> {
     });
   }
   await clearSessionCookie();
-  redirect("/login");
+  redirect("/login?done=signed-out");
 }
 
 /** Live answer for a username field. Format is checked first, so junk never reaches the database. */

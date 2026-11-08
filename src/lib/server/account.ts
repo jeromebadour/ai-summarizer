@@ -9,7 +9,8 @@ import { agoLabel, monthYear, partsIn, viewerZone } from "./zone";
 /** The signed-in user, or off to /login. Every signed-in page starts here. */
 export async function requireUser(): Promise<CurrentUser> {
   const user = await currentUser();
-  if (!user) redirect("/login");
+  // A cookie whose session is gone (signed out elsewhere, a password change, a staff action) is told why.
+  if (!user) redirect((await thisSessionHash()) ? "/login?done=session-ended" : "/login");
   // An account whose email isn't confirmed waits on /verify (migration 012); guests have nothing to confirm.
   if (!user.emailVerified) redirect("/verify");
   return user;

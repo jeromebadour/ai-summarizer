@@ -28,14 +28,14 @@ export async function signOutDevice(form: FormData): Promise<void> {
   if (Number.isSafeInteger(id) && here) {
     await actingAs(user.id, (db) => db.query("delete from sessions where id = $1 and token_hash <> $2", [id, here]));
   }
-  refresh();
+  redirect("/profile?tab=security&done=device-signed-out");
 }
 
 export async function signOutOthers(): Promise<void> {
   const user = await signedIn();
   const here = await thisSessionHash();
   if (here) await actingAs(user.id, (db) => db.query("delete from sessions where token_hash <> $1", [here]));
-  refresh();
+  redirect("/profile?tab=security&done=others-signed-out");
 }
 
 export async function changePassword(_: FormState, form: FormData): Promise<FormState> {
@@ -58,7 +58,7 @@ export async function changePassword(_: FormState, form: FormData): Promise<Form
     return true;
   });
   if (!ok) return { field: "current", error: "The current password is wrong" };
-  redirect("/profile?tab=security");
+  redirect(`/profile?tab=security&done=${text(form, "signOutOthers") === "on" ? "password-changed-others" : "password-changed"}`);
 }
 
 export async function updateProfile(_: FormState, form: FormData): Promise<FormState> {
@@ -97,7 +97,7 @@ export async function updateProfile(_: FormState, form: FormData): Promise<FormS
     if (taken) return taken.code ? { field: "email", error: "This email is used by another account" } : taken;
     throw error;
   }
-  redirect("/profile");
+  redirect("/profile?done=profile-saved");
 }
 
 /** A guest becomes a real account in place: same user, so every summary and use stays attached. */
@@ -141,7 +141,7 @@ export async function deleteAccount(_: FormState, form: FormData): Promise<FormS
     await db.query("delete from users");
   });
   await clearSessionCookie();
-  redirect("/login");
+  redirect("/login?done=account-deleted");
 }
 
 const preferenceValues = {

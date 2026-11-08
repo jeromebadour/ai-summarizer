@@ -1,11 +1,10 @@
-import { FlaskConical, Info, Library, LogOut, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
+import { FlaskConical, Info, Library, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
 import Link from "@/components/NavLink";
 import { savePreference } from "@/app/actions/account";
-import { signOut } from "@/app/actions/auth";
 import { AppearanceSync } from "@/components/AppearanceSync";
 import { Avatar } from "@/components/Avatar";
 import { RailLogo } from "@/components/DemoRail";
-import { PendingButton } from "@/components/PendingButton";
+import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { isStaff } from "@/lib/permissions";
 import type { Account } from "@/lib/profile";
@@ -57,16 +56,10 @@ export function Rail({ page, account }: { page: RailPage; account: Account }) {
         {/* About, Privacy and Terms: reading pages, so they sit with the quiet controls, not the main three. */}
         <RailItem icon={Info} label="About" href="/about" />
         <ThemeToggle save={savePreference} className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text" />
-        <form action={signOut}>
-          <PendingButton
-            icon={<LogOut size={20} strokeWidth={1.75} />}
-            iconSize={20}
-            strokeWidth={1.75}
-            label="Sign out"
-            pendingLabel="Leaving"
-            className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text"
-          />
-        </form>
+        <SignOutButton
+          guest={account.isGuest}
+          className="flex w-16 flex-col items-center gap-1.5 rounded-xl py-2.5 text-[11px] font-medium text-muted transition-colors hover:bg-panel-raised hover:text-text"
+        />
         <Link
           href="/profile"
           aria-label="Profile"

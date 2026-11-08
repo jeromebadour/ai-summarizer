@@ -143,7 +143,7 @@ export function DistillWorkspace({
       return;
     }
     if (response.status === 401) {
-      router.push("/login");
+      router.push("/login?done=session-ended");
       return;
     }
     if (!response.ok || !response.body) {

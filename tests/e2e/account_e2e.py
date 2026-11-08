@@ -57,6 +57,15 @@ def sign_in(b, identifier, password):
     return ctx, pg
 
 
+def notice(pg, key):
+    """The notice a finished step shows after its redirect (it stays a few seconds, then the address drops the key)."""
+    try:
+        pg.wait_for_selector(f"[data-notice='{key}']", timeout=8000)
+        return True
+    except Exception:
+        return False
+
+
 def signed_out(pg, path="/profile"):
     pg.goto(BASE + path)
     pg.wait_for_timeout(1500)
@@ -90,14 +99,21 @@ with sync_playwright() as p:
     check("three devices listed", pa.locator("text=3 devices").count() == 1)
     pa.locator("li form button").first.click()
     pa.wait_for_selector("text=2 devices", timeout=10000)
+    check("a row's Sign out says so", notice(pa, "device-signed-out"))
     check("Sign out on a row ends one session", sql("select count(*) from sessions") == "2")
     gone = [signed_out(pb), signed_out(pc)]
     check("exactly the other device was signed out", sorted(gone) == [False, True], str(gone))
+    ended_pg = pb if gone[0] else pc
+    check("the signed-out device is told its session ended", notice(ended_pg, "session-ended"))
     keep_ctx, keep_pg = (b2, pb) if not gone[0] else (c3, pc)
 
     # 3. Sign out others.
     pa.click("text=Sign out others")
+    pa.wait_for_selector("[role=alertdialog]:has-text('Sign out the other device?')")
+    check("Sign out others asks first", sql("select count(*) from sessions") == "2")
+    pa.locator("[role=alertdialog] button:has-text('Sign out others')").click()
     pa.wait_for_selector("text=1 device", timeout=10000)
+    check("and then says so", notice(pa, "others-signed-out"))
     check("Sign out others leaves only this device", sql("select count(*) from sessions") == "1" and signed_out(keep_pg))
     check("this device stays signed in", not signed_out(pa, "/profile?tab=security"))
 
@@ -111,6 +127,7 @@ with sync_playwright() as p:
     check("wrong current password refused", "wrong" in t, t)
     pa.fill("input[name=current]", "harbor2026")
     pa.click("button:has-text('Change')")
+    check("password change says so, others signed out", notice(pa, "password-changed-others"))
     pa.wait_for_url(BASE + "/profile?tab=security", timeout=10000)
     check("password changed, dialog closed", pa.locator("text=Last changed just now").count() == 1)
     check("other device signed out with the change", signed_out(pd))
@@ -128,6 +145,7 @@ with sync_playwright() as p:
     pa.fill("input[name=name]", "Kevin N.")
     check("name-only change asks no password", pa.locator("input[name=password]").count() == 0)
     pa.click("button:has-text('Save')")
+    check("profile save says so", notice(pa, "profile-saved"))
     pa.wait_for_url(BASE + "/profile", timeout=10000)
     pa.wait_for_selector("h2:has-text('Kevin N.')")
     check("name saved", sql("select name from users where username='kevin_n'") == "Kevin N.")
@@ -198,6 +216,7 @@ with sync_playwright() as p:
     check("Delete waits for the username", pa.locator("button:has-text('Delete account')").last.is_disabled())
     pa.fill("input[name=confirm]", "kevin_novak")
     pa.locator("button:has-text('Delete account')").last.click()
+    check("deleting tells you the account is gone", notice(pa, "account-deleted"))
     pa.wait_for_url(BASE + "/login", timeout=15000)
     check("account, sessions and summaries gone",
           sql(f"select (select count(*) from users where id='{uid}') + (select count(*) from sessions where user_id='{uid}')"
@@ -207,8 +226,29 @@ with sync_playwright() as p:
 
     # 10. Rail sign out ends this session.
     pgg.click("button:has-text('Sign out')")
+    pgg.wait_for_selector("[role=alertdialog]:has-text('Sign out of Distill?')")
+    check("rail Sign out asks first", sql(f"select count(*) from sessions where user_id='{gid}'") == "1")
+    pgg.click("[role=alertdialog] button:has-text('Stay')")
+    check("Stay keeps you signed in", pgg.locator("[role=alertdialog]").count() == 0 and sql(f"select count(*) from sessions where user_id='{gid}'") == "1")
+    pgg.click("button:has-text('Sign out')")
+    pgg.locator("[role=alertdialog] button:has-text('Sign out')").click()
+    check("signing out says so", notice(pgg, "signed-out"))
     pgg.wait_for_url(BASE + "/login", timeout=10000)
     check("rail Sign out ends the session", sql(f"select count(*) from sessions where user_id='{gid}'") == "0")
+
+    # 10b. A guest is told what signing out costs, and offered the way to keep the summaries.
+    gx = b.new_context()
+    pgx = gx.new_page()
+    pgx.goto(BASE + "/login")
+    pgx.click("text=Try it as a guest")
+    pgx.wait_for_url(BASE + "/", timeout=15000)
+    pgx.click("button:has-text('Sign out')")
+    pgx.wait_for_selector("[role=alertdialog]:has-text('guest account')")
+    check("a guest's Sign out offers to keep the summaries", pgx.locator("[role=alertdialog] a:has-text('Keep my summaries')").count() == 1)
+    pgx.click("[role=alertdialog] a:has-text('Keep my summaries')")
+    pgx.wait_for_selector("input[name=username]", timeout=10000)
+    check("Keep my summaries opens the account form", "dialog=keep" in pgx.url)
+    gx.close()
 
     # 11. The console: 404 for non-staff; the owner gets it and has no Delete account.
     u11, pu = sign_in(b, "oliver_h", "river2026x")

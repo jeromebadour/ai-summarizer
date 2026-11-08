@@ -26,7 +26,7 @@ export async function verifyCode(_: FormState, form: FormData): Promise<FormStat
   if (result === "wrong") return { field: "code", error: "That code doesn't match. Check the newest email, or send a new code." };
   if (result === "expired") return { field: "code", error: "That code has run out. Send a new one." };
   if (result === "taken") return { field: "code", error: "That email now belongs to another account." };
-  redirect(user.pendingEmail ? "/profile" : "/");
+  redirect(user.pendingEmail ? "/profile?done=email-changed" : "/?done=email-confirmed");
 }
 
 /** "Send a new code" on /verify, and the button on an expired link while signed in. */
@@ -56,7 +56,7 @@ export async function verifyLink(form: FormData): Promise<void> {
         return id;
       })
     : null;
-  redirect(userId ? "/" : "/verify/confirm?state=expired");
+  redirect(userId ? "/?done=email-confirmed" : "/verify/confirm?state=expired");
 }
 
 /** Leaves a pending email change: the account keeps its current email. */
@@ -64,7 +64,7 @@ export async function cancelEmailChange(): Promise<void> {
   const user = await currentUser();
   if (!user) redirect("/login");
   await actingAs(user.id, (db) => db.query("update users set pending_email = null"));
-  redirect("/profile");
+  redirect("/profile?done=email-change-cancelled");
 }
 
 /** Forgot password. The answer is the same whether or not the email has an account. */
@@ -113,5 +113,5 @@ export async function saveNewPassword(_: FormState, form: FormData): Promise<For
   });
   if (!userId) redirect("/reset?state=expired");
   (await cookies()).delete(RESET_EMAIL);
-  redirect("/");
+  redirect("/?done=password-set");
 }
