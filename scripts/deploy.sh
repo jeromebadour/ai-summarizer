@@ -84,12 +84,15 @@ print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub
   # with the host's facts (so "Deployed" is current), then every minute by its timer.
   echo "== the box's collector"
   install -d -m 755 "$tools"
-  install -m 755 "$app/ops/collector.py" "$tools/collector.py"
-  install -m 644 "$app/ops/systemd/distill-collector.service" "$app/ops/systemd/distill-collector.timer" /etc/systemd/system/
+  install -m 755 "$app/ops/collector.py" "$app/ops/backup.sh" "$app/ops/restore-test.sh" "$tools/"
+  install -m 644 "$app"/ops/systemd/distill-*.service "$app"/ops/systemd/distill-*.timer /etc/systemd/system/
   systemctl daemon-reload
   systemctl enable --now --quiet distill-collector.timer || stop "the collector's timer would not start"
+  # Nightly backups and the weekly restore test (ops/backup.sh, ops/restore-test.sh).
+  systemctl enable --now --quiet distill-backup.timer distill-restore-test.timer || stop "the backup timers would not start"
   /usr/bin/python3 "$tools/collector.py" --facts || stop "the collector failed (journalctl -u distill-collector -n 20)"
   echo "   reading and facts recorded; next reading $(systemctl show distill-collector.timer -p NextElapseUSecRealtime --value)"
+  echo "   next backup $(systemctl show distill-backup.timer -p NextElapseUSecRealtime --value)"
   echo "DEPLOYED $short: $image healthy, $site/login 200, the box reporting"
 }
 

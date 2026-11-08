@@ -98,6 +98,18 @@ jobs:
           [ "$got" = "1 true" ] || { echo "the collector did not report"; exit 1; }
           psql -qc "delete from server_samples; delete from server_facts"
 
+      - name: A backup is made, and it restores
+        # The real scripts, as root, as the box's timers run them: a checked pg_dump, then the restore test into a
+        # scratch database, which must report every table back.
+        run: |
+          sudo BACKUP_DIR=/tmp/distill-backups ops/backup.sh
+          sudo BACKUP_DIR=/tmp/distill-backups ops/restore-test.sh | tee /tmp/restore.txt
+          grep -q "RESTORE OK" /tmp/restore.txt
+          sudo test "$(sudo stat -c %a /tmp/distill-backups)" = 700
+          sudo BACKUP_DIR=/tmp/distill-backups /usr/bin/python3 ops/collector.py --facts
+          psql -Atc "select (facts->'backups'->>'count')::int >= 1 and (facts->'restore'->>'ok')::boolean from server_facts" | grep -qx t
+          psql -qc "delete from server_samples; delete from server_facts"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

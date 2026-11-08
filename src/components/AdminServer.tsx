@@ -163,9 +163,17 @@ function BackupsCard({ backup }: { backup: NonNullable<ServerFacts["backup"]> })
     <Card icon={DatabaseBackup} tone="text-figure" title="Backups" aside={<span className="font-mono text-[11.5px] font-medium text-muted">{backup.target}</span>}>
       <div className="grid flex-1 grid-cols-[1fr_1fr] gap-8">
         <div className="flex flex-col justify-around gap-2">
-          <Fact icon={DatabaseBackup} tone="text-figure" label="Last backup" value={`${backup.last} today`} />
-          <Fact icon={CalendarClock} tone="text-figure" label="Next" value={backup.next} />
-          <Fact icon={RefreshCw} tone="text-verify" label="Restore tested" value={`${backup.restoreTested} · ${backup.restoreSeconds} s`} />
+          <Fact icon={DatabaseBackup} tone="text-figure" label="Last backup" value={backup.last} />
+          {backup.next && <Fact icon={CalendarClock} tone="text-figure" label="Next" value={backup.next} />}
+          {backup.restoreTested && (
+            <Fact
+              icon={RefreshCw}
+              tone="text-verify"
+              label="Restore tested"
+              value={backup.restoreOk ? `${backup.restoreTested} · ${backup.restoreSeconds} s` : `${backup.restoreTested} · failed`}
+              alert={backup.restoreOk === false}
+            />
+          )}
           <Fact icon={HardDrive} tone="text-figure" label="Kept" value={`last ${backup.keepDays} days`} />
         </div>
         <ul className="flex flex-col justify-around gap-1.5 border-l border-border pl-8">

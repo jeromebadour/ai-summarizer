@@ -100,8 +100,10 @@ export type AdminOverview = {
     /** Null until backups run on the box: the Backup line and the Server tab stay hidden. */
     backup: {
       last: string;
-      restoreTested: string;
-      restoreSeconds: number;
+      /** The last restore test (ops/restore-test.sh): null until one has run. */
+      restoreTested: string | null;
+      restoreSeconds: number | null;
+      restoreOk: boolean | null;
       target: string;
       keepDays: number;
       next: string;

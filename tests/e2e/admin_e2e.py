@@ -273,7 +273,9 @@ with sync_playwright() as p:
     started_at = started.astimezone(ZoneInfo("Europe/Istanbul")).strftime("%H:%M")
     facts = ('{"os": "Ubuntu 24.04.5 LTS", "kernel": "6.8.0-149-generic", "region": "Singapore", "cpus": 6, "memoryGb": 12, '
              '"diskGb": 194, "uptimeSeconds": 302400, "firewallPorts": [22, 80, 443], "bannedNow": 2, "bannedToday": 9, '
-             '"updatesPending": 0, "sshPasswordOff": true, "certExpires": "' + soon + '", "appStartedAt": "' + started.isoformat() + '"}')
+             '"updatesPending": 0, "sshPasswordOff": true, "certExpires": "' + soon + '", "appStartedAt": "' + started.isoformat() + '", '
+             '"backups": {"count": 1, "recent": [{"name": "distill-20261108-024700.dump", "at": "' + started.isoformat() + '", "bytes": 246110}]}, '
+             '"restore": {"at": "' + started.isoformat() + '", "seconds": 0.4, "ok": true, "dump": "distill-20261108-024700.dump"}}')
     sql("insert into server_samples (taken_at, cpu, load1, memory, disk, db_size_mb, connections) values "
         "(now() - interval '2 hours', 30, 0.9, 40, 22.4, 9, 4), (now() - interval '1 hour', 20, 0.5, 39, 22.4, 9, 4)")
     sql(f"set role distill_collector; select record_server_sample(12, 0.3, 41, 22.5); select record_server_facts('{facts}')")
@@ -289,6 +291,8 @@ with sync_playwright() as p:
                  "2 now · 9 today", "SSH key only · passwords off", "none pending", "valid until Feb 5, 2027", started_at]:
         check(f"the Server tab shows {want}", want in body, body[:400])
     check("its lines are the box's hours", body.count("3 h ·") == 4, body[:400])
+    check("the Backups card shows the box's backup and restore test",
+          "Last backup" in body and f"Today {started_at}" in body and "0.4 s" in body and "0.2 MB" in body and "On the box, root only" in body, body[-600:])
     shot(opg, "11-server")
     apg = pages["admin"]
     apg.goto(BASE + "/admin")
@@ -307,13 +311,15 @@ with sync_playwright() as p:
 
     # Real problems, and only those, raise the alarm.
     in5 = sql("select to_char(now() + interval '5 days', 'YYYY-MM-DD\"T\"HH24:MI:SS\"+00:00\"')")
-    sql(f"set role distill_collector; select record_server_facts('{{\"certExpires\": \"{in5}\"}}')")
+    sql(f"set role distill_collector; select record_server_facts('{{\"certExpires\": \"{in5}\", \"restore\": {{\"at\": \"{in5}\", \"seconds\": 1, \"ok\": false}}, \"backups\": {{\"count\": 1, \"recent\": [{{\"name\": \"x\", \"at\": \"2026-01-01T00:00:00Z\", \"bytes\": 1}}]}}}}')")
     sql("update server_samples set taken_at = taken_at - interval '20 minutes'")
     opg.goto(BASE + "/admin")
     opg.wait_for_selector("h1:has-text('Admin')")
     alarm = opg.locator("section[role=alert]").inner_text() if opg.locator("section[role=alert]").count() else ""
     check("a silent collector is flagged", "The box stopped reporting" in alarm, alarm)
     check("a certificate near its end is flagged", "The HTTPS certificate expires soon" in alarm, alarm)
+    check("a failed restore test is flagged", "The last restore test failed" in alarm, alarm)
+    check("a backup older than a day is flagged", "No backup in the last day" in alarm, alarm)
 
     b.close()
 

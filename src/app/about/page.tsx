@@ -1,4 +1,4 @@
-import { Bot, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Bot, BriefcaseBusiness, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DocShell } from "@/components/DocShell";
@@ -152,6 +152,17 @@ export default function AboutPage() {
           </a>
           .
         </p>
+        {/* One way to hire him; no prices anywhere on the site (Kami's call). */}
+        <a
+          href="https://www.upwork.com/freelancers/~018fb626b478552f9f"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
+        >
+          <BriefcaseBusiness size={17} strokeWidth={2.1} />
+          Work with me on Upwork
+          <ArrowUpRight size={15} strokeWidth={2.1} className="opacity-80" />
+        </a>
       </section>
     </DocShell>
   );

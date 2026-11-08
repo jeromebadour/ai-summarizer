@@ -173,6 +173,9 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
       const httpsDays = certExpires ? Math.floor((certExpires.getTime() - now.getTime()) / 86_400_000) : null;
       const dateLong = (d: Date) => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: zone }).format(d);
       const started = typeof facts.appStartedAt === "string" ? stamp(facts.appStartedAt).at : "";
+      type Dump = { name: string; at: string; bytes: number };
+      const backups = ((facts.backups as J | undefined)?.recent as Dump[] | undefined) ?? [];
+      const restore = (facts.restore as { at: string; seconds: number; ok: boolean } | undefined) ?? null;
       const settings = o.settings as J;
       const pause = (p: J | null) => (p ? { since: stamp(String(p.since)).when, by: person(p.by as J)!, reason: String(p.reason ?? "") } : null);
       const summaries = (o.summaries as number[]).map(Number);
@@ -202,6 +205,12 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
       }
       if (httpsDays !== null && httpsDays < 14) {
         attention.push({ id: "https", kind: "server", title: "The HTTPS certificate expires soon", detail: `${httpsDays} days left; it should have renewed itself` });
+      }
+      if (restore && !restore.ok) {
+        attention.push({ id: "restore", kind: "server", title: "The last restore test failed", detail: "the newest backup did not come back whole" });
+      }
+      if (backups.length && now.getTime() - Date.parse(backups[0].at) > 26 * 3_600_000) {
+        attention.push({ id: "backup", kind: "server", title: "No backup in the last day", detail: `the newest is from ${stamp(backups[0].at).at}` });
       }
       if (facts.sshPasswordOff === false) {
         attention.push({ id: "ssh", kind: "server", title: "The box accepts passwords for sign-in", detail: "SSH should be key only" });
@@ -252,8 +261,19 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
             lastFailure: lastFailure ? { at: stamp(String(lastFailure.at)).at, code: String(lastFailure.code).replace("claude_", "") } : null,
           },
           app: { commit: process.env.APP_COMMIT ?? "", deployedAt: started, next: nextVersion, node: process.version.replace(/^v(\d+\.\d+).*/, "$1") },
-          // Backups appear once they run on the box (open item 1.4); hidden until then.
-          backup: null,
+          // Backups once the box has made one (ops/backup.sh); hidden until then.
+          backup: backups.length
+            ? {
+                last: stamp(backups[0].at).at,
+                restoreTested: restore ? stamp(restore.at).at : null,
+                restoreSeconds: restore ? restore.seconds : null,
+                restoreOk: restore ? restore.ok : null,
+                target: "On the box, root only",
+                keepDays: 14,
+                next: typeof facts.nextBackup === "string" ? stamp(facts.nextBackup).at : "",
+                recent: backups.map((b) => ({ id: b.name, at: stamp(b.at).at, sizeMb: Math.max(0.1, Math.round(b.bytes / 1e5) / 10), ok: true })),
+              }
+            : null,
           security: {
             sshPasswordOff: typeof facts.sshPasswordOff === "boolean" ? facts.sshPasswordOff : null,
             firewallPorts: Array.isArray(facts.firewallPorts) ? facts.firewallPorts.map(Number) : null,

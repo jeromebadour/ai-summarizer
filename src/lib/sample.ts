@@ -183,9 +183,10 @@ export const sampleOverview: AdminOverview = {
     claude: { avgSeconds: 1.9, p95Seconds: 3.4, failedToday: 1, lastFailure: { at: "11:02", code: "529 overloaded" } },
     app: { commit: "4f2a9c1", deployedAt: "Nov 7, 09:40", next: "16.4.5", node: "22.23" },
     backup: {
-      last: "03:00",
+      last: "Today 03:00",
       restoreTested: "Nov 7",
       restoreSeconds: 38,
+      restoreOk: true,
       target: "Off the box, encrypted",
       keepDays: 30,
       next: "03:00 tomorrow",

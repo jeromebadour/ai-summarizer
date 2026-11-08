@@ -25,7 +25,8 @@ set role distill_collector;
 select record_server_sample(7, 0.42, 38, 14.2);
 select record_server_sample(7, 0.42, 38, 14.2);  -- same second: ignored, not an error
 select record_server_facts('{"os": "Ubuntu 24.04.5 LTS", "kernel": "6.8.0-149", "cpus": 6, "sshPasswordOff": true,
-                             "firewallPorts": [22, 80, 443], "sneaky": "dropped"}');
+                             "firewallPorts": [22, 80, 443], "sneaky": "dropped",
+                             "backups": {"count": 1, "recent": []}, "restore": {"ok": true}, "nextBackup": "2026-11-09T02:47:00+00:00"}');
 do $$ begin
   begin
     perform record_server_sample(140, 0, 0, 0);
@@ -60,6 +61,7 @@ reset role;
 do $$ begin
   assert (select count(*) from server_samples) = 3, 'the 49-hour-old reading was not removed, or a duplicate was kept';
   assert (select facts from server_facts) ? 'os' and not ((select facts from server_facts) ? 'sneaky'), 'an unknown fact was kept';
+  assert (select facts ?& array['backups', 'restore', 'nextBackup'] from server_facts), 'the backup facts were dropped (013)';
   assert (select db_size_mb > 0 and connections >= 1 from server_samples order by taken_at desc limit 1), 'the database did not fill its own size';
 end $$;
 

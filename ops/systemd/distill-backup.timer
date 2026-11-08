@@ -1,0 +1,10 @@
+# Every night at 02:47 UTC (05:47 in Istanbul), when Distill is quietest. Installed and enabled by scripts/deploy.sh.
+[Unit]
+Description=Distill: nightly database backup
+
+[Timer]
+OnCalendar=*-*-* 02:47:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

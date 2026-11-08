@@ -9,6 +9,7 @@ container's own socket; that role can only call record_server_sample() and recor
 Installed by scripts/deploy.sh to /opt/sites/tools/distill/. Prints nothing when all is well; errors go to the journal.
 """
 import datetime as dt
+import glob
 import json
 import os
 import platform
@@ -21,6 +22,7 @@ REGION = "Singapore"
 CERT = "/etc/letsencrypt/live/distill.jeromebadour.com/cert.pem"
 FAIL2BAN_LOG = "/var/log/fail2ban.log"
 STAMP = "/var/lib/distill-collector/facts-at"
+BACKUP_DIR = os.environ.get("BACKUP_DIR", "/srv/distill/backups")
 FACTS_EVERY = 15 * 60
 
 
@@ -117,11 +119,37 @@ def facts() -> dict:
         when = dt.datetime.strptime(end.split("=", 1)[1].strip(), "%b %d %H:%M:%S %Y %Z").replace(tzinfo=dt.timezone.utc)
         out["certExpires"] = when.isoformat()
 
+    # Backups (ops/backup.sh): the newest four, and the last restore test (ops/restore-test.sh).
+    dumps = sorted(glob.glob(os.path.join(BACKUP_DIR, "distill-*.dump")), key=os.path.getmtime, reverse=True)
+    if dumps:
+        out["backups"] = {
+            "count": len(dumps),
+            "recent": [
+                {"name": os.path.basename(d), "at": utc(os.path.getmtime(d)), "bytes": os.path.getsize(d)} for d in dumps[:4]
+            ],
+        }
+    try:
+        with open(os.path.join(BACKUP_DIR, "restore-test.json")) as f:
+            out["restore"] = json.load(f)
+    except (OSError, ValueError):
+        pass
+    nxt = run("systemctl", "show", "distill-backup.timer", "-p", "NextElapseUSecRealtime", "--value").strip()
+    if nxt and nxt != "n/a":
+        try:
+            when = dt.datetime.strptime(nxt, "%a %Y-%m-%d %H:%M:%S %Z").replace(tzinfo=dt.timezone.utc)
+            out["nextBackup"] = when.isoformat()
+        except ValueError:
+            pass
+
     app = container("app")
     started = run("docker", "inspect", "-f", "{{.State.StartedAt}}", app).strip() if app else ""
     if started:
         out["appStartedAt"] = started
     return out
+
+
+def utc(t: float) -> str:
+    return dt.datetime.fromtimestamp(t, dt.timezone.utc).isoformat()
 
 
 def facts_due() -> bool:
