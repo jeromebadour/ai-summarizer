@@ -24,7 +24,9 @@ begin
   perform set_config('app.user_id', '', true);
   s := public_stats();
   assert (s->>'summaries')::int = 1, 'a refunded use was counted: ' || s::text;
-  assert (s->>'words')::int = 300 and (s->>'figures')::int = 2 and (s->>'accounts')::int = 1, s::text;
+  assert (s->>'words')::int = 300 and (s->>'figures')::int = 2, s::text;
+  -- Since 016 the public totals carry no account count.
+  assert not (s ? 'accounts'), 'the public stats still count accounts: ' || s::text;
   assert s::text not like '%SECRET%' and s::text not like '%kevin%', 'the stats carry somebody''s data';
 end $$;
 reset role;

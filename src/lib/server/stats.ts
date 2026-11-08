@@ -2,9 +2,9 @@ import "server-only";
 import { connection } from "next/server";
 import { actingAs } from "@/lib/server/db";
 
-export type PublicStats = { summaries: number; words: number; figures: number; accounts: number; since: Date | null };
+export type PublicStats = { summaries: number; words: number; figures: number; since: Date | null };
 
-/** The About page's live totals (migration 010): counts only, readable by anyone, nobody's data. */
+/** The About page's live totals (migrations 010 and 016): counts only, readable by anyone, nobody's data. */
 export async function publicStats(): Promise<PublicStats> {
   // Live numbers are read per request, never at build time (the build has no database).
   await connection();
@@ -13,7 +13,6 @@ export async function publicStats(): Promise<PublicStats> {
     summaries: Number(j.summaries),
     words: Number(j.words),
     figures: Number(j.figures),
-    accounts: Number(j.accounts),
     since: j.since ? new Date(j.since) : null,
   };
 }

@@ -41,10 +41,9 @@ async function Numbers() {
   const [s, zone] = await Promise.all([publicStats(), viewerZone()]);
   const n = (v: number) => v.toLocaleString("en-US");
   const items: { lead?: string; value: string; label: string }[] = [
-    { value: n(s.summaries), label: "summaries distilled" },
-    { value: n(s.words), label: "words read" },
-    { value: n(s.figures), label: "figures checked" },
-    { value: n(s.accounts), label: s.accounts === 1 ? "account" : "accounts" },
+    { value: n(s.summaries), label: s.summaries === 1 ? "summary distilled" : "summaries distilled" },
+    { value: n(s.words), label: s.words === 1 ? "word read" : "words read" },
+    { value: n(s.figures), label: s.figures === 1 ? "figure checked" : "figures checked" },
     ...(s.since ? [{ lead: "Live since", value: monthYear(s.since, zone), label: "" }] : []),
   ];
   return (

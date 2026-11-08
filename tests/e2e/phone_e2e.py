@@ -123,6 +123,10 @@ with sync_playwright() as p:
         out.wait_for_timeout(600)
         check(f"{page} fits the phone", fits(out))
     check("the demo has its own bottom bar", out.locator(f"{bar} :text('Sign in')").count() == 1)
+    out.goto(BASE + "/about")
+    stats = out.inner_text("main div:has(> span:text-is('LIVE'))")
+    check("About shows the live totals without an account count (Handoff 06)",
+          "distilled" in stats and "checked" in stats and "account" not in stats.lower(), stats)
     b.close()
 
 passed = sum(ok for _, ok in results)
