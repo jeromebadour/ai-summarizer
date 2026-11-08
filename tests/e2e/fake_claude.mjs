@@ -3,6 +3,7 @@
 // ANTHROPIC_BASE_URL=http://127.0.0.1:4010 ANTHROPIC_API_KEY=test-key.
 // The scenario is picked by a marker in the source text: OVERLOADED, GARBAGE, INVENTED, else a faithful answer.
 // SLOW (with any of them) streams with real pauses between chunks, so a browser can watch the stages.
+// FAKE_DELAY_MS (env) paces every stream, so pictures show a real time instead of 0.0 s.
 // GET /last returns the last request (headers + body) so tests can check what the app sent.
 import http from "node:http";
 
@@ -44,7 +45,7 @@ http
       const body = JSON.parse(raw || "{}");
       last = { headers: req.headers, body };
       const user = body.messages?.[0]?.content ?? "";
-      const delay = user.includes("SLOW") ? 90 : 0;
+      const delay = user.includes("SLOW") ? 90 : Number(process.env.FAKE_DELAY_MS || 0);
       if (user.includes("OVERLOADED")) {
         res.writeHead(529, { "content-type": "application/json", "request-id": "req_fake" });
         return res.end(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }));

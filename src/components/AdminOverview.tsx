@@ -110,7 +110,7 @@ function ServerGlance({ server, claude, base, serverReady }: { server: Overview[
         />
         {/* Hidden until the box reports them (backups and the certificate are read there), never guessed. */}
         {server.backup && (
-          <Fact icon={DatabaseBackup} tone="text-figure" label="Backup" value={`${server.backup.last} today · restore tested ${server.backup.restoreTested}`} />
+          <Fact icon={DatabaseBackup} tone="text-figure" label="Backup" value={`${server.backup.last} · restore tested ${server.backup.restoreTested}`} />
         )}
         {server.httpsDays !== null && <Fact icon={LockKeyhole} tone="text-verify" label="HTTPS" value={`valid ${server.httpsDays} days · renews itself`} />}
       </div>
