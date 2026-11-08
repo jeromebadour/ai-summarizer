@@ -9,7 +9,7 @@ import { adminActivity, adminOverview, adminRoleChanges, adminRoleHolders, admin
  * console's database does it. This module must never import the database client or read anything from the live
  * app; the demo route imports nothing else.
  */
-export function demoSource(rows: number = pageSizes.adminTable): AdminSource {
+export function demoSource(rows: number = pageSizes.adminTable, activityRows: number = rows): AdminSource {
   return {
     serverReady: async () => true,
 
@@ -45,8 +45,8 @@ export function demoSource(rows: number = pageSizes.adminTable): AdminSource {
     async activity(f, rawPage) {
       const who = f.who.toLowerCase().replace(/^@/, "");
       const picked = adminActivity.filter((e) => (f.kinds.length === 0 || f.kinds.includes(e.kind)) && (!who || e.person?.username === who));
-      const page = pageOf(rawPage, picked.length, rows);
-      const kinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
+      const page = pageOf(rawPage, picked.length, activityRows);
+      const kinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "emailConfirmed", "passwordReset", "summary", "delete", "staff"];
       return {
         rows: picked.slice(page.offset, page.offset + page.size),
         page,

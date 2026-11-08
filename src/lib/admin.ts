@@ -19,7 +19,7 @@ export type AttentionItem = {
   detail: string;
 };
 
-export type ActivityKind = "signup" | "guest" | "signin" | "signinFailed" | "upgrade" | "summary" | "delete" | "staff";
+export type ActivityKind = "signup" | "guest" | "signin" | "signinFailed" | "emailConfirmed" | "passwordReset" | "upgrade" | "summary" | "delete" | "staff";
 
 export type ActivityEntry = {
   id: string;
@@ -232,9 +232,10 @@ export function whenLabel(when: string, today: string): string {
   return `${monthNames[m - 1]} ${d}, ${time}`;
 }
 
-/** The Overview's preview shows account and staff events; summaries and sign-ins have their own tiles and charts. */
+/** The Overview's preview shows account and staff events; summaries and sign-ins have their own tiles and charts, and a
+ * confirmed email follows nearly every sign-up, so it stays in Activity. */
 export function isNotable(entry: ActivityEntry): boolean {
-  return entry.kind !== "summary" && entry.kind !== "signin";
+  return entry.kind !== "summary" && entry.kind !== "signin" && entry.kind !== "emailConfirmed";
 }
 
 /** One staff role held, with who granted it and when (from the audit log). */

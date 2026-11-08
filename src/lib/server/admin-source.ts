@@ -84,8 +84,8 @@ function health(cpu: number, memory: number, disk: number): ServerHealth {
   return top >= 90 ? "strained" : top >= 70 ? "busy" : "comfortable";
 }
 
-/** `rows` is how many table rows fit the viewer's window (pageSizeFor). */
-export function liveSource(viewer: CurrentUser, zone: string, rows: number = pageSizes.adminTable): AdminSource {
+/** `rows` is how many table rows fit the viewer's window (pageSizeFor); `activityRows` the same for Activity. */
+export function liveSource(viewer: CurrentUser, zone: string, rows: number = pageSizes.adminTable, activityRows: number = rows): AdminSource {
   const now = new Date();
   const today = partsIn(now, zone).day;
   const stamp = (iso: string) => {
@@ -141,6 +141,10 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
                 ? "Signed in"
                 : kind === "signinFailed"
                   ? "Wrong password"
+                  : kind === "emailConfirmed"
+                    ? raw === "changed" ? "Confirmed a new email address" : "Confirmed their email"
+                  : kind === "passwordReset"
+                    ? "Set a new password from Forgot password"
                   : kind === "upgrade"
                     ? "Guest to account"
                     : kind === "delete"
@@ -301,7 +305,7 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
     },
 
     async recentNotable() {
-      const kinds = ["signup", "guest", "upgrade", "signinFailed", "delete", "staff"];
+      const kinds = ["signup", "guest", "upgrade", "signinFailed", "passwordReset", "delete", "staff"];
       const j = await call<J>("select admin_activity($1, null, 5, 0) as out", [kinds]);
       return (j.rows as J[]).map(activityEntry);
     },
@@ -366,10 +370,10 @@ export function liveSource(viewer: CurrentUser, zone: string, rows: number = pag
 
     async activity(f, rawPage) {
       const first = await call<J>("select admin_activity($1, $2, 0, 0) as out", [f.kinds, f.who]);
-      const page = pageOf(rawPage, Number(first.total), rows);
+      const page = pageOf(rawPage, Number(first.total), activityRows);
       const j = await call<J>("select admin_activity($1, $2, $3, $4) as out", [f.kinds, f.who, page.size, page.offset]);
       const counts = j.counts as J;
-      const kinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
+      const kinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "emailConfirmed", "passwordReset", "summary", "delete", "staff"];
       return {
         rows: (j.rows as J[]).map(activityEntry),
         page,

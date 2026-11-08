@@ -13,7 +13,7 @@ export const privacy: LegalDoc = {
   title: "Privacy Policy",
   eyebrow: "Legal",
   intro: "What Distill keeps about you, why, who else sees it, how long it stays and how to have it removed.",
-  version: "1.4",
+  version: "1.5",
   effective: "8 November 2026",
   sections: [
     {
@@ -54,7 +54,7 @@ export const privacy: LegalDoc = {
       clauses: [
         "To run the app: to sign you in, write and save your summaries, and show them back to you.",
         "To keep it fair and affordable: limits per hour and per day, and spend caps, are counted from the usage records.",
-        "To keep it safe: sign-in attempts, staff actions and errors are recorded so problems and abuse can be found and fixed.",
+        "To keep it safe: sign-in attempts, confirmed emails, password resets, staff actions and errors are recorded so problems and abuse can be found and fixed.",
         "We do not sell your data, show ads or use tracking or analytics tools.",
       ],
     },
@@ -85,7 +85,7 @@ export const privacy: LegalDoc = {
       clauses: [
         "**Summaries** stay until you delete them, or until you delete your account.",
         "**Devices** sign out by themselves after 30 days without use.",
-        "**Usage records, sign-in events and staff actions** are kept to keep limits, spend and the security record correct. When your account is deleted, they stay without any link to you.",
+        "**Usage records, account events (sign-ins, confirmed emails, password resets) and staff actions** are kept to keep limits, spend and the security record correct. When your account is deleted, they stay without any link to you.",
         "**Backups:** the whole database is backed up every night, to restore the service if something goes wrong and for nothing else. Copies on the server are kept for **14 days** and the encrypted copy off the server for **30 days**, so something you delete can remain in a backup for up to 30 days before it is gone for good.",
         "The web server's own logs, which include IP addresses, are kept for **14 days** for security, then deleted. The app itself does not store IP addresses, and it does not look up where you are. (The places in the public admin demo are invented, like everything else there.)",
       ],

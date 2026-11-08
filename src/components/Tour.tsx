@@ -64,7 +64,8 @@ export function Tour({ steps, step, onStep, onClose }: { steps: TourStep[]; step
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose(false);
-      else if (event.key === "ArrowRight" || event.key === "Enter") (last ? onClose(true) : onStep(step + 1));
+      else if ((event.key === "ArrowRight" || event.key === "Enter") && last) onClose(true);
+      else if (event.key === "ArrowRight" || event.key === "Enter") onStep(step + 1);
       else if (event.key === "ArrowLeft" && step > 0) onStep(step - 1);
     };
     window.addEventListener("keydown", onKey);

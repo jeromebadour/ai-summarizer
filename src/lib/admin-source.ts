@@ -29,7 +29,7 @@ export type AdminSource = {
   serverReady(): Promise<boolean>;
 };
 
-const activityKindList: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
+const activityKindList: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "emailConfirmed", "passwordReset", "summary", "delete", "staff"];
 type Params = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (typeof v === "string" ? v : "");
 

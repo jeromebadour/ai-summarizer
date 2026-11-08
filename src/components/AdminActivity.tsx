@@ -12,7 +12,7 @@ import type { Page } from "@/lib/paging";
 
 const columns = "grid-cols-[32px_118px_minmax(0,1.15fr)_190px_minmax(0,1.5fr)_130px]";
 
-export const activityKinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "summary", "delete", "staff"];
+export const activityKinds: ActivityKind[] = ["signup", "guest", "upgrade", "signin", "signinFailed", "emailConfirmed", "passwordReset", "summary", "delete", "staff"];
 
 /** Who did what, newest first, 15 a page. Metadata only: never what anyone pasted or got back. */
 export function AdminActivity({

@@ -1,4 +1,4 @@
-import { FileText, LockKeyhole, LogIn, ShieldUser, UserRound, UserRoundCheck, UserRoundPlus, UserRoundX, type LucideIcon } from "lucide-react";
+import { FileText, KeyRound, LockKeyhole, MailCheck, LogIn, ShieldUser, UserRound, UserRoundCheck, UserRoundPlus, UserRoundX, type LucideIcon } from "lucide-react";
 import type { ActivityKind } from "@/lib/admin";
 
 /** Each kind of event has its own glyph and colour, the same on the Overview and in the Activity log. */
@@ -7,6 +7,8 @@ export const activityLook: Record<ActivityKind, { icon: LucideIcon; tone: string
   guest: { icon: UserRound, tone: "border-input/35 bg-input-soft text-input", label: "Guest session" },
   signin: { icon: LogIn, tone: "border-medium/35 bg-medium-soft text-medium", label: "Signed in" },
   signinFailed: { icon: LockKeyhole, tone: "border-clear/35 bg-clear-soft text-clear", label: "Sign-in refused" },
+  emailConfirmed: { icon: MailCheck, tone: "border-verify/35 bg-verify-soft text-verify", label: "Email confirmed" },
+  passwordReset: { icon: KeyRound, tone: "border-medium/35 bg-medium-soft text-medium", label: "Password reset" },
   upgrade: { icon: UserRoundCheck, tone: "border-verify/35 bg-verify-soft text-verify", label: "Kept their summaries" },
   summary: { icon: FileText, tone: "border-brand-line bg-brand-soft text-brand-strong", label: "Distilled" },
   delete: { icon: UserRoundX, tone: "border-clear/35 bg-clear-soft text-clear", label: "Deleted account" },

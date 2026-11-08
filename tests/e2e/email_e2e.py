@@ -111,6 +111,7 @@ with sync_playwright() as p:
     pg2.wait_for_url(BASE + "/", timeout=15000)
     check("the link confirms and signs in where it was opened", pg2.url == BASE + "/")
     check("the account is confirmed", sql("select email_verified_at is not null from users where username = 'maya_k'") == "t")
+    check("the console's Activity logs the confirmed email", sql("select count(*) || '|' || max(detail) from auth_events e join users u on u.id = e.user_id where u.username = 'maya_k' and kind = 'email_confirmed'") == "1|")
     # The tab still on Check your inbox notices by itself.
     pg.wait_for_url(BASE + "/", timeout=15000)
     check("the waiting tab moves on to Distill by itself", pg.url == BASE + "/")
@@ -169,6 +170,7 @@ with sync_playwright() as p:
     check("a new password says so", True)
     pf.wait_for_url(BASE + "/", timeout=15000)
     check("saving signs in here and opens Distill", pf.url == BASE + "/")
+    check("the console's Activity logs the reset", sql("select count(*) from auth_events e join users u on u.id = e.user_id where u.username = 'maya_k' and kind = 'password_reset'") == "1")
     pe.goto(BASE + "/profile")
     pe.wait_for_url(BASE + "/login", timeout=10000)
     check("every other device was signed out", pe.url == BASE + "/login")
@@ -215,6 +217,7 @@ with sync_playwright() as p:
     shot(pl, "06-change")
     confirm(pl, "maya.k@example.com", BASE, then="/profile")
     check("the code applies the new email", sql("select email || '|' || coalesce(pending_email, '-') from users where username = 'maya_k'") == "maya.k@example.com|-")
+    check("a changed email is logged as a change, without the address", sql("select string_agg(detail, ',' order by e.id) from auth_events e join users u on u.id = e.user_id where u.username = 'maya_k' and kind = 'email_confirmed'") == ",changed")
     pl.goto(BASE + "/profile?dialog=edit")
     pl.fill("input[name=email]", "maya.third@example.com")
     pl.fill("input[name=password]", "meadow77y")

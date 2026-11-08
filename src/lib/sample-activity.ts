@@ -99,6 +99,8 @@ export function buildSampleActivity(): ActivityEntry[] {
   add(today, 8 * 60 + 40, "signin", people.lena, "Firefox 145 · Linux");
   add(today, 12 * 60 + 14, "signinFailed", null, "Unknown username · 2 tries");
   add(today, 7 * 60 + 2, "signinFailed", null, "Wrong password for @hana_m · 1 try");
+  const hana = sampleUsers.find((u) => u.person.username === "hana_m")!.person;
+  add(today, 7 * 60 + 6, "passwordReset", hana, "Set a new password from Forgot password");
   const suspended = sampleUsers.find((u) => u.status === "suspended")!;
   add(shift(3), 16 * 60 + 5, "staff", people.lena, `Suspended @${suspended.person.username} · posting spam through shared links`);
 
@@ -109,10 +111,12 @@ export function buildSampleActivity(): ActivityEntry[] {
       add(today, start, "guest", r.person, "Started a guest session");
       [10 * 60 + 52, 11 * 60 + 30, 12 * 60 + 11].forEach((m) => summary(today, m, r.person));
       add(today, 12 * 60 + 28, "upgrade", r.person, "Guest to account · kept 3 summaries");
+      add(today, 12 * 60 + 29, "emailConfirmed", r.person, "Confirmed their email");
       continue;
     }
     const guest = r.person.role === "guest";
     add(today, start, guest ? "guest" : "signup", r.person, guest ? "Started a guest session" : "Signed up with email");
+    if (!guest) add(today, start + 1, "emailConfirmed", r.person, "Confirmed their email");
     const end = lastMinute(r);
     for (let n = 0; n < r.summaries; n++) summary(today, n === r.summaries - 1 ? end : Math.min(end, between(start + 1, end)), r.person);
   }
@@ -147,9 +151,11 @@ export function buildSampleActivity(): ActivityEntry[] {
         add(day, Math.max(7 * 60, joinMinute(r) - 50), "guest", r.person, "Started a guest session");
         for (let n = 0; n < kept; n++) summary(day, Math.max(7 * 60 + 1, joinMinute(r) - 40 + n * 10), r.person);
         add(day, joinMinute(r), "upgrade", r.person, `Guest to account · kept ${kept} ${kept === 1 ? "summary" : "summaries"}`);
+        add(day, Math.min(joinMinute(r) + 1, 23 * 60 + 59), "emailConfirmed", r.person, "Confirmed their email");
         continue;
       }
       add(day, joinMinute(r), guest ? "guest" : "signup", r.person, guest ? "Started a guest session" : "Signed up with email");
+      if (!guest) add(day, Math.min(joinMinute(r) + 1, 23 * 60 + 59), "emailConfirmed", r.person, "Confirmed their email");
     }
     // Suspended accounts do nothing in the log (one was suspended four days ago, before that they were quiet).
     const existing = sampleUsers.filter((u) => u.joinedOn <= day && u.status !== "suspended" && !staffAndNamed.slice(0, 2).includes(u.person.id));

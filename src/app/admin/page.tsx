@@ -21,13 +21,14 @@ async function Admin({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
   // Non-staff (and signed-out visitors after /login) never learn the console exists: they get a 404.
   const user = await requireStaff();
   const zone = await viewerZone();
+  const height = await viewerHeight();
   const account = toAccount(user, zone);
   const now = partsIn(new Date(), zone);
   return (
     <AdminShell
       mode={{ kind: "live", account }}
       params={params}
-      source={liveSource(user, zone, pageSizeFor("adminTable", await viewerHeight()))}
+      source={liveSource(user, zone, pageSizeFor("adminTable", height), pageSizeFor("adminActivity", height))}
       rail={<Rail page="admin" account={account} />}
       clock={now.time}
       today={now.day}

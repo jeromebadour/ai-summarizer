@@ -6,6 +6,7 @@
 export const pageSizes = {
   saved: 7,
   adminTable: 15,
+  adminActivity: 15,
 } as const;
 
 /**
@@ -16,6 +17,8 @@ export const pageSizes = {
 const fit: Record<keyof typeof pageSizes, { chrome: number; row: number; min: number }> = {
   saved: { chrome: 300, row: 80, min: 4 },
   adminTable: { chrome: 270, row: 37, min: 8 },
+  // Activity's kind filters take a second line up to wide screens.
+  adminActivity: { chrome: 308, row: 37, min: 8 },
 };
 
 export function pageSizeFor(list: keyof typeof pageSizes, height: number | null): number {
