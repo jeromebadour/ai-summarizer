@@ -148,6 +148,7 @@ const preferenceValues = {
   theme: ["system", "light", "dark"],
   motion: ["system", "full", "reduced"],
   links: ["always", "hover"],
+  result_view: ["split", "column"],
   default_length: ["short", "medium", "bullets"],
   avatar_colour: avatarColours as readonly string[],
 } as const;

@@ -1,7 +1,7 @@
 "use client";
 
 import { MIN_SOURCE_WORDS } from "@/lib/distill";
-import { ArrowUpRight, Check, ClipboardCheck, ClipboardCopy, Coins, Cpu, FlaskConical, Link2, LoaderCircle, MousePointer2, RotateCcw, Ruler, ServerCrash, ShieldCheck, Sparkles, Timer, Trash2, TriangleExclamationPoint, Waypoints } from "lucide-react";
+import { ArrowUpRight, Check, ClipboardCheck, ClipboardCopy, Coins, Columns2, Cpu, FlaskConical, Link2, LoaderCircle, MousePointer2, RotateCcw, Rows3, Ruler, ServerCrash, ShieldCheck, Sparkles, Timer, Trash2, TriangleExclamationPoint, Waypoints } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import { DistillProgress } from "@/components/DistillProgress";
 import { lengthStyles } from "@/components/LengthPicker";
@@ -38,6 +38,8 @@ type DoneProps = {
   deleteHref?: string;
   /** Links to the source: drawn for every point ("always") or only on hover. The switch sits next to Copy. */
   links?: { mode: "always" | "hover"; onToggle: () => void };
+  /** Split (beside the source) or Column (one column, each point's sentences quoted under it). Also next to Copy. */
+  view?: { mode: "split" | "column"; onChange: (mode: "split" | "column") => void };
 };
 
 type RunningProps = { state: "running"; run: DistillRun; length: SummaryLength; wordsIn: number; onRetry?: () => void };
@@ -82,14 +84,18 @@ function PointRow({
   active,
   streaming = false,
   sentences,
+  quotes = false,
   onFocus,
 }: {
   point: SummaryPoint;
   active: boolean;
   streaming?: boolean;
   sentences?: SourceSentence[];
+  /** Column view: the sentences this point came from, quoted under it (in place of the drawn links). */
+  quotes?: boolean;
   onFocus?: (focus: Focus) => void;
 }) {
+  const quoted = quotes && sentences ? sentences.filter((s) => point.sourceIds.includes(s.id)) : [];
   return (
     <li
       data-point={point.id}
@@ -105,9 +111,27 @@ function PointRow({
       >
         {point.id}
       </span>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className={`text-[15px] leading-[1.6] text-text ${streaming ? "caret" : ""}`}>{point.text}</p>
         {sentences && <CheckBadge point={point} sentences={sentences} />}
+        {quoted.length > 0 && (
+          <ul className="mt-2.5 space-y-1.5" aria-label={`Sentences point ${point.id} came from`}>
+            {quoted.map((sentence) => (
+              <li
+                key={sentence.id}
+                data-quote={sentence.id}
+                className={`flex gap-3 rounded-r-lg border-l-2 py-1.5 pl-3 pr-3 text-[13.5px] leading-[1.6] transition-colors ${
+                  active ? "border-brand-strong bg-paper text-text" : "border-brand-line/70 bg-paper/50 text-muted"
+                }`}
+              >
+                <span className="mt-[3px] shrink-0 font-mono text-[10.5px] font-semibold text-faint" title={`Sentence ${sentence.id} of your text`}>
+                  S{sentence.id}
+                </span>
+                <span>{sentence.text}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </li>
   );
@@ -251,7 +275,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
         )}
         {props.state === "done" ? (
           <div className="ml-auto flex shrink-0 gap-2">
-            {props.links && (
+            {props.links && props.view?.mode !== "column" && (
               <button
                 type="button"
                 onClick={props.links.onToggle}
@@ -265,6 +289,7 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
                 {props.links.mode === "always" ? "Links on" : "Links on hover"}
               </button>
             )}
+            {props.view && <ViewSwitch mode={props.view.mode} onChange={props.view.onChange} />}
             <button
               type="button"
               onClick={props.onCopy}
@@ -344,21 +369,55 @@ export function SummaryPanel(props: DoneProps | RunningProps | IdleProps) {
             </ul>
             <Compression wordsIn={props.wordsIn} wordsOut={props.wordsOut} />
           </div>
-          <ScrollArea as="ol" fade="panel" marker="summary-scroll" className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2">
-            {props.summary.points.map((point) => (
-              <PointRow
-                key={point.id}
-                point={point}
-                active={point.id === props.focusPointId}
-                sentences={props.sentences}
-                onFocus={props.onFocus}
-              />
-            ))}
-          </ScrollArea>
+          {props.view?.mode === "column" ? (
+            <ol data-marker="summary-column" className="space-y-1.5 px-3 py-3">
+              {props.summary.points.map((point) => (
+                <PointRow key={point.id} point={point} active={point.id === props.focusPointId} sentences={props.sentences} quotes onFocus={props.onFocus} />
+              ))}
+            </ol>
+          ) : (
+            <ScrollArea as="ol" fade="panel" marker="summary-scroll" className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2">
+              {props.summary.points.map((point) => (
+                <PointRow
+                  key={point.id}
+                  point={point}
+                  active={point.id === props.focusPointId}
+                  sentences={props.sentences}
+                  onFocus={props.onFocus}
+                />
+              ))}
+            </ScrollArea>
+          )}
           <Telemetry summary={props.summary} />
         </>
       )}
     </section>
+  );
+}
+
+function ViewSwitch({ mode, onChange }: { mode: "split" | "column"; onChange: (mode: "split" | "column") => void }) {
+  const options = [
+    { key: "split", label: "Split", icon: Columns2, title: "Your text beside the summary, with links drawn between them" },
+    { key: "column", label: "Column", icon: Rows3, title: "One column, each point's sentences quoted under it" },
+  ] as const;
+  return (
+    <div role="group" aria-label="Result view" className="flex rounded-xl border border-border-strong p-0.5">
+      {options.map(({ key, label, icon: Icon, title }) => (
+        <button
+          key={key}
+          type="button"
+          title={title}
+          aria-pressed={mode === key}
+          onClick={() => mode !== key && onChange(key)}
+          className={`flex items-center gap-1.5 rounded-[9px] px-2.5 py-1 text-[12.5px] font-semibold ${
+            mode === key ? "bg-brand-soft text-brand-strong" : "text-muted hover:text-text"
+          }`}
+        >
+          <Icon size={15} strokeWidth={1.9} />
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }
 

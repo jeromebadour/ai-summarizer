@@ -13,7 +13,7 @@ export const privacy: LegalDoc = {
   title: "Privacy Policy",
   eyebrow: "Legal",
   intro: "What Distill keeps about you, why, who else sees it, how long it stays and how to have it removed.",
-  version: "1.1",
+  version: "1.2",
   effective: "8 November 2026",
   sections: [
     {
@@ -35,7 +35,7 @@ export const privacy: LegalDoc = {
         "**Your summaries:** the text you paste, the summary Claude writes for it, the sentences each point links to and the figure checks. They are saved to your account so you can find them in Saved.",
         "**Usage records:** for every summary, when it ran, its length, the number of words and tokens and what it cost. Never the text itself. They power your hourly and daily limits and the app's spend caps.",
         "**Devices:** for each signed-in device, the browser and system name and when it was last used, so you can see and sign out your devices on your Profile.",
-        "**Your preferences:** theme, motion, default length, avatar colour and how links to the source are shown.",
+        "**Your preferences:** theme, motion, default length, avatar colour, how links to the source are shown and how a summary is laid out.",
       ],
     },
     {

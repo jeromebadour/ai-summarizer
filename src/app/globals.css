@@ -245,3 +245,14 @@ body:has([data-pending]) main > :not(:first-child) {
   opacity: 0.55;
   transition-delay: 80ms;
 }
+
+/* Pressing Distill opens the composer into the split: the text moves left into the source pane, the summary rises in
+   from the right. Off with reduced motion (the rules above). */
+@keyframes open-left {
+  from { opacity: 0.6; transform: translateX(22%) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes open-right {
+  from { opacity: 0; transform: translateX(6%) translateY(10px); }
+  to { opacity: 1; transform: none; }
+}

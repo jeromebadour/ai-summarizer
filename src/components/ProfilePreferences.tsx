@@ -2,6 +2,7 @@
 
 import {
   Check,
+  Columns2,
   Keyboard,
   Monitor,
   Moon,
@@ -9,6 +10,7 @@ import {
   Palette,
   Sparkles,
   Sun,
+  Rows3,
   Waypoints,
   type LucideIcon,
 } from "lucide-react";
@@ -24,6 +26,7 @@ import type { SummaryLength } from "@/lib/summary";
 type Theme = "light" | "dark" | "system";
 type Motion = "full" | "reduced" | "system";
 type Links = "always" | "hover";
+type View = "split" | "column";
 
 function Row({
   icon: Icon,
@@ -118,6 +121,7 @@ export function ProfilePreferences({
   const [colour, setColourState] = useState<AvatarColour>(account.avatarColour);
   const [motion, setMotionState] = useState<Motion>(account.motion ?? "system");
   const [links, setLinksState] = useState<Links>(account.links ?? "always");
+  const [view, setViewState] = useState<View>(account.resultView ?? "split");
 
   // Theme and Motion apply on this device at once; every preference saves to the account.
   const setTheme = (next: Theme) => {
@@ -142,6 +146,11 @@ export function ProfilePreferences({
     const before = links;
     setLinksState(next);
     void persist("links", next, () => setLinksState(before));
+  };
+  const setView = (next: View) => {
+    const before = view;
+    setViewState(next);
+    void persist("result_view", next, () => setViewState(before));
   };
   const setLength = (next: SummaryLength) => {
     const before = length;
@@ -266,6 +275,22 @@ export function ProfilePreferences({
             options={[
               { key: "always", label: "Always", icon: Waypoints },
               { key: "hover", label: "On hover", icon: MousePointer2 },
+            ]}
+          />
+        </Row>
+
+        <Row
+          icon={Columns2}
+          tone="text-brand-strong"
+          title="Result view"
+          detail="How a finished summary is laid out. Split puts your text beside the summary; Column shows one column with each point's sentences quoted under it. The switch is also next to Copy."
+        >
+          <Segmented
+            value={view}
+            onChange={setView}
+            options={[
+              { key: "split", label: "Split", icon: Columns2 },
+              { key: "column", label: "Column", icon: Rows3 },
             ]}
           />
         </Row>

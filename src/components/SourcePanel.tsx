@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardPaste, Eraser, FileText, Sparkle } from "lucide-react";
+import { ChevronUp, ClipboardPaste, Eraser, FileText, Sparkle } from "lucide-react";
 import { ScrollArea } from "@/components/ScrollArea";
 import { pointForSentence, type Focus, type SourceSentence, type SummaryPoint } from "@/lib/summary";
 
@@ -21,9 +21,11 @@ type SourcePanelProps = {
   onClear?: () => void;
   /** Shown only while the text area is empty: loads the invented sample text. */
   onSample?: () => void;
+  /** Column view: the source opened from its card; this folds it back. */
+  onCollapse?: () => void;
 };
 
-function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<SourcePanelProps, "sentences" | "points" | "litSentenceIds" | "onFocus">) {
+export function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<SourcePanelProps, "sentences" | "points" | "litSentenceIds" | "onFocus">) {
   const used = sentences.filter((s) => pointForSentence(points, s.id)).length;
   const skipped = sentences.length - used;
 
@@ -61,7 +63,7 @@ function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<SourcePan
   );
 }
 
-export function SourcePanel({ sentences, points, litSentenceIds, charCount, charLimit, locked, readOnly = false, finished = true, onFocus, edit, onPaste, onClear, onSample }: SourcePanelProps) {
+export function SourcePanel({ sentences, points, litSentenceIds, charCount, charLimit, locked, readOnly = false, finished = true, onFocus, edit, onPaste, onClear, onSample, onCollapse }: SourcePanelProps) {
   const empty = edit !== undefined && edit.text.trim() === "";
   const over = charCount > charLimit;
   const paragraphs = Array.from(new Set(sentences.map((s) => s.paragraph)));
@@ -76,8 +78,18 @@ export function SourcePanel({ sentences, points, litSentenceIds, charCount, char
             {charCount.toLocaleString("en-US")} / {charLimit.toLocaleString("en-US")}
           </span>
         )}
+        {onCollapse && (
+          <button
+            type="button"
+            onClick={onCollapse}
+            className={`flex items-center gap-1.5 rounded-lg border border-border-strong px-2.5 py-1 text-[12px] font-semibold text-muted hover:text-text ${readOnly ? "ml-auto" : "ml-auto -mr-0.5"}`}
+          >
+            <ChevronUp size={14} strokeWidth={2} />
+            Fold
+          </button>
+        )}
         {!readOnly && (
-        <div className="ml-auto flex gap-1.5">
+        <div className={`${onCollapse ? "" : "ml-auto "}flex gap-1.5`}>
           {empty && onSample && (
             <button
               type="button"

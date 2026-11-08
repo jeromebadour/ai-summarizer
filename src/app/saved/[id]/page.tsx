@@ -75,6 +75,7 @@ async function SavedSummary({ params, searchParams }: Pick<PageProps<"/saved/[id
           savedAt={saved.savedAt}
           deleteHref={`${here}?dialog=delete`}
           links={user.links}
+          view={user.resultView}
         />
       </main>
       {dialog === "delete" && (

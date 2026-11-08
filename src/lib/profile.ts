@@ -17,6 +17,8 @@ export type Account = {
   motion?: "system" | "full" | "reduced";
   /** How summaries show their links to the source: every thread at once, or only on hover. */
   links?: "always" | "hover";
+  /** How a finished summary is laid out: side by side with the source, or one column with quotes. */
+  resultView?: "split" | "column";
 };
 
 export type ProfileStats = {

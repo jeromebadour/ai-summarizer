@@ -11,6 +11,7 @@ import { SourcePanel } from "@/components/SourcePanel";
 import { StatusPill, type AppStatus } from "@/components/StatusPill";
 import { StopStrip, type AppStop } from "@/components/StopStrip";
 import { SummaryPanel } from "@/components/SummaryPanel";
+import { Composer } from "@/components/Composer";
 import { MAX_SOURCE_CHARS, MIN_SOURCE_WORDS } from "@/lib/distill";
 import { splitSentences } from "@/lib/sentences";
 import { stopFor } from "@/lib/stops";
@@ -52,12 +53,14 @@ export function DistillWorkspace({
   guest,
   sampleText,
   links,
+  view,
 }: {
   initial: WorkspaceState;
   defaultLength: SummaryLength;
   guest: boolean;
   sampleText: string;
   links: "always" | "hover";
+  view: "split" | "column";
 }) {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -288,6 +291,7 @@ export function DistillWorkspace({
       {phase === "done" && result ? (
         <ResultView
           links={links}
+          view={view}
           sentences={sentences}
           summary={result.summary}
           charLimit={MAX_SOURCE_CHARS}
@@ -298,7 +302,8 @@ export function DistillWorkspace({
           onClear={clear}
         />
       ) : phase === "running" ? (
-        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5">
+        // Opening out of the composer: the text slides left into the source pane, the summary rises in on the right.
+        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5 [&>*:first-child]:animate-[open-left_420ms_cubic-bezier(.2,.8,.2,1)] [&>*:nth-child(2)]:animate-[open-right_520ms_cubic-bezier(.2,.8,.2,1)]">
           <SourcePanel
             sentences={sentences}
             points={run.points}
@@ -313,22 +318,20 @@ export function DistillWorkspace({
           <SummaryPanel state="running" run={run} length={length} wordsIn={countWords(text)} onRetry={() => void distill()} />
         </div>
       ) : (
-        <div className="grid min-h-0 flex-1 grid-cols-[0.8fr_1.2fr] gap-5">
-          <SourcePanel
-            sentences={[]}
-            points={[]}
-            litSentenceIds={[]}
-            charCount={text.length}
-            charLimit={MAX_SOURCE_CHARS}
-            locked={false}
-            finished={false}
-            edit={{ text, onChange: edit }}
-            onPaste={paste}
-            onClear={clear}
-            onSample={() => edit(sampleText)}
-          />
-          <SummaryPanel state="idle" length={length} hint={!blocked} onDistill={canRun ? () => void distill() : undefined} wordsShort={short ? words : undefined} />
-        </div>
+        // Before Distill: the composer alone, centred. No summary side until there is something to put there.
+        <Composer
+          text={text}
+          words={words}
+          charLimit={MAX_SOURCE_CHARS}
+          canRun={canRun}
+          short={short}
+          blocked={blocked}
+          onChange={edit}
+          onPaste={paste}
+          onClear={clear}
+          onSample={() => edit(sampleText)}
+          onDistill={() => void distill()}
+        />
       )}
     </>
   );

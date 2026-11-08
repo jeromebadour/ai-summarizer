@@ -31,6 +31,7 @@ export type CurrentUser = {
   theme: "system" | "light" | "dark";
   motion: "system" | "full" | "reduced";
   links: "always" | "hover";
+  resultView: "split" | "column";
   createdAt: Date;
   /** Guests have no email to confirm, so they count as confirmed. */
   emailVerified: boolean;
@@ -39,7 +40,7 @@ export type CurrentUser = {
 };
 
 const userColumns = `id, name, username, email, avatar_colour, role, suspended_at is not null as suspended,
-  default_length, theme, motion, links, created_at, (role = 'guest' or email_verified_at is not null) as email_verified, pending_email`;
+  default_length, theme, motion, links, result_view, created_at, (role = 'guest' or email_verified_at is not null) as email_verified, pending_email`;
 
 function toUser(row: Record<string, unknown>): CurrentUser {
   return {
@@ -55,6 +56,7 @@ function toUser(row: Record<string, unknown>): CurrentUser {
     theme: row.theme as CurrentUser["theme"],
     motion: row.motion as CurrentUser["motion"],
     links: row.links as CurrentUser["links"],
+    resultView: row.result_view as CurrentUser["resultView"],
     createdAt: row.created_at as Date,
     emailVerified: row.email_verified as boolean,
     pendingEmail: (row.pending_email as string | null) ?? null,

@@ -69,7 +69,8 @@ with sync_playwright() as p:
 
     # 1. Editing: an empty text area, the Sample button, the idle summary panel; Distill can't run yet.
     check("empty screen offers the text area and Sample", pg.locator("textarea").count() == 1 and pg.locator("button:has-text('Sample')").count() == 1)
-    check("the idle panel says what comes", pg.locator("text=Every number is checked against your text").count() == 1)
+    check("the composer stands alone, saying what comes", pg.locator("text=What should we").count() == 1
+          and pg.locator("text=Figures checked").count() == 1 and pg.locator("h2:text-is('Summary')").count() == 0)
     check("Distill can't run on an empty text", distill_button(pg).is_disabled())
     check("no Clear on an empty text", pg.locator("button:has-text('Clear')").count() == 0)
     check("no shortcut hint while Distill can't run", pg.locator("main kbd:has-text('Ctrl')").count() == 1)  # only the idle panel's line
@@ -171,7 +172,8 @@ with sync_playwright() as p:
     pg = page_for(b, t5)
     pg.fill("textarea", "a" * 20001)
     check("over the limit: Distill can't run", distill_button(pg).is_disabled())
-    check("over the limit: the counter says so", pg.locator("text=20,001 / 20,000").count() == 1)
+    check("over the limit: the counter says so, in amber", pg.locator("span.text-flag:has-text('20,001 / 20,000')").count() == 1
+          and pg.locator("text=Too short to distill").count() == 0)
     pg.context.close()
 
     # 9. Light theme pictures of the main states.

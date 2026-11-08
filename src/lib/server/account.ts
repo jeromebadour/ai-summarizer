@@ -41,6 +41,7 @@ export function toAccount(user: CurrentUser, zone: string): Account {
     theme: user.theme,
     motion: user.motion,
     links: user.links,
+    resultView: user.resultView,
   };
 }
 
