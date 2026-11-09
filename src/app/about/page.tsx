@@ -1,7 +1,8 @@
-import { ArrowUpRight, Bot, BriefcaseBusiness, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, BookOpenText, Bot, BriefcaseBusiness, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DocShell } from "@/components/DocShell";
+import { CREDIT_URL } from "@/components/CreditLink";
 import { OnThisPage } from "@/components/OnThisPage";
 import { publicStats } from "@/lib/server/stats";
 import { monthYear, viewerZone } from "@/lib/server/zone";
@@ -152,16 +153,29 @@ export default function AboutPage() {
           .
         </p>
         {/* One way to hire him; no prices anywhere on the site (Kami's call). */}
-        <a
-          href="https://www.upwork.com/freelancers/~018fb626b478552f9f"
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
-        >
-          <BriefcaseBusiness size={17} strokeWidth={2.1} />
-          Work with me on Upwork
-          <ArrowUpRight size={15} strokeWidth={2.1} className="opacity-80" />
-        </a>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <a
+            href="https://www.upwork.com/freelancers/~018fb626b478552f9f"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-[14px] font-semibold text-on-brand shadow-[0_6px_24px_-8px_var(--brand)] hover:brightness-110"
+          >
+            <BriefcaseBusiness size={17} strokeWidth={2.1} />
+            Work with me on Upwork
+            <ArrowUpRight size={15} strokeWidth={2.1} className="opacity-80" />
+          </a>
+          {/* His site's page about Distill, in its Upwork mode (see CreditLink). */}
+          <a
+            href={CREDIT_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-line px-4 py-2.5 text-[14px] font-semibold text-brand-strong hover:border-brand-strong hover:text-text"
+          >
+            <BookOpenText size={17} strokeWidth={2.1} />
+            The case study
+            <ArrowUpRight size={15} strokeWidth={2.1} className="opacity-80" />
+          </a>
+        </div>
       </section>
     </DocShell>
   );

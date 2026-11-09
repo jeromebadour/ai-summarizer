@@ -2,6 +2,7 @@ import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
 import { CodeXml, Library, Link2, ShieldCheck } from "lucide-react";
 import { AuthShowcase } from "@/components/AuthShowcase";
+import { CreditLink } from "@/components/CreditLink";
 
 /** The sign-in screens' frame: Distill's story on the left, the step on the right (sign in, verify, reset). */
 export function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -37,8 +38,8 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 font-mono text-[11.5px] text-muted max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2">
-          <span>Built by Jerome Badour</span>
+        <div className="flex items-center gap-4 font-mono text-[11.5px] text-muted [&>*]:whitespace-nowrap max-md:flex-wrap max-md:gap-x-4 max-md:gap-y-2">
+          <CreditLink />
           <span>© 2026 Jerome Badour</span>
           <Link href="/about" className="text-brand-strong hover:text-text">About</Link>
           <Link href="/privacy" className="text-brand-strong hover:text-text">Privacy</Link>

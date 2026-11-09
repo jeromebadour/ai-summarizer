@@ -1,6 +1,7 @@
 import { CodeXml, Eye, FlaskConical, Info, Library, Scale, ShieldCheck, type LucideIcon } from "lucide-react";
 import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
+import { CreditLink } from "@/components/CreditLink";
 
 const columns: { title: string; links: { href: string; label: string; icon: LucideIcon; external?: boolean }[] }[] = [
   {
@@ -63,7 +64,7 @@ export function SiteFooter() {
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-[1120px] items-center gap-4 px-8 py-4 font-mono text-[11.5px] text-muted max-md:flex-wrap max-md:gap-2 max-md:px-4">
           <span>© 2026 Jerome Badour. All rights reserved.</span>
-          <span className="ml-auto max-md:ml-0">Built by Jerome Badour</span>
+          <CreditLink className="ml-auto max-md:ml-0" />
         </div>
       </div>
     </footer>

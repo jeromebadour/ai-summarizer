@@ -117,6 +117,6 @@ and open http://localhost:3101. The read-only admin demo is at `/demo/admin`.
 
 ---
 
-Built by Jerome Badour. [Work with me on Upwork](https://www.upwork.com/freelancers/~018fb626b478552f9f).
+Built by [Jerome Badour](https://jeromebadour.com/work/distill). [Work with me on Upwork](https://www.upwork.com/freelancers/~018fb626b478552f9f).
 
 © 2026 Jerome Badour. All rights reserved. See [LICENSE](LICENSE).

@@ -101,6 +101,19 @@ with sync_playwright() as p:
     other.click("main button:has-text('Column')")
     other.wait_for_timeout(800)
     check("Preferences sets Column", sql(f"select result_view from users where id = '{uid}'") == "column")
+
+    # The credit to Jerome: his site's Distill page, in its Upwork mode (no contact off Upwork), in a new tab.
+    CREDIT = "https://jeromebadour.com/work/distill?via=upwork"
+    anon = b.new_context(viewport={"width": 1366, "height": 650}).new_page()
+    for path, where in [("/login", "the sign-in page"), ("/about", "About's footer")]:
+        anon.goto(BASE + path)
+        link = anon.locator("a:has-text('Built by Jerome Badour')").first
+        check(f"{where} credits Jerome, linking to his site in Upwork mode",
+              link.get_attribute("href") == CREDIT and link.get_attribute("target") == "_blank", str(link.get_attribute("href")))
+    case = anon.locator("#who a:has-text('The case study')")
+    check("About's Who made it opens the case study in Upwork mode", case.get_attribute("href") == CREDIT)
+    check("the credit fits the sign-in footer on one line at 1366 x 650",
+          anon.evaluate("document.documentElement.scrollWidth") == 1366)
     b.close()
 
 passed = sum(ok for _, ok in results)
