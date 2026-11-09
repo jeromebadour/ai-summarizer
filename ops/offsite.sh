@@ -21,6 +21,9 @@ offsite_ready() {
     : "${R2_ACCESS_KEY_ID:?offsite.env has no R2_ACCESS_KEY_ID}" "${R2_SECRET_ACCESS_KEY:?offsite.env has no R2_SECRET_ACCESS_KEY}" "${R2_ENDPOINT:?offsite.env has no R2_ENDPOINT}"
     export RCLONE_S3_PROVIDER=Cloudflare RCLONE_S3_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID RCLONE_S3_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY
     export RCLONE_S3_ENDPOINT=$R2_ENDPOINT RCLONE_S3_NO_CHECK_BUCKET=true
+    # No read-back after an upload: rclone 1.60 (Ubuntu's) reads the object back by version id, which R2 answers with
+    # 501 Not Implemented, so every first attempt failed and only the retry passed. The size is checked below instead.
+    export RCLONE_S3_NO_HEAD=true
     offsite_remote=":s3:${R2_BUCKET:-jeromebadour-backups}/distill"
   else
     return 1
@@ -44,10 +47,12 @@ offsite_upload() {
   offsite_fail() { rm -f "$enc"; offsite_record false; echo "offsite: $1" >&2; return 1; }
   age -r "$(age-keygen -y "$offsite_key")" -o "$enc" "$dump" || { offsite_fail "could not encrypt the dump"; return 1; }
   rclone -q copyto --retries 3 "$enc" "$offsite_remote/$(basename "$dump").age" || { offsite_fail "upload failed"; return 1; }
+  bytes=$(stat -c %s "$enc")
+  [ "$(rclone -q lsf --format s "$offsite_remote/$(basename "$dump").age")" = "$bytes" ] \
+    || { offsite_fail "the copy off the box is not the size of the dump ($bytes bytes)"; return 1; }
   rclone -q delete --min-age "${offsite_keep_days}d" --include 'distill-*.dump.age' "$offsite_remote" || { offsite_fail "could not drop old copies"; return 1; }
   count=$(rclone -q lsf --include 'distill-*.dump.age' "$offsite_remote" | wc -l)
   [ "$count" -ge 1 ] || { offsite_fail "the copy is not there after the upload"; return 1; }
-  bytes=$(stat -c %s "$enc")
   rm -f "$enc"
   offsite_record true "$bytes" "$count"
   echo "offsite: $(basename "$dump").age $bytes bytes, $count kept off the box"
