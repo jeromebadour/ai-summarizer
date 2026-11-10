@@ -1,10 +1,13 @@
 name: CI
 
-# Every push and pull request. First the code: types, lint, unit tests, every database suite. Then what ships: the
-# real image and compose.yaml (Postgres, the migration step, the app), with every browser suite run against that
-# container and a fake Claude (no key, no cost). Nothing broken reaches the server.
+# Every pull request, and main after each merge. First the code: types, lint, unit tests, every database suite. Then
+# what ships: the real image and compose.yaml (Postgres, the migration step, the app), with every browser suite run
+# against that container and a fake Claude (no key, no cost). Changes reach main only through a pull request, and the
+# ruleset "main gate" refuses the merge unless both jobs pass on an up-to-date branch (merge.yml does the merging).
+# The deploy script refuses any commit on main whose run here didn't pass: two gates, merge and deploy.
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:

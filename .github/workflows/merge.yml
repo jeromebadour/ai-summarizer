@@ -1,0 +1,58 @@
+name: Merge
+
+# Changes reach main only through a pull request: the ruleset "main gate" requires CI's `checks` and `container` to
+# pass on a branch that is up to date with main, merges by squash only, and has no bypass list. This workflow does the
+# clicking, as Jerome (DISTILL_MERGE_TOKEN, a fine-grained token for this repo only): a push to a `work/` branch opens
+# its pull request, and a green CI run on that pull request merges it. A red run leaves it open and blocked.
+on:
+  push:
+    branches: ["work/**"]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  open:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Open the pull request
+        env:
+          GH_TOKEN: ${{ secrets.DISTILL_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          open=$(gh pr list -R "$REPO" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then echo "Pull request #$open is already open; CI runs on the new commit."; exit 0; fi
+          message=$(gh api "repos/$REPO/commits/$SHA" --jq .commit.message)
+          title=$(printf '%s\n' "$message" | head -n 1)
+          body=$(printf '%s\n' "$message" | tail -n +3)
+          gh pr create -R "$REPO" --base main --head "$BRANCH" --title "$title" --body "${body:-$title}"
+
+  merge:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      startsWith(github.event.workflow_run.head_branch, 'work/')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Merge it, squashed, as Jerome
+        env:
+          GH_TOKEN: ${{ secrets.DISTILL_MERGE_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          number=$(gh pr list -R "$REPO" --head "$BRANCH" --state open --json number,headRefOid \
+            --jq ".[] | select(.headRefOid == \"$HEAD_SHA\") | .number")
+          if [ -z "$number" ]; then echo "No open pull request at $HEAD_SHA (a newer commit was pushed, or it's merged)."; exit 0; fi
+          gh pr merge "$number" -R "$REPO" --squash --delete-branch --match-head-commit "$HEAD_SHA" \
+            --author-email "353646076+jeromebadour@users.noreply.github.com"
