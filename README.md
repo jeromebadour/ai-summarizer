@@ -95,7 +95,9 @@ Most summarizers give you a paragraph and ask you to trust it. Distill shows its
 
 ## How it's tested
 
-Every push runs, in GitHub Actions:
+Every change reaches `main` through a pull request, and CI must pass before it can merge (a ruleset with no bypass:
+both jobs required, the branch up to date with `main`). The server deploys only a commit whose CI passed. Every pull
+request runs, in GitHub Actions:
 
 - the type check, lint and unit tests;
 - 16 database suites, each on a fresh database, that try to break the rules (limits, permissions, privacy, the audit
