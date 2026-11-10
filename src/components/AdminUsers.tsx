@@ -1,4 +1,4 @@
-import { Ban, CalendarDays, ChevronRight, CircleCheck, Coins, FileText, Mail, UserRound, type LucideIcon } from "lucide-react";
+import { Ban, CalendarDays, ChevronRight, CircleCheck, Coins, FileText, Mail, UserRound, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { AdminSearch } from "@/components/AdminSearch";
 import { Pager } from "@/components/Pager";
@@ -14,7 +14,7 @@ const columns = "grid-cols-[32px_minmax(0,1.4fr)_minmax(0,1.3fr)_150px_120px_90p
 /** Without the Spend column, for staff who don't see spend (moderators). */
 const columnsNoSpend = "grid-cols-[32px_minmax(0,1.4fr)_minmax(0,1.3fr)_150px_120px_90px_118px_20px]";
 
-const statusLook: Record<UserStatus, { icon: LucideIcon; label: string; tone: string }> = {
+const statusLook: Record<UserStatus, { icon: GlyphIcon; label: string; tone: string }> = {
   active: { icon: CircleCheck, label: "Active", tone: "border-verify/35 bg-verify-soft text-verify" },
   guest: { icon: UserRound, label: "Guest", tone: "border-input/35 bg-input-soft text-input" },
   suspended: { icon: Ban, label: "Suspended", tone: "border-clear/40 bg-clear-soft text-clear" },
@@ -28,7 +28,7 @@ const recencyTone: Record<Recency, string> = {
 };
 
 /** A filter chip is a link to the same view with that filter switched (back to page 1). */
-function Chip({ href, active, tone, icon: Icon, label, count }: { href: string; active: boolean; tone: string; icon?: LucideIcon; label: string; count: number }) {
+function Chip({ href, active, tone, icon: Icon, label, count }: { href: string; active: boolean; tone: string; icon?: GlyphIcon; label: string; count: number }) {
   return (
     <Link
       href={href as never}

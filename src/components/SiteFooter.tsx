@@ -1,9 +1,9 @@
-import { CodeXml, Eye, FlaskConical, Info, Library, Scale, ShieldCheck, type LucideIcon } from "lucide-react";
+import { CodeXml, Eye, FlaskConical, Info, Library, Scale, ShieldCheck, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
 import { CreditLink } from "@/components/CreditLink";
 
-const columns: { title: string; links: { href: string; label: string; icon: LucideIcon; external?: boolean }[] }[] = [
+const columns: { title: string; links: { href: string; label: string; icon: GlyphIcon; external?: boolean }[] }[] = [
   {
     title: "Distill",
     links: [

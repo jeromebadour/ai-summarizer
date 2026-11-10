@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, RotateCcw } from "lucide-react";
+import { FlaskConical, RotateCcw } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { ErrorScreen } from "@/components/ErrorScreen";
 

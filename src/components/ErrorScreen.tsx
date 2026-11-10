@@ -1,8 +1,8 @@
-import { ServerCrash, type LucideIcon } from "lucide-react";
+import { ServerCrash, type GlyphIcon } from "@/components/glyphs";
 import type { ReactNode } from "react";
 
 /** Full-screen problem state, styled like the app, for errors and missing pages. */
-export function ErrorScreen({ icon: Icon = ServerCrash, title, detail, code, actions }: { icon?: LucideIcon; title: string; detail: string; code?: string; actions: ReactNode }) {
+export function ErrorScreen({ icon: Icon = ServerCrash, title, detail, code, actions }: { icon?: GlyphIcon; title: string; detail: string; code?: string; actions: ReactNode }) {
   return (
     <div role="alert" className="grid h-screen place-items-center px-6">
       <div className="w-[460px] overflow-hidden rounded-2xl border border-flag/35 bg-panel max-md:w-full">

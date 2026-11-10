@@ -1,4 +1,4 @@
-import { CircleCheck, LoaderCircle, Radio, TriangleExclamationPoint, type LucideIcon } from "lucide-react";
+import { CircleCheck, LoaderCircle, Radio, TriangleExclamationPoint, type GlyphIcon } from "@/components/glyphs";
 
 export type AppStatus =
   | { kind: "ready" }
@@ -6,7 +6,7 @@ export type AppStatus =
   | { kind: "saved"; at: string; label?: string }
   | { kind: "error"; label: string };
 
-const looks: Record<AppStatus["kind"], { icon: LucideIcon; tone: string; spin?: boolean }> = {
+const looks: Record<AppStatus["kind"], { icon: GlyphIcon; tone: string; spin?: boolean }> = {
   ready: { icon: Radio, tone: "border-brand-line text-brand" },
   working: { icon: LoaderCircle, tone: "border-brand-line bg-brand-soft text-brand-strong", spin: true },
   saved: { icon: CircleCheck, tone: "border-brand-line bg-brand-soft text-brand-strong" },

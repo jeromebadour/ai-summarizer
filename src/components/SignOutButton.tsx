@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, UserRoundPlus, X } from "lucide-react";
+import { LogOut, UserRoundPlus, X } from "@/components/glyphs";
 import { useEffect, useState } from "react";
 import Link from "@/components/NavLink";
 import { signOut } from "@/app/actions/auth";

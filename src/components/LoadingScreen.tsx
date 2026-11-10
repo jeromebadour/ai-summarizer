@@ -1,4 +1,4 @@
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "@/components/glyphs";
 
 export function LoadingScreen({ label }: { label: string }) {
   return (

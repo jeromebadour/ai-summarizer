@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/inter";
-import "@fontsource-variable/jetbrains-mono";
+import "@fontsource-variable/schibsted-grotesk";
+import "@fontsource/fragment-mono";
 import "./globals.css";
 import { Suspense } from "react";
 import { Notice } from "@/components/Notice";

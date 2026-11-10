@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, ShieldUser, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ShieldUser, X } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 

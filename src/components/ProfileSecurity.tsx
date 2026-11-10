@@ -1,12 +1,12 @@
-import { CircleCheck, Download, KeyRound, Laptop, LogOut, MapPin, Monitor, Smartphone, UserX, type LucideIcon } from "lucide-react";
+import { CircleCheck, Download, KeyRound, Laptop, LogOut, MapPin, Monitor, Smartphone, UserX, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { signOutDevice } from "@/app/actions/account";
 import { PendingButton } from "@/components/PendingButton";
 import type { DeviceKind, SignedInDevice } from "@/lib/profile";
 
-const deviceIcons: Record<DeviceKind, LucideIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
+const deviceIcons: Record<DeviceKind, GlyphIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
 
-function Card({ icon: Icon, tone, title, detail, action, children }: { icon: LucideIcon; tone: string; title: string; detail: string; action?: React.ReactNode; children?: React.ReactNode }) {
+function Card({ icon: Icon, tone, title, detail, action, children }: { icon: GlyphIcon; tone: string; title: string; detail: string; action?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-border bg-panel">
       <div className="flex items-center gap-5 px-7 py-5 max-md:flex-wrap max-md:gap-x-3 max-md:gap-y-3 max-md:px-4 max-md:py-4">

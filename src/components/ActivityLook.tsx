@@ -1,8 +1,8 @@
-import { FileText, KeyRound, LockKeyhole, MailCheck, LogIn, ShieldUser, UserRound, UserRoundCheck, UserRoundPlus, UserRoundX, type LucideIcon } from "lucide-react";
+import { FileText, KeyRound, LockKeyhole, MailCheck, LogIn, ShieldUser, UserRound, UserRoundCheck, UserRoundPlus, UserRoundX, type GlyphIcon } from "@/components/glyphs";
 import type { ActivityKind } from "@/lib/admin";
 
 /** Each kind of event has its own glyph and colour, the same on the Overview and in the Activity log. */
-export const activityLook: Record<ActivityKind, { icon: LucideIcon; tone: string; label: string }> = {
+export const activityLook: Record<ActivityKind, { icon: GlyphIcon; tone: string; label: string }> = {
   signup: { icon: UserRoundPlus, tone: "border-input/35 bg-input-soft text-input", label: "Signed up" },
   guest: { icon: UserRound, tone: "border-input/35 bg-input-soft text-input", label: "Guest session" },
   signin: { icon: LogIn, tone: "border-medium/35 bg-medium-soft text-medium", label: "Signed in" },

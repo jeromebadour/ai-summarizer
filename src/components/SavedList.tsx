@@ -1,4 +1,5 @@
-import { ArrowDownWideNarrow, ChevronRight, SearchX, ShieldCheck, TriangleExclamationPoint, X } from "lucide-react";
+import { Reduction } from "@/components/still";
+import { ArrowDownWideNarrow, ChevronRight, SearchX, ShieldCheck, TriangleExclamationPoint, X } from "@/components/glyphs";
 import { ScrollArea } from "@/components/ScrollArea";
 import Link from "@/components/NavLink";
 import { lengthStyles } from "@/components/LengthPicker";
@@ -104,15 +105,14 @@ function Row({ item, n }: { item: SavedItem; n: number }) {
 
         <span className="flex gap-1.5 max-md:col-start-3 max-md:flex-wrap max-md:empty:hidden">
           {item.keyFigures.map((figure) => (
-            <span key={figure} className="rounded-md border border-border bg-panel-raised/60 px-2 py-1 font-mono text-[12px] font-semibold text-figure">
+            <span key={figure} className="rounded-full border border-[var(--meniscus)]/40 bg-[var(--liquid)] px-2.5 py-1 text-[12.5px] font-bold text-text">
               {figure}
             </span>
           ))}
         </span>
 
         <span className="max-md:hidden">
-          <span className="block h-1 rounded-full bg-border-strong" />
-          <span className="mt-1 block h-1 rounded-full bg-brand" style={{ width: `${Math.max(ratio * 100, 3)}%` }} />
+          <Reduction ratio={ratio} />
           <span className="mt-1.5 block font-mono text-[11px] text-brand-strong">{Math.round((1 - ratio) * 100)}% shorter</span>
         </span>
 

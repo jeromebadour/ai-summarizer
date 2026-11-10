@@ -17,15 +17,17 @@ const CONTACT = "privacy@jeromebadour.com";
 
 // The app's own colours, written out (email apps don't read CSS variables).
 const c = {
-  page: "#f6f6f2",
-  card: "#ffffff",
-  line: "#e3e3dc",
-  text: "#1d2128",
-  muted: "#50565f",
-  faint: "#767c85",
-  brand: "#4f629c",
-  brandSoft: "#eef0f7",
-  brandLine: "#c9d0e6",
+  page: "#e9eef4",
+  card: "#f8fafc",
+  line: "#d6dde7",
+  text: "#17202c",
+  muted: "#4a5566",
+  faint: "#636e7e",
+  brand: "#3a5cc2",
+  brandSoft: "#e6ecf8",
+  brandLine: "#b8c6ea",
+  liquid: "#cdd8f2",
+  copper: "#a8693f",
 };
 
 const words = {
@@ -76,25 +78,25 @@ export function accountEmail(kind: AccountEmailKind, { name, code, url }: { name
 <tr><td style="padding:0 4px 20px;">
   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
     <td style="vertical-align:middle;"><img src="${SITE}/email/mark.png" width="36" height="36" alt="" style="display:block;border:0;border-radius:10px;"></td>
-    <td style="vertical-align:middle;padding-left:10px;font:600 18px ${font};color:${c.text};letter-spacing:-0.01em;">Distill</td>
+    <td style="vertical-align:middle;padding-left:10px;font:800 19px ${font};color:${c.text};letter-spacing:-0.02em;">Distill</td>
   </tr></table>
 </td></tr>
 
-<tr><td style="background:${c.card};border:1px solid ${c.line};border-radius:16px;padding:32px 32px 28px;">
-  <h1 style="margin:0;font:600 22px/1.3 ${font};color:${c.text};letter-spacing:-0.01em;">${esc(w.title)}</h1>
+<tr><td style="background:${c.card};border:1px solid ${c.line};border-top:3px solid ${c.copper};border-radius:18px;padding:30px 32px 28px;">
+  <h1 style="margin:0;font:800 24px/1.25 ${font};color:${c.text};letter-spacing:-0.02em;">${esc(w.title)}</h1>
   <p style="margin:10px 0 0;font:400 15px/1.6 ${font};color:${c.muted};">${esc(w.lead(name))}</p>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
-    <tr><td align="center" style="background:${c.brandSoft};border:1px solid ${c.brandLine};border-radius:12px;padding:18px 12px 14px;">
-      <div style="font:600 11px ${font};color:${c.brand};letter-spacing:0.12em;text-transform:uppercase;">Your code</div>
+    <tr><td align="center" style="background:${c.brandSoft};border:1px solid ${c.brandLine};border-bottom:0;border-radius:16px 16px 0 0;padding:18px 12px 10px;">
+      <div style="font:600 11px ${font};color:${c.brand};letter-spacing:0.14em;text-transform:uppercase;">Your code</div>
       <div style="margin-top:6px;font:700 34px ${mono};color:${c.text};letter-spacing:0.18em;-webkit-user-select:all;user-select:all;">${spaced}</div>
-      <div style="margin-top:6px;font:400 12px ${font};color:${c.faint};">Tap or double-click to select it</div>
     </td></tr>
+    <tr><td align="center" style="background:${c.liquid};border:1px solid ${c.brandLine};border-top:1px solid ${c.brand};border-radius:0 0 16px 16px;padding:8px 12px 10px;font:400 12px ${font};color:${c.muted};">Tap or double-click to select it</td></tr>
   </table>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
-    <tr><td align="center" style="border-radius:12px;background:${c.brand};">
-      <a href="${esc(url)}" style="display:block;padding:14px 20px;font:600 15px ${font};color:#ffffff;text-decoration:none;border-radius:12px;">${esc(w.button)}</a>
+    <tr><td align="center" style="border-radius:14px;background:${c.brand};">
+      <a href="${esc(url)}" style="display:block;padding:14px 20px;font:700 15px ${font};color:#ffffff;text-decoration:none;border-radius:14px;">${esc(w.button)}</a>
     </td></tr>
   </table>
 

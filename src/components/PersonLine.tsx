@@ -1,4 +1,4 @@
-import { UserRound } from "lucide-react";
+import { UserRound } from "@/components/glyphs";
 import { Avatar } from "@/components/Avatar";
 import type { Person } from "@/lib/admin";
 import { roleLabel, type Role } from "@/lib/permissions";

@@ -1,4 +1,4 @@
-import { FlaskConical } from "lucide-react";
+import { FlaskConical } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 
 function GhostRow({ width }: { width: string }) {

@@ -17,8 +17,8 @@ import {
   Smartphone,
   TimerReset,
   TriangleExclamationPoint,
-  type LucideIcon,
-} from "lucide-react";
+  type GlyphIcon,
+} from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { Avatar } from "@/components/Avatar";
 import { DayBars } from "@/components/DayBars";
@@ -28,10 +28,10 @@ import { StatTile } from "@/components/StatTile";
 import { formatCost, type UserDetail } from "@/lib/admin";
 import { can, outranks, type Role } from "@/lib/permissions";
 
-const deviceIcon: Record<UserDetail["sessions"][number]["kind"], LucideIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
+const deviceIcon: Record<UserDetail["sessions"][number]["kind"], GlyphIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
 
 /** Opens the action's dialog (named in the URL, so it can be linked and refreshed). */
-function Action({ href, icon: Icon, label, tone }: { href: string; icon: LucideIcon; label: string; tone: string }) {
+function Action({ href, icon: Icon, label, tone }: { href: string; icon: GlyphIcon; label: string; tone: string }) {
   return (
     <Link href={href as never} scroll={false} className={`flex items-center gap-2 rounded-xl border px-3.5 py-2 text-[13px] font-semibold ${tone}`}>
       <Icon size={17} strokeWidth={2} />
@@ -40,7 +40,7 @@ function Action({ href, icon: Icon, label, tone }: { href: string; icon: LucideI
   );
 }
 
-function Panel({ icon: Icon, tone, title, aside, grow = false, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; grow?: boolean; children: React.ReactNode }) {
+function Panel({ icon: Icon, tone, title, aside, grow = false, children }: { icon: GlyphIcon; tone: string; title: string; aside?: React.ReactNode; grow?: boolean; children: React.ReactNode }) {
   return (
     <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
       <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">

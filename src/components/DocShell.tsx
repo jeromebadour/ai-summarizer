@@ -1,4 +1,4 @@
-import { FlaskConical, Info, LogIn, Scale, ShieldCheck } from "lucide-react";
+import { FlaskConical, Info, LogIn, Scale, ShieldCheck } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { Suspense, type ReactNode } from "react";
 import { BrandMark } from "@/components/BrandMark";

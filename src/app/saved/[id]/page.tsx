@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";

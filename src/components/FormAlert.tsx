@@ -1,4 +1,4 @@
-import { Info, TriangleExclamationPoint } from "lucide-react";
+import { Info, TriangleExclamationPoint } from "@/components/glyphs";
 import type { ReactNode } from "react";
 
 /**

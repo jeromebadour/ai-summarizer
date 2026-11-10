@@ -1,6 +1,6 @@
 "use client";
 
-import { AtSign, Download, FileText, Monitor, UserX, X } from "lucide-react";
+import { AtSign, Download, FileText, Monitor, UserX, X } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { useActionState, useState } from "react";
 import { deleteAccount } from "@/app/actions/account";

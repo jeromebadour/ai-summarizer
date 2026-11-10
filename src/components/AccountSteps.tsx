@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole, LogIn, Mail, MailCheck, MailOpen, RotateCw, Send, TimerOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, KeyRound, LoaderCircle, LockKeyhole, LogIn, Mail, MailCheck, MailOpen, RotateCw, Send, TimerOff } from "@/components/glyphs";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { signOut } from "@/app/actions/auth";

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, ClipboardPaste, Eraser, FileText } from "lucide-react";
+import { BookOpen, ClipboardPaste, Eraser, FileText } from "@/components/glyphs";
 import { Coverage } from "@/components/SourcePanel";
 import type { Focus, SourceSentence, SummaryPoint } from "@/lib/summary";
 

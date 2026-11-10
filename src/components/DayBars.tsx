@@ -25,7 +25,7 @@ export function DayBars({
           <div key={index} className="flex h-full max-w-24 flex-1 flex-col items-center justify-end gap-1.5">
             <span className="font-mono text-[10px] text-muted">{value > 0 ? format(value) : ""}</span>
             <span
-              className={`w-full rounded-md ${value > 0 ? (index === days - 1 ? today : bar) : "bg-border"}`}
+              className={`tube-bar w-full rounded-full ${value > 0 ? (index === days - 1 ? today : bar) : "bg-border"}`}
               style={{ height: value > 0 ? `${(value / peak) * 85}%` : "3px" }}
             />
           </div>

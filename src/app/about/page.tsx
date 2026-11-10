@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpenText, Bot, BriefcaseBusiness, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, BookOpenText, Bot, BriefcaseBusiness, Database, Eye, FileCheck, Gauge, KeyRound, Layers, Library, Link2, ScanSearch, ShieldCheck, TestTubes, type GlyphIcon } from "@/components/glyphs";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DocShell } from "@/components/DocShell";
@@ -19,7 +19,7 @@ const sections = [
   { id: "who", title: "Who made it" },
 ];
 
-const features: { icon: LucideIcon; tone: string; title: string; text: string }[] = [
+const features: { icon: GlyphIcon; tone: string; title: string; text: string }[] = [
   { icon: Link2, tone: "text-brand-strong border-brand-line bg-brand-soft", title: "Linked to the source", text: "Every point shows the sentences it came from, drawn as lines across to your text." },
   { icon: FileCheck, tone: "text-verify border-verify/35 bg-verify-soft", title: "Figures checked", text: "Every number in a summary is checked against its sentences by code, not by the model." },
   { icon: ScanSearch, tone: "text-input border-input/35 bg-input-soft", title: "What was left out", text: "The coverage strip shows which sentences made it into the summary and which did not." },
@@ -28,7 +28,7 @@ const features: { icon: LucideIcon; tone: string; title: string; text: string }[
   { icon: Gauge, tone: "text-brand-strong border-brand-line bg-brand-soft", title: "Fair limits", text: "Hourly and daily limits, and spend caps that pause calmly instead of failing." },
 ];
 
-const stack: { icon: LucideIcon; label: string; text: string }[] = [
+const stack: { icon: GlyphIcon; label: string; text: string }[] = [
   { icon: Layers, label: "App", text: "Next.js 16, React 19, TypeScript, Tailwind CSS 4" },
   { icon: Database, label: "Data", text: "PostgreSQL 16 with row-level security: every query sees only its own person's rows" },
   { icon: KeyRound, label: "Accounts", text: "Its own sign-in: Argon2id passwords, sessions stored only as a hash" },

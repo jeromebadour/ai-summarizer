@@ -1,4 +1,4 @@
-import { Circle, CircleCheck } from "lucide-react";
+import { Circle, CircleCheck } from "@/components/glyphs";
 import { passwordRules } from "@/lib/password";
 
 const strengthLooks = [

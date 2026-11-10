@@ -1,8 +1,8 @@
-import type { LucideIcon } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
 import type { ReactNode } from "react";
 
 type FieldProps = {
-  icon: LucideIcon;
+  icon: GlyphIcon;
   label: string;
   type: string;
   placeholder: string;

@@ -1,7 +1,7 @@
-import type { LucideIcon } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 
-export type PageTab = { key: string; label: string; icon: LucideIcon; href: string };
+export type PageTab = { key: string; label: string; icon: GlyphIcon; href: string };
 
 /** The one tab row: filled indigo for the open tab. Used by the profile and the admin console. */
 export function PageTabs({ tabs, current }: { tabs: PageTab[]; current: string }) {

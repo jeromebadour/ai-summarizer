@@ -70,12 +70,12 @@ export function ThreadLayer({ sources }: { sources: ThreadSource[] }) {
     <svg ref={layer} data-threads={threads.length} className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible" aria-hidden>
       {threads.map((thread, index) => (
         <g key={index}>
-          <path d={thread.d} fill="none" stroke="var(--brand-strong)" strokeOpacity={thread.strong ? 0.6 : 0.2} strokeWidth={thread.strong ? 1.5 : 1.2} />
-          <circle cx={thread.to[0]} cy={thread.to[1]} r={thread.strong ? 3.5 : 2.5} fill="var(--brand-strong)" fillOpacity={thread.strong ? 1 : 0.45} stroke="var(--paper)" strokeWidth="2" />
+          <path d={thread.d} fill="none" stroke="var(--copper)" strokeOpacity={thread.strong ? 0.85 : 0.35} strokeWidth={thread.strong ? 2 : 1.4} />
+          <circle cx={thread.to[0]} cy={thread.to[1]} r={thread.strong ? 3.5 : 2.5} fill="var(--copper)" fillOpacity={thread.strong ? 1 : 0.5} stroke="var(--paper)" strokeWidth="2" />
         </g>
       ))}
       {origins.map((t, i) => (
-        <circle key={i} cx={t.from[0]} cy={t.from[1]} r="4" fill="var(--brand-strong)" stroke="var(--panel)" strokeWidth="2" />
+        <circle key={i} cx={t.from[0]} cy={t.from[1]} r="4" fill="var(--copper)" stroke="var(--panel)" strokeWidth="2" />
       ))}
     </svg>
   );

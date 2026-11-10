@@ -1,4 +1,4 @@
-import { FlaskConical, Info, Library, ShieldUser, UserRound, type LucideIcon } from "lucide-react";
+import { FlaskConical, Info, Library, ShieldUser, UserRound, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { savePreference } from "@/app/actions/account";
 import { AppearanceSync } from "@/components/AppearanceSync";
@@ -13,7 +13,7 @@ import type { Account } from "@/lib/profile";
 export type RailPage = "distill" | "saved" | "profile" | "admin";
 
 type RailItemProps = {
-  icon: LucideIcon;
+  icon: GlyphIcon;
   label: string;
   href?: string;
   active?: boolean;

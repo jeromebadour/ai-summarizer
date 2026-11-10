@@ -1,6 +1,7 @@
 "use client";
 
-import { ClipboardPaste, Eraser, FileText, FlaskConical, Link2, Ruler, ShieldCheck, WandSparkles } from "lucide-react";
+import { StillArt } from "@/components/still";
+import { ClipboardPaste, Eraser, FileText, FlaskConical, Link2, Ruler, ShieldCheck, WandSparkles } from "@/components/glyphs";
 import { useEffect, useRef } from "react";
 import { MIN_SOURCE_WORDS } from "@/lib/distill";
 
@@ -43,10 +44,11 @@ export function Composer({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-2">
+      <StillArt />
       <div className="flex max-h-full w-full max-w-[780px] flex-col">
         {empty && (
           <div className="mb-6 text-center">
-            <h1 className="text-[32px] font-semibold tracking-[-0.025em] max-md:text-[26px]">
+            <h1 className="text-[46px] leading-[1.05] max-md:text-[30px]">
               What should we <span className="text-brand-strong">distill</span>?
             </h1>
             <p className="mt-2 text-[15px] text-muted max-md:text-[14px]">A short summary you can check: every point traced to its sentences, every number verified.</p>
@@ -55,7 +57,7 @@ export function Composer({
 
         <div
           data-composer
-          className={`relative flex min-h-0 flex-col rounded-[22px] border bg-panel shadow-[0_30px_90px_-40px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)] transition-colors ${
+          className={`relative flex min-h-0 flex-col glass overflow-hidden rounded-[30px] border bg-panel shadow-[0_30px_90px_-40px_var(--glow),0_0_0_1px_rgba(255,255,255,0.02)] transition-colors ${
             empty ? "border-border-strong" : "border-brand-line"
           }`}
         >
@@ -70,7 +72,7 @@ export function Composer({
             // Grows with the text, from a few lines up to about half the window; then it scrolls.
             className="max-h-[min(46vh,440px)] min-h-[132px] resize-none bg-transparent px-6 pt-5 pb-3 max-md:px-4 max-md:pt-4 text-[15px] font-[450] leading-[1.7] text-text outline-none [field-sizing:content] placeholder:text-faint"
           />
-          <div className="flex items-center gap-2 border-t border-border/70 px-3 py-2.5 max-md:flex-wrap">
+          <div className="vessel-foot flex items-center gap-2 border-t border-[var(--meniscus)] px-3 py-2.5 max-md:flex-wrap">
             <button
               type="button"
               onClick={onPaste}

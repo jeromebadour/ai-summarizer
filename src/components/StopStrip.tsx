@@ -1,4 +1,4 @@
-import { CalendarClock, CalendarX, Library, OctagonPause, UserRoundX, type LucideIcon } from "lucide-react";
+import { CalendarClock, CalendarX, Library, OctagonPause, UserRoundX, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 
 /** Why summaries can't run right now, for this person, beyond their hourly limit (that one has its own strip). */
@@ -13,7 +13,7 @@ export type AppStop =
   | { kind: "monthCap" }
   | { kind: "suspended" };
 
-const looks: Record<AppStop["kind"], LucideIcon> = {
+const looks: Record<AppStop["kind"], GlyphIcon> = {
   paused: OctagonPause,
   dailyCap: CalendarClock,
   dayLimit: CalendarClock,

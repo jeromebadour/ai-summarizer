@@ -1,4 +1,4 @@
-import { ArrowUpRight, UserRound } from "lucide-react";
+import { ArrowUpRight, UserRound } from "@/components/glyphs";
 
 /**
  * Jerome's site, opened on Distill's case study. `via=upwork` puts the site in its Upwork mode (no Message button, no
