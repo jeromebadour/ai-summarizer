@@ -1,4 +1,4 @@
-import { Coins, Eye, KeyRound, LayoutDashboard, OctagonPause, ScrollText, Server, ShieldUser, UsersRound } from "lucide-react";
+import { Coins, Eye, KeyRound, LayoutDashboard, OctagonPause, ScrollText, Server, ShieldUser, UsersRound } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { notFound } from "next/navigation";
 import { AdminActivity } from "@/components/AdminActivity";
@@ -86,7 +86,7 @@ export async function AdminShell({
             <div role="note" className="flex items-center gap-2 rounded-full border border-figure/40 bg-figure-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-figure">
               <Eye size={14} strokeWidth={2.2} />
               {/* The demo is one frozen moment: its "Now" and "Today" are that moment, whatever the visitor's clock says. */}
-              Demo · invented data as of {clock} · read-only
+              Demo · invented data as of {clock} · <span className="whitespace-nowrap">read-only</span>
             </div>
           ) : (
             <StatusPill status={doneStatus(params, clock)} />

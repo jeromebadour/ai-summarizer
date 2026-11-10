@@ -1,4 +1,4 @@
-import { CalendarDays, FileText, Scale, ShieldCheck } from "lucide-react";
+import { CalendarDays, FileText, Scale, ShieldCheck } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { DocShell, type DocPage } from "@/components/DocShell";
 import { OnThisPage } from "@/components/OnThisPage";

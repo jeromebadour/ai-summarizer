@@ -1,4 +1,4 @@
-import { CircleCheck, LoaderCircle, TriangleExclamationPoint } from "lucide-react";
+import { CircleCheck, LoaderCircle, TriangleExclamationPoint } from "@/components/glyphs";
 import type { UsernameCheck } from "@/lib/username";
 
 export function UsernameStatus({ check }: { check: UsernameCheck }) {

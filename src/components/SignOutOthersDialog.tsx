@@ -1,4 +1,4 @@
-import { LogOut, X } from "lucide-react";
+import { LogOut, X } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { signOutOthers } from "@/app/actions/account";
 import { Dialog, keepButton } from "@/components/Dialog";

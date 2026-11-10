@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Hourglass, LoaderCircle, OctagonPause } from "lucide-react";
+import { FlaskConical, Hourglass, LoaderCircle, OctagonPause } from "@/components/glyphs";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LengthPicker } from "@/components/LengthPicker";

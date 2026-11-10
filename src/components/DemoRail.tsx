@@ -1,5 +1,5 @@
 import { BrandMark } from "@/components/BrandMark";
-import { ArrowLeft, LogIn, ShieldUser } from "lucide-react";
+import { ArrowLeft, LogIn, ShieldUser } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { ThemeToggle } from "@/components/ThemeToggle";
 

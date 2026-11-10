@@ -18,8 +18,8 @@ import {
   UserRound,
   UserRoundPlus,
   UsersRound,
-  type LucideIcon,
-} from "lucide-react";
+  type GlyphIcon,
+} from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { Fact, healthLook } from "@/components/AdminFacts";
 import { activityLook } from "@/components/ActivityLook";
@@ -48,7 +48,7 @@ function Attention({ items, base, serverReady }: { items: AttentionItem[]; base:
   );
 }
 
-function Chart({ icon: Icon, tone, title, total, children }: { icon: LucideIcon; tone: string; title: string; total: string; children: React.ReactNode }) {
+function Chart({ icon: Icon, tone, title, total, children }: { icon: GlyphIcon; tone: string; title: string; total: string; children: React.ReactNode }) {
   return (
     <div className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className={`flex items-center gap-2 text-[12.5px] font-semibold ${tone}`}>
@@ -62,7 +62,7 @@ function Chart({ icon: Icon, tone, title, total, children }: { icon: LucideIcon;
 }
 
 
-function Meter({ icon: Icon, label, percent, bar }: { icon: LucideIcon; label: string; percent: number; bar: string }) {
+function Meter({ icon: Icon, label, percent, bar }: { icon: GlyphIcon; label: string; percent: number; bar: string }) {
   return (
     <div className="flex items-center gap-3">
       <Icon size={15} strokeWidth={2} className="shrink-0 text-muted" />

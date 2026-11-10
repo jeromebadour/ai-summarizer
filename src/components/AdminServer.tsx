@@ -23,14 +23,14 @@ import {
   ShieldCheck,
   Timer,
   TriangleExclamationPoint,
-  type LucideIcon,
-} from "lucide-react";
+  type GlyphIcon,
+} from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { Fact, healthLook } from "@/components/AdminFacts";
 import { Sparkline } from "@/components/Sparkline";
 import { overviewFigures, type AdminOverview } from "@/lib/admin";
 
-function Card({ icon: Icon, tone, title, aside, children }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode }) {
+function Card({ icon: Icon, tone, title, aside, children }: { icon: GlyphIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className="flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4">
       <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">
@@ -44,7 +44,7 @@ function Card({ icon: Icon, tone, title, aside, children }: { icon: LucideIcon; 
 }
 
 /** The line is scaled to its own 48-hour range so its shape reads; the range is printed so the scale stays honest. */
-function Metric({ icon: Icon, label, value, note, values, span, unit = "%", digits = 0, tone }: { icon: LucideIcon; label: string; value: string; note: string; values: number[]; span: string; unit?: string; digits?: number; tone: string }) {
+function Metric({ icon: Icon, label, value, note, values, span, unit = "%", digits = 0, tone }: { icon: GlyphIcon; label: string; value: string; note: string; values: number[]; span: string; unit?: string; digits?: number; tone: string }) {
   // A line needs two hours of readings; before that the card shows the reading alone.
   const line = values.length >= 2;
   const low = line ? Math.min(...values) : 0;

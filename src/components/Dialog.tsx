@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
 import type { ReactNode } from "react";
 
 type Tone = "brand" | "clear" | "figure" | "verify";
@@ -13,7 +13,7 @@ const tones: Record<Tone, { border: string; line: string; badge: string }> = {
 
 type DialogProps = {
   tone: Tone;
-  icon: LucideIcon;
+  icon: GlyphIcon;
   title: string;
   detail: string;
   children?: ReactNode;

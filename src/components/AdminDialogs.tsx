@@ -28,8 +28,8 @@ import {
   UserRoundMinus,
   UserRoundPlus,
   X,
-  type LucideIcon,
-} from "lucide-react";
+  type GlyphIcon,
+} from "@/components/glyphs";
 import { useRef, useState, type ReactNode } from "react";
 import { Field } from "@/components/Field";
 import { StaffForm, type StaffProps } from "@/components/StaffForm";
@@ -38,7 +38,7 @@ import { formatUsd, type Person, type SessionRow } from "@/lib/admin";
 import { can, permissionInfo, permissions, roleLabel, type Role } from "@/lib/permissions";
 
 /** The person the action is about, with the facts that matter for this action. */
-function Target({ person, facts }: { person: Person; facts: { icon: LucideIcon; tone: string; text: ReactNode }[] }) {
+function Target({ person, facts }: { person: Person; facts: { icon: GlyphIcon; tone: string; text: ReactNode }[] }) {
   return (
     <div className="rounded-xl border border-border bg-paper">
       <div className="border-b border-border px-3.5 py-3">
@@ -60,7 +60,7 @@ const rose = "bg-clear-strong text-white";
 const gold = "bg-figure text-bg";
 const indigo = "bg-brand text-on-brand";
 const teal = "bg-verify text-bg";
-const deviceIcon: Record<SessionRow["kind"], LucideIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
+const deviceIcon: Record<SessionRow["kind"], GlyphIcon> = { desktop: Monitor, laptop: Laptop, phone: Smartphone };
 
 export function SuspendDialog({ person, devices, summaries, staff }: { person: Person; devices: number; summaries: number; staff: StaffProps }) {
   return (
@@ -429,7 +429,7 @@ const pauseInfo = {
 
 /** What a pause does, line by line: who is affected now, what stops, what keeps working. */
 export type PauseFact = { kind: "people" | "stop" | "keep"; text: string };
-const factLook: Record<PauseFact["kind"], { icon: LucideIcon; tone: string }> = {
+const factLook: Record<PauseFact["kind"], { icon: GlyphIcon; tone: string }> = {
   people: { icon: UserRound, tone: "text-input" },
   stop: { icon: Ban, tone: "text-clear" },
   keep: { icon: Check, tone: "text-verify" },

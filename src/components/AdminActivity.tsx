@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { ActivityChip, activityLook } from "@/components/ActivityLook";
 import { AdminSearch } from "@/components/AdminSearch";

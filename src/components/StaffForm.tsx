@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, MessageSquareText, X, type LucideIcon } from "lucide-react";
+import { Eye, MessageSquareText, X, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { useActionState, useState, type ReactNode } from "react";
 import { Dialog, keepButton } from "@/components/Dialog";
@@ -26,10 +26,10 @@ type StaffFormProps = {
   staff: StaffProps;
   kind: string;
   tone: "brand" | "clear" | "figure" | "verify";
-  icon: LucideIcon;
+  icon: GlyphIcon;
   title: string;
   detail: string;
-  confirm: { icon: LucideIcon; label: string; pending: string; className: string };
+  confirm: { icon: GlyphIcon; label: string; pending: string; className: string };
   /** Sent with the form: who it is about, a role, the caps. */
   fields?: Record<string, string>;
   /** A sample reason, shown only in the demo so its pictures read as real use. */

@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
 import type { ServerHealth } from "@/lib/admin";
 
 /** Plain words for the box's state, each with its own colour. Amber only when it is really under strain. */
@@ -9,7 +9,7 @@ export const healthLook: Record<ServerHealth, { label: string; tone: string; bar
 };
 
 /** One labelled fact on a line: glyph, label, value on the right. `alert` turns the whole line amber. */
-export function Fact({ icon: Icon, tone, label, value, alert = false }: { icon: LucideIcon; tone: string; label: string; value: string; alert?: boolean }) {
+export function Fact({ icon: Icon, tone, label, value, alert = false }: { icon: GlyphIcon; tone: string; label: string; value: string; alert?: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <Icon size={15} strokeWidth={2} className={`shrink-0 ${alert ? "text-flag" : tone}`} />

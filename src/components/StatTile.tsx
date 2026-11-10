@@ -1,8 +1,8 @@
-import type { LucideIcon } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
 import type { ReactNode } from "react";
 
 /** One number with its glyph, label and a short note. Used on the profile and the admin console. */
-export function StatTile({ icon: Icon, tone, label, value, note }: { icon: LucideIcon; tone: string; label: string; value: string; note?: ReactNode }) {
+export function StatTile({ icon: Icon, tone, label, value, note }: { icon: GlyphIcon; tone: string; label: string; value: string; note?: ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-panel px-4 py-3.5">
       <div className={`flex items-center gap-2 text-[12.5px] font-semibold ${tone}`}>

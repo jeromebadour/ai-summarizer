@@ -1,4 +1,4 @@
-import { ChartColumn, KeyRound, SlidersHorizontal, UserRound } from "lucide-react";
+import { ChartColumn, KeyRound, SlidersHorizontal, UserRound } from "@/components/glyphs";
 import { Suspense } from "react";
 import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { DeleteAccountDialog } from "@/components/DeleteAccountDialog";

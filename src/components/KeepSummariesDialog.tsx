@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, AtSign, FileText, IdCard, LockKeyhole, Mail, UserRoundPlus, X } from "lucide-react";
+import { ArrowRight, AtSign, FileText, IdCard, LockKeyhole, Mail, UserRoundPlus, X } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { useActionState, useState } from "react";
 import { upgradeGuest } from "@/app/actions/account";

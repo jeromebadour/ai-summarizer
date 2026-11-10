@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronUp, ClipboardPaste, Eraser, FileText, Sparkle } from "lucide-react";
+import { ChevronUp, ClipboardPaste, Eraser, FileText, Sparkle } from "@/components/glyphs";
 import { ScrollArea } from "@/components/ScrollArea";
 import { pointForSentence, type Focus, type SourceSentence, type SummaryPoint } from "@/lib/summary";
 
@@ -31,7 +31,7 @@ export function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<So
 
   return (
     <div className="px-5 pb-3">
-      <div className="flex h-2 gap-[3px]" role="img" aria-label={`Summary covers ${used} of ${sentences.length} sentences`}>
+      <div className="flex h-2.5 gap-1" role="img" aria-label={`Summary covers ${used} of ${sentences.length} sentences`}>
         {sentences.map((sentence) => {
           const isUsed = pointForSentence(points, sentence.id) !== undefined;
           const lit = litSentenceIds.includes(sentence.id);
@@ -41,7 +41,7 @@ export function Coverage({ sentences, points, litSentenceIds, onFocus }: Pick<So
               type="button"
               aria-label={`Sentence ${sentence.id}${isUsed ? "" : ", skipped"}`}
               onMouseEnter={() => onFocus?.({ kind: "sentence", id: sentence.id })}
-              className={`h-full rounded-sm transition-colors ${lit ? "bg-brand-strong" : isUsed ? "bg-brand" : "hatch"}`}
+              className={`h-full rounded-full shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] transition-colors ${lit ? "bg-brand-strong" : isUsed ? "bg-brand" : "hatch"}`}
               style={{ flexGrow: sentence.text.length }}
             />
           );

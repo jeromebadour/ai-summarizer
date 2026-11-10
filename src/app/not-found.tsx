@@ -1,4 +1,4 @@
-import { FlaskConical, Library, SearchX } from "lucide-react";
+import { FlaskConical, Library, SearchX } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { ErrorScreen } from "@/components/ErrorScreen";
 

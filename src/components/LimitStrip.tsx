@@ -1,4 +1,4 @@
-import { Hourglass, Library } from "lucide-react";
+import { Hourglass, Library } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 
 type LimitStripProps = {

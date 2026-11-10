@@ -1,4 +1,4 @@
-import { Library } from "lucide-react";
+import { Library } from "@/components/glyphs";
 import { Suspense } from "react";
 import { EmptyLibrary } from "@/components/EmptyLibrary";
 import { LoadingScreen } from "@/components/LoadingScreen";

@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowUpRight, Check, ClipboardCheck, ClipboardCopy, Coins, Columns2, Cpu, FlaskConical, Link2, LoaderCircle, MousePointer2, RotateCcw, Rows3, ServerCrash, ShieldCheck, Sparkles, Timer, Trash2, TriangleExclamationPoint, Waypoints } from "lucide-react";
+import { ArrowUpRight, Check, ClipboardCheck, ClipboardCopy, Coins, Columns2, Cpu, FlaskConical, Link2, LoaderCircle, MousePointer2, RotateCcw, Rows3, ServerCrash, ShieldCheck, Sparkles, Timer, Trash2, TriangleExclamationPoint, Waypoints } from "@/components/glyphs";
 import { ScrollArea } from "@/components/ScrollArea";
 import { DistillProgress } from "@/components/DistillProgress";
+import { Drop, Reduction } from "@/components/still";
 import { lengthStyles } from "@/components/LengthPicker";
 import { checkFigures } from "@/lib/figures";
 import {
@@ -102,13 +103,7 @@ function PointRow({
         active ? "border-brand-line bg-brand-soft" : "border-transparent hover:bg-panel-raised"
       }`}
     >
-      <span
-        className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-md font-mono text-[11.5px] font-bold ${
-          active ? "bg-brand text-on-brand" : "border border-border-strong bg-panel-raised text-muted"
-        }`}
-      >
-        {point.id}
-      </span>
+      <Drop n={point.id} active={active} />
       <div className="min-w-0 flex-1">
         <p className={`text-[15px] leading-[1.6] text-text ${streaming ? "caret" : ""}`}>{point.text}</p>
         {sentences && <CheckBadge point={point} sentences={sentences} />}
@@ -142,19 +137,19 @@ function FigureChip({ figure, sentences, active, onFocus }: { figure: KeyFigure;
     <li
       data-figure={figure.id}
       onMouseEnter={() => onFocus?.({ kind: "figure", id: figure.id })}
-      className={`flex min-w-0 flex-col rounded-lg border px-3 py-1.5 transition-colors ${
+      className={`ampoule relative flex min-w-0 flex-col overflow-hidden rounded-2xl border py-1.5 pr-3 pl-[18px] transition-colors ${
         flagged
           ? "border-flag/40 bg-flag-soft"
           : active
-            ? "border-figure/60 bg-figure-soft"
-            : "border-border bg-panel-raised/50 hover:border-figure/40"
+            ? "border-brand-line bg-panel-raised"
+            : "border-[var(--meniscus)]/50 bg-panel-raised hover:border-brand-line"
       }`}
     >
-      <span className={`flex items-center gap-1.5 font-mono font-semibold tracking-tight ${figure.value.length > 12 ? "text-[13px]" : "text-[15px]"} ${flagged ? "text-flag" : "text-figure"}`}>
+      <span className={`flex items-center gap-1.5 relative z-10 font-bold tracking-tight ${figure.value.length > 12 ? "text-[14px]" : "text-[17px]"} ${flagged ? "text-flag" : "text-text"}`}>
         {figure.value}
         {flagged ? <TriangleExclamationPoint size={13} strokeWidth={2.2} /> : <ShieldCheck size={13} strokeWidth={2.2} className="text-verify" />}
       </span>
-      <span className="truncate text-[11.5px] font-medium text-muted">{figure.label}</span>
+      <span className="relative z-10 truncate text-[11.5px] font-medium text-muted">{figure.label}</span>
     </li>
   );
 }
@@ -197,8 +192,7 @@ function Compression({ wordsIn, wordsOut }: { wordsIn: number; wordsOut: number 
   return (
     <div className="flex items-center gap-4 rounded-lg border border-border bg-panel-raised/60 px-3.5 py-2">
       <div className="flex-1">
-        <div className="h-1.5 rounded-full bg-border-strong" />
-        <div className="mt-1.5 h-1.5 rounded-full bg-brand" style={{ width: `${ratio * 100}%` }} />
+        <Reduction ratio={ratio} thick />
       </div>
       <div className="text-right font-mono text-[11.5px] leading-snug text-muted">
         <div>

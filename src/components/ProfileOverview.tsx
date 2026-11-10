@@ -11,7 +11,7 @@ import {
   UserPen,
   UserRound,
   UserRoundPlus,
-} from "lucide-react";
+} from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { Avatar } from "@/components/Avatar";
 import { DayBars } from "@/components/DayBars";

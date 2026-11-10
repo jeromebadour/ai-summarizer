@@ -1,6 +1,6 @@
 "use client";
 
-import { Ellipsis, FlaskConical, Info, Library, ShieldUser, UserRound, X, type LucideIcon } from "lucide-react";
+import { Ellipsis, FlaskConical, Info, Library, ShieldUser, UserRound, X, type GlyphIcon } from "@/components/glyphs";
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "@/components/NavLink";
 import { Avatar } from "@/components/Avatar";
@@ -15,7 +15,7 @@ const item =
 const idle = "text-muted has-[[data-pending]]:bg-brand-soft has-[[data-pending]]:text-brand-strong";
 const on = "bg-brand-soft text-brand-strong group-has-[[data-pending]]/bar:bg-transparent group-has-[[data-pending]]/bar:text-muted";
 
-function BarLink({ href, icon: Icon, label, active, children, tour }: { href: string; icon?: LucideIcon; label: string; active: boolean; children?: ReactNode; tour?: string }) {
+function BarLink({ href, icon: Icon, label, active, children, tour }: { href: string; icon?: GlyphIcon; label: string; active: boolean; children?: ReactNode; tour?: string }) {
   return (
     <Link href={href} data-tour={tour} aria-current={active ? "page" : undefined} className={`${item} ${active ? on : idle}`}>
       {children ?? (Icon && <Icon size={21} strokeWidth={1.8} />)}

@@ -1,10 +1,10 @@
 "use client";
 
-import { CircleCheck, KeyRound, LogOut, MailCheck, MonitorX, UserCheck, UserX, X, type LucideIcon } from "lucide-react";
+import { CircleCheck, KeyRound, LogOut, MailCheck, MonitorX, UserCheck, UserX, X, type GlyphIcon } from "@/components/glyphs";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type NoticeLook = { icon: LucideIcon; tone: "brand" | "verify"; title: string; detail?: string; stays?: boolean };
+type NoticeLook = { icon: GlyphIcon; tone: "brand" | "verify"; title: string; detail?: string; stays?: boolean };
 
 /**
  * What a finished step says once its redirect lands (`?done=<key>`). The one way an outcome after a redirect is told:

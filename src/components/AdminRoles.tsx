@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Check, Crown, KeyRound, Minus, ScrollText, ShieldCheck, UserRoundMinus, UserRoundPlus, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { PersonLine, RoleBadge, roleTone } from "@/components/PersonLine";
 import { RowNumber } from "@/components/RowNumber";
@@ -8,7 +8,7 @@ import { can, permissionInfo, permissions, roleLabel, type Permission, type Role
 const staffRoles: Role[] = ["owner", "admin", "moderator"];
 const groups = ["See", "Act on users", "Brakes", "Owner only"] as const;
 
-function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { icon: LucideIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode; grow?: boolean }) {
+function Panel({ icon: Icon, tone, title, aside, children, grow = false }: { icon: GlyphIcon; tone: string; title: string; aside?: React.ReactNode; children: React.ReactNode; grow?: boolean }) {
   return (
     <section className={`flex min-h-0 flex-col rounded-2xl border border-border bg-panel p-4 ${grow ? "flex-1" : ""}`}>
       <div className="flex items-center gap-2 max-md:flex-wrap text-[12.5px] font-semibold text-text">

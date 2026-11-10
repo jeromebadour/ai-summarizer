@@ -1,5 +1,5 @@
-import type { LucideIcon } from "lucide-react";
-import { ArrowLeft } from "lucide-react";
+import type { GlyphIcon } from "@/components/glyphs";
+import { ArrowLeft } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 
 /** Each step's colour carries its meaning: blue for something arriving, indigo for a calm or chosen state. */
@@ -22,7 +22,7 @@ export function AuthStep({
   footer,
   children,
 }: {
-  icon: LucideIcon;
+  icon: GlyphIcon;
   tone: keyof typeof tones;
   title: string;
   lead: React.ReactNode;

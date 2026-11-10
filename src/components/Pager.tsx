@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { pageWindow, type Page } from "@/lib/paging";
 

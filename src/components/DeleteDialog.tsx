@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, X } from "lucide-react";
+import { Trash2, X } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import { useActionState } from "react";
 import { deleteSummary } from "@/app/actions/library";

@@ -2,37 +2,41 @@
 
 :root,
 :root[data-theme="dark"] {
+  /* Distill's world (BUILD-RULES 2.27, direction B "Still", Kami 2026-11-09): dark cobalt glass, copper line, drops. */
   color-scheme: dark;
-  --bg: #0d0f12;
-  --glow: rgba(92, 111, 168, 0.08);
-  --panel: #14171c;
-  --panel-raised: #1a1e24;
-  --border: #252a32;
-  --border-strong: #343b46;
-  --text: #e6e8eb;
-  --muted: #9198a2;
-  /* Faint is still text people read (labels, dates, axis notes): kept at 4:1 or more on every surface. */
-  --faint: #737b86;
+  --bg: #0a0f15;
+  --glow: rgba(88, 124, 222, 0.12);
+  --panel: #0f1620;
+  --panel-raised: #151e2a;
+  --border: #1f2a38;
+  --border-strong: #2d3a4b;
+  --text: #e3eaf1;
+  --muted: #98a7b6;
+  /* Faint is still text people read (labels, dates, axis notes): 4.8:1 on the raised panel. */
+  --faint: #7d8c9b;
 
-  --brand: #4f629c;
-  --brand-strong: #9aa8d2;
-  --brand-soft: rgba(79, 98, 156, 0.18);
-  --brand-line: rgba(122, 140, 196, 0.42);
-  --brand-mark: rgba(79, 98, 156, 0.32);
-  --on-brand: #f1f3f9;
+  /* The main action: cobalt glass. */
+  --brand: #4d70d4;
+  --brand-strong: #a3baf3;
+  --brand-soft: rgba(77, 112, 212, 0.16);
+  --brand-line: rgba(122, 152, 232, 0.42);
+  --brand-mark: rgba(77, 112, 212, 0.3);
+  --on-brand: #f3f6ff;
 
-  --input: #8fb0cc;
-  --input-soft: rgba(143, 176, 204, 0.12);
-  --clear: #c48791;
-  --clear-soft: rgba(196, 135, 145, 0.12);
-  --clear-strong: #8f4a57;
-  --verify: #74b4ab;
-  --verify-soft: rgba(116, 180, 171, 0.12);
-  --flag: #db9458;
-  --flag-soft: rgba(219, 148, 88, 0.14);
-  --figure: #c9b98f;
-  --figure-soft: rgba(201, 185, 143, 0.1);
-  --paper: #0b0d10;
+  /* Input and arrivals: water. Remove or stop: oxide. Checked or restored: verdigris. Real problems only: amber. */
+  --input: #83c4d5;
+  --input-soft: rgba(131, 196, 213, 0.11);
+  --clear: #d6837b;
+  --clear-soft: rgba(214, 131, 123, 0.11);
+  --clear-strong: #9a4a43;
+  --verify: #7dbca5;
+  --verify-soft: rgba(125, 188, 165, 0.11);
+  --flag: #e8a94a;
+  --flag-soft: rgba(232, 169, 74, 0.13);
+  /* Owner-only and money: violet glass. */
+  --figure: #b3a1e6;
+  --figure-soft: rgba(179, 161, 230, 0.1);
+  --paper: #0c121a;
 
   --short: #d2a867;
   --short-soft: rgba(210, 168, 103, 0.13);
@@ -41,58 +45,69 @@
   --bullets: #c29ac6;
   --bullets-soft: rgba(194, 154, 198, 0.13);
 
+  /* The still's metal: drawn lines and threads only, never a meaning. */
+  --copper: #c58a62;
+  --liquid: rgba(77, 112, 212, 0.2);
+  --meniscus: rgba(150, 180, 245, 0.5);
+  --glass-lip: rgba(200, 220, 255, 0.07);
+
   --overlay: rgba(0, 0, 0, 0.55);
-  --tour-dim: rgba(4, 6, 9, 0.66);
+  --tour-dim: rgba(4, 7, 12, 0.66);
   --shadow-dialog: 0 30px 90px -20px rgba(0, 0, 0, 0.8);
   --shadow-paper: inset 0 1px 12px rgba(0, 0, 0, 0.45);
 }
 
-/* Light: the same meanings, re-weighted so every hue stays readable on white. */
+/* Light: the same world in daylight. Cool glass, never a bright white page; every hue re-weighted to read on it
+   (measured: text 14:1, muted 6.5:1, faint 4.4:1, every tone 4.6:1 or more on the page, panels and paper). */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f4f4f1;
-  --glow: rgba(79, 98, 156, 0.07);
-  --panel: #ffffff;
-  --panel-raised: #f5f5f2;
-  --border: #e2e2dc;
-  --border-strong: #cdcec6;
-  --text: #1b1f25;
-  --muted: #50565f;
-  /* Faint is still text people read (labels, dates, axis notes): kept at 3.7:1 or more, 4:1 on white. */
-  --faint: #767c85;
+  --bg: #e9eef4;
+  --glow: rgba(58, 92, 194, 0.08);
+  --panel: #f6f8fb;
+  --panel-raised: #edf1f6;
+  --border: #d6dde7;
+  --border-strong: #bdc7d4;
+  --text: #17202c;
+  --muted: #4a5566;
+  --faint: #636e7e;
 
-  --brand: #4f629c;
-  --brand-strong: #3d4d84;
-  --brand-soft: rgba(79, 98, 156, 0.1);
-  --brand-line: rgba(79, 98, 156, 0.35);
-  --brand-mark: rgba(79, 98, 156, 0.15);
+  --brand: #3a5cc2;
+  --brand-strong: #2c4597;
+  --brand-soft: rgba(58, 92, 194, 0.1);
+  --brand-line: rgba(58, 92, 194, 0.36);
+  --brand-mark: rgba(58, 92, 194, 0.16);
   --on-brand: #ffffff;
 
-  --input: #3b6a92;
-  --input-soft: rgba(59, 106, 146, 0.09);
-  --clear: #a24f5d;
-  --clear-soft: rgba(162, 79, 93, 0.08);
-  --clear-strong: #8f4a57;
-  --verify: #2f7d72;
-  --verify-soft: rgba(47, 125, 114, 0.09);
-  --flag: #b0601f;
-  --flag-soft: rgba(176, 96, 31, 0.1);
-  --figure: #7b6630;
-  --figure-soft: rgba(123, 102, 48, 0.08);
-  /* The source panel: off-white, not grey, so long text stays crisp. */
-  --paper: #f6f6f2;
+  --input: #25677a;
+  --input-soft: rgba(37, 103, 122, 0.09);
+  --clear: #a3443c;
+  --clear-soft: rgba(163, 68, 60, 0.08);
+  --clear-strong: #8a3a33;
+  --verify: #24715a;
+  --verify-soft: rgba(36, 113, 90, 0.09);
+  --flag: #9c5a0c;
+  --flag-soft: rgba(156, 90, 12, 0.1);
+  --figure: #6550a8;
+  --figure-soft: rgba(101, 80, 168, 0.08);
+  /* The source panel: the palest glass, so long text stays crisp. */
+  --paper: #f8fafc;
 
-  --short: #94661f;
-  --short-soft: rgba(148, 102, 31, 0.1);
-  --medium: #457548;
-  --medium-soft: rgba(69, 117, 72, 0.1);
-  --bullets: #77507b;
-  --bullets-soft: rgba(119, 80, 123, 0.1);
+  --short: #8a5e1b;
+  --short-soft: rgba(138, 94, 27, 0.1);
+  --medium: #3f6c42;
+  --medium-soft: rgba(63, 108, 66, 0.1);
+  --bullets: #72497a;
+  --bullets-soft: rgba(114, 73, 122, 0.1);
 
-  --overlay: rgba(27, 31, 37, 0.32);
-  --tour-dim: rgba(27, 31, 37, 0.5);
-  --shadow-dialog: 0 30px 80px -24px rgba(27, 31, 37, 0.35);
-  --shadow-paper: inset 0 1px 6px rgba(27, 31, 37, 0.06);
+  --copper: #a8693f;
+  --liquid: rgba(58, 92, 194, 0.12);
+  --meniscus: rgba(58, 92, 194, 0.42);
+  --glass-lip: rgba(255, 255, 255, 0.85);
+
+  --overlay: rgba(23, 32, 44, 0.32);
+  --tour-dim: rgba(23, 32, 44, 0.5);
+  --shadow-dialog: 0 30px 80px -24px rgba(23, 32, 44, 0.35);
+  --shadow-paper: inset 0 1px 6px rgba(23, 32, 44, 0.06);
 }
 
 @theme inline {
@@ -129,8 +144,8 @@
   --color-bullets: var(--bullets);
   --color-bullets-soft: var(--bullets-soft);
 
-  --font-sans: "Inter Variable", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-sans: "Schibsted Grotesk Variable", system-ui, sans-serif;
+  --font-mono: "Fragment Mono", ui-monospace, monospace;
 }
 
 body {
@@ -138,6 +153,16 @@ body {
   background: radial-gradient(1200px 600px at 70% -10%, var(--glow), transparent 70%) no-repeat, var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+}
+
+/* The type's voice: Schibsted Grotesk's heavy cuts set tight for titles, so headings carry weight against calm text. */
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 /* The empty library's faded rows: in light they need firmer lines to be seen at all. */
@@ -270,4 +295,113 @@ body:has([data-pending]) main > :not(:first-child) {
 @keyframes open-right {
   from { opacity: 0; transform: translateX(6%) translateY(10px); }
   to { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Distill's world, "Still" (BUILD-RULES 2.27): glass, liquid, copper. Shapes only; every colour comes from a token. */
+
+/* Glass: a vessel carries a lip of light on top and a cold edge at its foot. */
+.glass {
+  box-shadow: inset 0 1px 0 var(--glass-lip), inset 0 -24px 40px -30px var(--liquid), 0 30px 80px -40px rgba(0, 0, 0, 0.6);
+}
+
+/* The composer is a vessel: its foot holds a band of liquid under a meniscus. */
+.vessel-foot {
+  background: linear-gradient(to bottom, var(--liquid), transparent 140%);
+}
+
+/* A key figure is an ampoule: the reading floats on its liquid, with a streak of light down the glass. */
+.ampoule::before {
+  content: "";
+  position: absolute;
+  inset: 58% 0 0 0;
+  background: var(--liquid);
+  border-top: 1px solid var(--meniscus);
+}
+.ampoule::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, var(--glass-lip), transparent);
+  opacity: 0.9;
+}
+
+/* A run's stages are flasks on a copper line. */
+.flask {
+  border-radius: 14px 14px 18px 18px / 10px 10px 22px 22px;
+}
+.flask[data-flask="full"] {
+  background: linear-gradient(to top, #3d5fc4 0 78%, #5577d8 78% 80%, var(--panel) 80%);
+}
+@property --level {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 30%;
+}
+.flask[data-flask="filling"] {
+  background: linear-gradient(to top, rgba(77, 112, 212, 0.55) 0, rgba(77, 112, 212, 0.55) var(--level), transparent var(--level)), var(--panel-raised);
+  animation: flask-fill 2.4s ease-in-out infinite alternate;
+}
+@keyframes flask-fill {
+  from { --level: 22%; }
+  to { --level: 62%; }
+}
+.copper-flow {
+  background: repeating-linear-gradient(90deg, var(--copper) 0 10px, color-mix(in srgb, var(--copper) 45%, transparent) 10px 16px);
+  background-size: 32px 2px;
+  animation: copper-flow 0.9s linear infinite;
+}
+@keyframes copper-flow {
+  to { background-position: 32px 0; }
+}
+
+/* The still at work in the corner. */
+@keyframes still-drop {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 1; }
+  70% { transform: translateY(46px); opacity: 1; }
+  80%, 100% { transform: translateY(50px); opacity: 0; }
+}
+.still-drop { animation: still-drop 2.4s ease-in infinite; }
+@keyframes still-flame {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.18); }
+}
+.still-flame { transform-origin: 160px 482px; animation: still-flame 1.6s ease-in-out infinite; }
+@keyframes still-vapour {
+  0% { opacity: 0; transform: translate(0, 0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(34px, 14px); }
+}
+.still-vapour { animation: still-vapour 3s linear infinite; }
+.still-v2 { animation-delay: 1s; }
+.still-v3 { animation-delay: 2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .flask[data-flask="filling"], .copper-flow, .still-drop, .still-flame, .still-vapour { animation: none; }
+}
+:root[data-motion="reduced"] :is(.flask[data-flask="filling"], .copper-flow, .still-drop, .still-flame, .still-vapour) {
+  animation: none;
+}
+
+/* Tubes: every measure of "how much" is liquid in glass. */
+.tube {
+  border-radius: 999px;
+  background: var(--panel-raised);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  overflow: hidden;
+}
+.tube-liquid {
+  border-radius: 999px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--brand) 70%, white), var(--brand));
+}
+.tube-source {
+  background: var(--border-strong);
+}
+.tube-bar {
+  box-shadow: inset 3px 0 0 -1px var(--glass-lip), inset 0 2px 0 rgba(255, 255, 255, 0.18);
 }

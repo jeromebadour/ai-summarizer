@@ -1,4 +1,4 @@
-import { Binary, Calculator, ChartColumn, Coins, FlaskConical, Gauge, OctagonPause, Pause, Pencil, Play, UserRound, UsersRound, type LucideIcon } from "lucide-react";
+import { Binary, Calculator, ChartColumn, Coins, FlaskConical, Gauge, OctagonPause, Pause, Pencil, Play, UserRound, UsersRound, type GlyphIcon } from "@/components/glyphs";
 import Link from "@/components/NavLink";
 import type { SpendRow } from "@/lib/admin-source";
 import { DayBars } from "@/components/DayBars";
@@ -212,7 +212,7 @@ function Brake({
   resumeHref,
   pauseLabel,
 }: {
-  icon: LucideIcon;
+  icon: GlyphIcon;
   tone: string;
   title: string;
   facts: string;

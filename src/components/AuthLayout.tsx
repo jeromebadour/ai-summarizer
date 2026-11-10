@@ -1,6 +1,6 @@
 import Link from "@/components/NavLink";
 import { BrandMark } from "@/components/BrandMark";
-import { CodeXml, Library, Link2, ShieldCheck } from "lucide-react";
+import { CodeXml, Library, Link2, ShieldCheck } from "@/components/glyphs";
 import { AuthShowcase } from "@/components/AuthShowcase";
 import { CreditLink } from "@/components/CreditLink";
 

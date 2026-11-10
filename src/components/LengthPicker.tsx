@@ -1,7 +1,7 @@
-import { AlignLeft, List, Minus, type LucideIcon } from "lucide-react";
+import { AlignLeft, List, Minus, type GlyphIcon } from "@/components/glyphs";
 import type { SummaryLength } from "@/lib/summary";
 
-export const lengthStyles: Record<SummaryLength, { icon: LucideIcon; label: string; on: string; off: string }> = {
+export const lengthStyles: Record<SummaryLength, { icon: GlyphIcon; label: string; on: string; off: string }> = {
   short: {
     icon: Minus,
     label: "Short",

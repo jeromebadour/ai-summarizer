@@ -13,8 +13,8 @@ import {
   Sun,
   Rows3,
   Waypoints,
-  type LucideIcon,
-} from "lucide-react";
+  type GlyphIcon,
+} from "@/components/glyphs";
 import { useState, type ReactNode } from "react";
 import Link from "@/components/NavLink";
 import { savePreference, type PreferenceField } from "@/app/actions/account";
@@ -37,7 +37,7 @@ function Row({
   detail,
   children,
 }: {
-  icon: LucideIcon;
+  icon: GlyphIcon;
   tone: string;
   title: string;
   detail: string;
@@ -67,7 +67,7 @@ function Segmented<T extends string>({
   onChange,
 }: {
   value: T;
-  options: { key: T; label: string; icon: LucideIcon }[];
+  options: { key: T; label: string; icon: GlyphIcon }[];
   onChange: (key: T) => void;
 }) {
   return (
