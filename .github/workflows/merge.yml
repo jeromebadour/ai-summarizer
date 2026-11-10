@@ -7,9 +7,11 @@ name: Merge
 on:
   push:
     branches: ["work/**"]
+  # Only CI runs on work/ branches: a run on main must not add this workflow's (skipped) jobs to a commit on main.
   workflow_run:
     workflows: [CI]
     types: [completed]
+    branches: ["work/**"]
 
 permissions:
   contents: read
