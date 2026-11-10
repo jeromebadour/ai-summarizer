@@ -42,7 +42,10 @@ main() {
 import json, sys
 runs = json.load(sys.stdin)["check_runs"]
 for r in runs: print("   " + r["name"] + ": " + r["status"] + " " + (r["conclusion"] or ""))
-ok = len(runs) >= 2 and all(r["status"] == "completed" and r["conclusion"] == "success" for r in runs)
+# The gate is the two CI jobs: both must have passed. Any other run on the commit may be skipped or neutral, never red.
+need = {r["name"]: r for r in runs if r["name"] in ("checks", "container")}
+ok = len(need) == 2 and all(r["status"] == "completed" and r["conclusion"] == "success" for r in need.values()) \
+  and not any(r["conclusion"] in ("failure", "cancelled", "timed_out", "action_required") for r in runs)
 print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub"
   echo "$ci" | grep -v '^PASSED$\|^NOT PASSED$'
   [ "$(echo "$ci" | tail -1)" = PASSED ] || stop "CI has not passed on $short: nothing deployed"
