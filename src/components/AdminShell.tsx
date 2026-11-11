@@ -86,7 +86,9 @@ export async function AdminShell({
             <div role="note" className="flex items-center gap-2 rounded-full border border-figure/40 bg-figure-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-figure">
               <Eye size={14} strokeWidth={2.2} />
               {/* The demo is one frozen moment: its "Now" and "Today" are that moment, whatever the visitor's clock says. */}
-              Demo · invented data as of {clock} · <span className="whitespace-nowrap">read-only</span>
+              <span>
+                Demo · invented data as of {clock} · <span className="whitespace-nowrap">read-only</span>
+              </span>
             </div>
           ) : (
             <StatusPill status={doneStatus(params, clock)} />
