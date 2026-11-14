@@ -91,7 +91,8 @@ Most summarizers give you a paragraph and ask you to trust it. Distill shows its
 - **Hosting:** Docker Compose behind Nginx with HTTPS on a hardened Ubuntu server. Nightly backups are encrypted and
   copied off the server to Cloudflare R2, and a weekly test restores the newest copy and compares every table.
 - **Deploys:** one command that refuses any commit CI hasn't passed, then builds, migrates, waits for the health check
-  and checks the public site.
+  and checks the public site. Each deploy that comes through is recorded, and the days are public at
+  [`/api/public/deploys`](https://distill.jeromebadour.com/api/public/deploys).
 
 ## How it's tested
 

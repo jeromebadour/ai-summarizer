@@ -102,8 +102,9 @@ print("PASSED" if ok else "NOT PASSED")') || stop "could not read CI from GitHub
   systemctl enable --now --quiet distill-collector.timer || stop "the collector's timer would not start"
   # Nightly backups and the weekly restore test (ops/backup.sh, ops/restore-test.sh).
   systemctl enable --now --quiet distill-backup.timer distill-restore-test.timer || stop "the backup timers would not start"
-  /usr/bin/python3 "$tools/collector.py" --facts || stop "the collector failed (journalctl -u distill-collector -n 20)"
-  echo "   reading and facts recorded; next reading $(systemctl show distill-collector.timer -p NextElapseUSecRealtime --value)"
+  # Only now is the deploy counted (migration 019): healthy, the site answering. The public feed reads these days.
+  /usr/bin/python3 "$tools/collector.py" --facts --deployed "$short" || stop "the collector failed (journalctl -u distill-collector -n 20)"
+  echo "   deploy, reading and facts recorded; next reading $(systemctl show distill-collector.timer -p NextElapseUSecRealtime --value)"
   echo "   next backup $(systemctl show distill-backup.timer -p NextElapseUSecRealtime --value)"
   echo "DEPLOYED $short: $image healthy, $site/login 200, the box reporting"
 }
