@@ -5,7 +5,8 @@ Run every minute by ops/systemd/distill-collector.timer, as root on the host (fi
 can't be read from inside a container). Each run records CPU, load, memory and disk; every 15 minutes it also records
 the host's facts (system, size, uptime, firewall, blocked addresses, pending security updates, SSH sign-in, the HTTPS
 certificate's expiry, when the app started). It signs in to the database as `distill_collector` over the database
-container's own socket; that role can only call record_server_sample() and record_server_facts() (migration 011).
+container's own socket; that role can only call record_server_sample() and record_server_facts() (migration 011) and
+record_deploy() (migration 019, when scripts/deploy.sh passes --deployed <commit>).
 Installed by scripts/deploy.sh to /opt/sites/tools/distill/. Prints nothing when all is well; errors go to the journal.
 """
 import datetime as dt
@@ -162,6 +163,13 @@ def facts_due() -> bool:
 
 
 def main() -> None:
+    # scripts/deploy.sh passes --deployed <commit> once the new version is healthy and the site answers (migration 019).
+    if "--deployed" in sys.argv:
+        i = sys.argv.index("--deployed")
+        commit = sys.argv[i + 1] if i + 1 < len(sys.argv) else ""
+        if not re.fullmatch(r"[0-9a-f]{7,40}", commit):
+            sys.exit("collector: --deployed needs a commit")
+        sql("select record_deploy(:'commit');", commit=commit)
     sample()
     if facts_due() or "--facts" in sys.argv:
         sql("select record_server_facts(:'facts'::jsonb);", facts=json.dumps(facts()))
